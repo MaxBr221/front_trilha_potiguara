@@ -4,34 +4,34 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Leaf, LogIn } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { authService } from '@/services/authService';
-import { useAuth } from '@/contexts/AuthContext';
+import { servicoAutenticacao } from '@/services/servicoAutenticacao';
+import { usarAutenticacao } from '@/contexts/ContextoAutenticacao';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login } = usarAutenticacao();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const lidarComEnvio = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
+    setErro('');
+    setCarregando(true);
 
     try {
-      const response = await authService.login(email, senha);
-      if (response.user) {
-        login(response.token, response.user);
+      const response = await servicoAutenticacao.login(email, senha);
+      if (response.usuario) {
+        login(response.token, response.usuario);
         router.push('/dashboard');
       }
     } catch (err: any) {
-      setError(err.message || 'Erro ao realizar login.');
+      setErro(err.message || 'Erro ao realizar login.');
     } finally {
-      setLoading(false);
+      setCarregando(false);
     }
   };
 
@@ -55,7 +55,7 @@ export default function LoginPage() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow-sm border border-stone-200 sm:rounded-2xl sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={lidarComEnvio}>
             <Input
               label="Endereço de E-mail"
               id="email"
@@ -63,7 +63,7 @@ export default function LoginPage() {
               type="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
               placeholder="teste@tupi.com"
             />
 
@@ -74,22 +74,22 @@ export default function LoginPage() {
               type="password"
               required
               value={senha}
-              onChange={(e) => setSenha(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSenha(e.target.value)}
               placeholder="********"
             />
 
-            {error && (
+            {erro && (
               <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-100">
-                {error}
+                {erro}
               </div>
             )}
 
             <Button
               type="submit"
-              isLoading={loading}
+              isLoading={carregando}
               className="w-full"
             >
-              {!loading && <LogIn className="w-5 h-5 mr-2" />}
+              {!carregando && <LogIn className="w-5 h-5 mr-2" />}
               Entrar
             </Button>
             

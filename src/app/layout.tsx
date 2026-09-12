@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description: "Aprenda a língua Tupi e conheça a cultura indígena de forma interativa e imersiva.",
 };
 
-import { AuthProvider } from "@/contexts/AuthContext";
+import { ProvedorAutenticacao } from "@/contexts/ContextoAutenticacao";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <AuthProvider>{children}</AuthProvider>
+        <ProvedorAutenticacao>{children}</ProvedorAutenticacao>
       </body>
     </html>
   );

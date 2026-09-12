@@ -1,0 +1,8 @@
+{
+  "/(auth)/login/page": "app/(auth)/login/page.js",
+  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
+  "/(dashboard)/trilhas/[id]/page": "app/(dashboard)/trilhas/[id]/page.js",
+  "/(dashboard)/trilhas/page": "app/(dashboard)/trilhas/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/licoes/[id]/page": "app/licoes/[id]/page.js"
+}

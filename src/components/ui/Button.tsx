@@ -5,23 +5,30 @@ import { twMerge } from 'tailwind-merge';
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   isLoading?: boolean;
   variant?: 'primary' | 'outline' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', isLoading, children, disabled, ...props }, ref) => {
+  ({ className, variant = 'primary', size = 'md', isLoading, children, disabled, ...props }, ref) => {
     const baseStyles = 'inline-flex items-center justify-center rounded-full text-sm font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-70';
-    
+
     const variants = {
       primary: 'bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary shadow-sm',
       outline: 'border border-stone-200 bg-white text-foreground hover:bg-stone-50 focus:ring-stone-200',
       ghost: 'bg-transparent text-primary hover:bg-primary/10 focus:ring-primary',
     };
 
+    const sizes = {
+      sm: 'py-2 px-3 text-xs',
+      md: 'py-3 px-4 text-sm',
+      lg: 'py-4 px-8 text-base',
+    };
+
     return (
       <button
         ref={ref}
         disabled={disabled || isLoading}
-        className={twMerge(baseStyles, variants[variant], 'py-3 px-4', className)}
+        className={twMerge(baseStyles, variants[variant], sizes[size], className)}
         {...props}
       >
         {isLoading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
@@ -31,4 +38,4 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   }
 );
 
-Button.displayName = 'Button';
+Button.displayName = 'Botao';

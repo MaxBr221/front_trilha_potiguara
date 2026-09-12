@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Leaf, UserPlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { authService } from '@/services/authService';
+import { servicoAutenticacao } from '@/services/servicoAutenticacao';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
@@ -13,25 +13,25 @@ export default function RegisterPage() {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState('');
+  const [sucesso, setSucesso] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const lidarComEnvio = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
+    setErro('');
+    setCarregando(true);
 
     try {
-      await authService.register(nome, email, senha);
-      setSuccess(true);
+      await servicoAutenticacao.register(nome, email, senha);
+      setSucesso(true);
       setTimeout(() => {
         router.push('/login');
       }, 2000);
     } catch (err: any) {
-      setError(err.message || 'Erro ao realizar cadastro.');
+      setErro(err.message || 'Erro ao realizar cadastro.');
     } finally {
-      setLoading(false);
+      setCarregando(false);
     }
   };
 
@@ -55,7 +55,7 @@ export default function RegisterPage() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow-sm border border-stone-200 sm:rounded-2xl sm:px-10">
-          {success ? (
+          {sucesso ? (
             <div className="text-center py-4">
               <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Leaf className="w-8 h-8" />
@@ -64,7 +64,7 @@ export default function RegisterPage() {
               <p className="text-stone-600">Redirecionando para o login...</p>
             </div>
           ) : (
-            <form className="space-y-6" onSubmit={handleSubmit}>
+            <form className="space-y-6" onSubmit={lidarComEnvio}>
               <Input
                 label="Nome"
                 id="nome"
@@ -72,7 +72,7 @@ export default function RegisterPage() {
                 type="text"
                 required
                 value={nome}
-                onChange={(e) => setNome(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNome(e.target.value)}
                 placeholder="Seu nome"
               />
 
@@ -83,7 +83,7 @@ export default function RegisterPage() {
                 type="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 placeholder="teste@tupi.com"
               />
 
@@ -94,22 +94,22 @@ export default function RegisterPage() {
                 type="password"
                 required
                 value={senha}
-                onChange={(e) => setSenha(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSenha(e.target.value)}
                 placeholder="********"
               />
 
-              {error && (
+              {erro && (
                 <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-100">
-                  {error}
+                  {erro}
                 </div>
               )}
 
               <Button
                 type="submit"
-                isLoading={loading}
+                isLoading={carregando}
                 className="w-full"
               >
-                {!loading && <UserPlus className="w-5 h-5 mr-2" />}
+                {!carregando && <UserPlus className="w-5 h-5 mr-2" />}
                 Criar conta
               </Button>
             </form>
