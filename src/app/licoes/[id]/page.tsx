@@ -1,46 +1,77 @@
 'use client';
 
-import { use, useState } from 'react';
+import { use, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { X, Heart, Check, Flag } from 'lucide-react';
+import { X, Heart, Check, Flag, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-
-// Mock simple exercise for MVP
-const exercicioFalso = {
-  id: 1001,
-  type: 'translate',
-  question: 'Como se diz "Olá" em Tupi?',
-  options: ['Ikatú', 'Eba', 'Kwá', 'Mba\'éichapa'], // Just a mock example
-  correctAnswer: 'Ikatú' // Note: This is an example, actual tupi for hello could be different
-};
+import { servicoExercicio, Exercicio } from '@/services/servicoExercicio';
 
 export default function LicaoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
+  
+  const [exercicios, setExercicios] = useState<Exercicio[]>([]);
+  const [indiceAtual, setIndiceAtual] = useState(0);
+  const [carregando, setCarregando] = useState(true);
+  const [validando, setValidando] = useState(false);
+
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isChecked, setIsChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [respostaCertaBackend, setRespostaCertaBackend] = useState('');
+  
   const [lives, setLives] = useState(3);
-  const [progresso, setProgress] = useState(25);
+  
+  useEffect(() => {
+    const carregarExercicios = async () => {
+      try {
+        const dados = await servicoExercicio.obterExerciciosPorLicao(id);
+        setExercicios(dados);
+      } catch (error) {
+        console.error('Erro ao buscar exercícios', error);
+      } finally {
+        setCarregando(false);
+      }
+    };
+    carregarExercicios();
+  }, [id]);
 
-  const handleCheck = () => {
-    if (!selectedAnswer) return;
+  const exercicioAtual = exercicios[indiceAtual];
+  const progresso = exercicios.length > 0 ? (indiceAtual / exercicios.length) * 100 : 0;
+
+  const handleCheck = async () => {
+    if (!selectedAnswer || !exercicioAtual) return;
+    setValidando(true);
     
-    if (selectedAnswer === exercicioFalso.correctAnswer) {
-      setIsCorrect(true);
-      setProgress(50);
-    } else {
-      setIsCorrect(false);
-      setLives(prev => Math.max(0, prev - 1));
+    try {
+      const validacao = await servicoExercicio.validarExercicio(exercicioAtual.id, selectedAnswer);
+      
+      setIsCorrect(validacao.correta);
+      setRespostaCertaBackend(validacao.respostaCorreta || '');
+      
+      if (!validacao.correta) {
+        setLives(prev => Math.max(0, prev - 1));
+      }
+      setIsChecked(true);
+    } catch (error) {
+      console.error('Erro ao validar resposta', error);
+    } finally {
+      setValidando(false);
     }
-    setIsChecked(true);
   };
 
   const handleNext = () => {
     if (isCorrect) {
-      // In a real app, go to next exercise. Here we just redirect back to the trail
-      router.push('/trilhas/1');
+      if (indiceAtual + 1 < exercicios.length) {
+        setIndiceAtual(prev => prev + 1);
+        setIsChecked(false);
+        setSelectedAnswer(null);
+        setIsCorrect(false);
+      } else {
+        // Fim da lição, volta para trilhas
+        router.push('/dashboard');
+      }
     } else {
       // Try again
       setIsChecked(false);
@@ -48,12 +79,29 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
     }
   };
 
+  if (carregando) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center bg-stone-50">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!exercicioAtual) {
+    return (
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center flex-col">
+        <h2 className="text-xl font-bold text-stone-700 mb-4">Nenhum exercício encontrado.</h2>
+        <Button onClick={() => router.push('/dashboard')}>Voltar</Button>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Top Bar (Progress & Lives) */}
       <header className="h-16 flex items-center px-4 md:px-8 max-w-4xl w-full mx-auto gap-4">
         <button 
-          onClick={() => router.push('/trilhas/1')}
+          onClick={() => router.push('/dashboard')}
           className="p-2 text-stone-400 hover:text-stone-600 transition-colors"
         >
           <X className="w-6 h-6" />
@@ -76,11 +124,11 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
       <main className="flex-1 flex flex-col items-center justify-center p-4">
         <div className="max-w-xl w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
           <h1 className="text-2xl md:text-3xl font-bold text-stone-800 mb-8">
-            {exercicioFalso.question}
+            {exercicioAtual.enunciado}
           </h1>
           
           <div className="grid gap-3">
-            {exercicioFalso.options.map((option) => {
+            {exercicioAtual.opcoes.map((option) => {
               const isSelected = selectedAnswer === option;
               let btnClass = 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50 hover:border-stone-300';
               
@@ -97,9 +145,9 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
               return (
                 <button
                   key={option}
-                  disabled={isChecked}
+                  disabled={isChecked || validando}
                   onClick={() => setSelectedAnswer(option)}
-                  className={`px-4 py-4 rounded-xl border-2 text-left font-medium transition-all ${btnClass} disabled:cursor-default`}
+                  className={`px-4 py-4 rounded-xl border-2 text-left font-medium transition-all ${btnClass} disabled:opacity-80`}
                 >
                   {option}
                 </button>
@@ -125,7 +173,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
                     {isCorrect ? 'Excelente!' : 'Resposta incorreta'}
                   </h3>
                   {!isCorrect && (
-                    <p className="text-rose-600 font-medium mt-1">Resposta correta: {exercicioFalso.correctAnswer}</p>
+                    <p className="text-rose-600 font-medium mt-1">Resposta correta: {respostaCertaBackend}</p>
                   )}
                 </div>
               </div>
@@ -134,7 +182,8 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
           
           <Button
             size="lg"
-            disabled={!selectedAnswer}
+            disabled={!selectedAnswer || validando}
+            isLoading={validando}
             onClick={isChecked ? handleNext : handleCheck}
             className={`w-full md:w-auto min-w-[150px] ${
               isChecked 

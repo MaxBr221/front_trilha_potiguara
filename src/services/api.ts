@@ -8,7 +8,11 @@ export const api = axios.create({
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem('token');
-    if (token && config.headers) {
+    
+    // Não enviar token para rotas de login/registro para evitar erros 403 / UUID inválido no back-end
+    const isAuthRoute = config.url?.includes('/auth/login') || config.url?.includes('/auth/register');
+    
+    if (token && config.headers && !isAuthRoute) {
       config.headers.Authorization = `Bearer ${token}`;
     }
   }

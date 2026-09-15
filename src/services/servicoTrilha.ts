@@ -1,23 +1,20 @@
 import { api } from './api';
-import { trilhasFalsas, Trilha } from '@/mocks/trilhas.mock';
-import { modulosFalsos, Modulo } from '@/mocks/modulos.mock';
+import { Trilha } from '@/mocks/trilhas.mock';
+import { Modulo } from '@/mocks/modulos.mock';
 
 export const servicoTrilha = {
   async obterTrilhas(): Promise<Trilha[]> {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(trilhasFalsas), 600);
-    });
+    const response = await api.get<Trilha[]>('/trilhas');
+    return response.data;
   },
 
-  async obterTrilhaPorId(id: number): Promise<Trilha | undefined> {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(trilhasFalsas.find(t => t.id === id)), 500);
-    });
+  async obterTrilhaPorId(id: string | number): Promise<Trilha | undefined> {
+    const response = await api.get<Trilha[]>('/trilhas');
+    return response.data.find((t) => String(t.id) === String(id));
   },
 
-  async obterModulosPorIdTrilha(trailId: number): Promise<Modulo[]> {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(modulosFalsos[trailId] || []), 500);
-    });
+  async obterModulosPorIdTrilha(trailId: string | number): Promise<Modulo[]> {
+    const response = await api.get<Modulo[]>(`/trilhas/${trailId}/modulos`);
+    return response.data;
   }
 };

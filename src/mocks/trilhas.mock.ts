@@ -1,5 +1,5 @@
 export interface Trilha {
-  id: number;
+  id: string | number;
   title: string;
   description: string;
   progresso: number;
@@ -12,7 +12,7 @@ export interface Trilha {
 
 export const trilhasFalsas: Trilha[] = [
   {
-    id: 1,
+    id: "1",
     title: 'Tupi Básico',
     description: 'Aprenda saudações, números e palavras do dia a dia.',
     progresso: 60,
@@ -22,7 +22,7 @@ export const trilhasFalsas: Trilha[] = [
     corBase: 'emerald'
   },
   {
-    id: 2,
+    id: "2",
     title: 'Natureza',
     description: 'Vocabulário sobre animais, plantas e elementos naturais.',
     progresso: 20,
@@ -32,7 +32,7 @@ export const trilhasFalsas: Trilha[] = [
     corBase: 'amber'
   },
   {
-    id: 3,
+    id: "3",
     title: 'Família e Sociedade',
     description: 'Termos de parentesco e organização social.',
     progresso: 0,
@@ -43,7 +43,7 @@ export const trilhasFalsas: Trilha[] = [
     estaBloqueada: true
   },
   {
-    id: 4,
+    id: "4",
     title: 'Ações e Verbos',
     description: 'Verbos essenciais e formação de frases simples.',
     progresso: 0,

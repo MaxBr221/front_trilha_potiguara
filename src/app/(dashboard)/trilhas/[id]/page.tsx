@@ -19,8 +19,8 @@ export default function TrilhaDetailsPage({ params }: { params: Promise<{ id: st
 
   useEffect(() => {
     const loadData = async () => {
-      const trailId = parseInt(id);
-      if (isNaN(trailId)) {
+      const trailId = id;
+      if (!trailId) {
         notFound();
         return;
       }
