@@ -143,7 +143,7 @@ export default function TrilhaDetailsPage({ params }: { params: Promise<{ id: st
 
                     {!mod.estaBloqueada && (
                       <div className={`mt-6 flex ${isEven ? 'md:justify-end' : 'md:justify-start'}`}>
-                        <Link href={`/licoes/${mod.lessons[0].id}`}>
+                        <Link href={`/licoes/${(mod.lessons.find(l => !l.estaConcluida) || mod.lessons[0]).id}`}>
                           <Button size="sm">
                             <Play className="w-4 h-4 mr-2" />
                             Começar

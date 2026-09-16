@@ -2,9 +2,21 @@
 
 import { usarAutenticacao } from '@/contexts/ContextoAutenticacao';
 import { Menu, Flame, Star } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { servicoDashboard, DashboardData } from '@/services/servicoDashboard';
 
 export function InternalNavbar() {
   const { usuario } = usarAutenticacao();
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
+
+  useEffect(() => {
+    if (usuario) {
+      servicoDashboard.obterDadosDashboard().then(setDashboard).catch(console.error);
+    }
+  }, [usuario]);
+  
+  const displayXp = dashboard?.xp ?? usuario?.xp ?? 0;
+  const displayOfensiva = dashboard?.diasOfensiva ?? usuario?.sequenciaAtual ?? 0;
 
   return (
     <header className="h-16 bg-white border-b border-stone-200 flex items-center justify-between px-4 sticky top-0 z-40">
@@ -24,13 +36,13 @@ export function InternalNavbar() {
         {/* Streak Indicator */}
         <div className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 text-orange-600 rounded-full font-bold text-sm">
           <Flame className="w-4 h-4 fill-orange-600" />
-          <span>{usuario?.sequenciaAtual || 0} dias</span>
+          <span>{displayOfensiva} dias</span>
         </div>
         
         {/* XP Indicator */}
         <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-600 rounded-full font-bold text-sm">
           <Star className="w-4 h-4 fill-amber-500" />
-          <span>{usuario?.xp || 0} XP</span>
+          <span>{displayXp} XP</span>
         </div>
 
         {/* User Avatar Placeholder */}

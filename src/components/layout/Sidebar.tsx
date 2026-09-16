@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Leaf, LayoutDashboard, Map, Trophy, User, LogOut } from 'lucide-react';
+import { Leaf, LayoutDashboard, Map, Trophy, User, LogOut, Book } from 'lucide-react';
 import { usarAutenticacao } from '@/contexts/ContextoAutenticacao';
 
 export function Sidebar() {
@@ -14,6 +14,7 @@ export function Sidebar() {
     { name: 'Trilhas', href: '/trilhas', icon: Map },
     { name: 'Conquistas', href: '/conquistas', icon: Trophy },
     { name: 'Perfil', href: '/perfil', icon: User },
+    { name: 'Dicionário', href: '/dicionario', icon: Book },
   ];
 
   return (

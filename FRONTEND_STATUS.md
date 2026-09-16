@@ -61,4 +61,4 @@ A prioridade atual do MVP segue os passos abaixo. Nós estamos atualizando os ch
 - [x] **Acessibilidade:** Alto contraste, navegação por teclado (`focus-visible`), rótulos ARIA (`aria-label`, `aria-live`, `aria-valuenow`), feedbacks de estado claros.
 - [x] **Gamificação:** Barras de progresso animadas, contadores dinâmicos, destaque de ganho de XP e Streak (sem excessos).
 
-*(Última atualização baseada nas diretrizes do projeto Tupi Digital - Etapas 1 a 5 concluídas)*
+*(Última atualização: Criação e refatoração das páginas de Dashboard, Conquistas, Perfil; correções de UI, acessibilidade, erros de build (template literals) e resolução do cache do git (.next))*
