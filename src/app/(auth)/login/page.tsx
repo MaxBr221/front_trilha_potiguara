@@ -92,10 +92,6 @@ export default function LoginPage() {
               {!carregando && <LogIn className="w-5 h-5 mr-2" />}
               Entrar
             </Button>
-            
-            <div className="text-center text-xs text-stone-500 mt-4">
-              <p>Dica para testes: E-mail: <b>teste@tupi.com</b> / Senha: <b>123</b></p>
-            </div>
           </form>
         </div>
       </div>

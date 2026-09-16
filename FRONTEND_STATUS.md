@@ -56,9 +56,9 @@ A prioridade atual do MVP segue os passos abaixo. Nós estamos atualizando os ch
 ---
 
 ## 🎨 5. DIRETRIZES DE DESIGN E GAMIFICAÇÃO
-- **Estética e UI:** Cores inspiradas na natureza, separação clara entre "aprendizado" e "contexto cultural".
-- **Mobile-First:** Botões grandes para toque.
-- **Acessibilidade:** Alto contraste, navegação por teclado, rótulos ARIA, feedbacks de estado claros.
-- **Gamificação:** Barras de progresso animadas, destaque de ganho de XP e Streak (sem excessos).
+- [x] **Estética e UI:** Cores inspiradas na natureza, separação clara entre "aprendizado" e "contexto cultural".
+- [x] **Mobile-First:** Botões grandes para toque.
+- [x] **Acessibilidade:** Alto contraste, navegação por teclado (`focus-visible`), rótulos ARIA (`aria-label`, `aria-live`, `aria-valuenow`), feedbacks de estado claros.
+- [x] **Gamificação:** Barras de progresso animadas, contadores dinâmicos, destaque de ganho de XP e Streak (sem excessos).
 
-*(Última atualização baseada nas diretrizes do projeto Tupi Digital)*
+*(Última atualização baseada nas diretrizes do projeto Tupi Digital - Etapas 1 a 5 concluídas)*

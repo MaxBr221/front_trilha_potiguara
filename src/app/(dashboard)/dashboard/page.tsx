@@ -1,31 +1,40 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Play, Book, CheckCircle2, Trophy, Loader2 } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { servicoTrilha } from '@/services/servicoTrilha';
+import { servicoDashboard, DashboardData } from '@/services/servicoDashboard';
 import { Trilha } from '@/mocks/trilhas.mock';
 
 export default function DashboardPage() {
   const [trilhas, setTrilhas] = useState<Trilha[]>([]);
+  const [dadosDashboard, setDadosDashboard] = useState<DashboardData | null>(null);
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
-    const fetchTrilhas = async () => {
+    const fetchDados = async () => {
       try {
-        const data = await servicoTrilha.obterTrilhas();
-        setTrilhas(data);
+        const [trailsData, dashboardData] = await Promise.all([
+          servicoTrilha.obterTrilhas(),
+          servicoDashboard.obterDadosDashboard()
+        ]);
+        setTrilhas(trailsData);
+        setDadosDashboard(dashboardData);
       } catch (error) {
-        console.error('Erro ao buscar trilhas:', error);
+        console.error('Erro ao buscar dados do dashboard:', error);
       } finally {
         setCarregando(false);
       }
     };
-    fetchTrilhas();
+    fetchDados();
   }, []);
 
-  if (carregando) {
+  if (carregando || !dadosDashboard) {
     return (
       <div className="flex justify-center py-20">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -34,10 +43,11 @@ export default function DashboardPage() {
   }
 
   const primeiraTrilha = trilhas.length > 0 ? trilhas[0] : null;
+  const conquistasDesbloqueadas = dadosDashboard.conquistas.filter(c => c.desbloqueada);
+  const ultimaConquista = conquistasDesbloqueadas.length > 0 ? conquistasDesbloqueadas[conquistasDesbloqueadas.length - 1] : null;
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* Header Section */}
       {primeiraTrilha && (
         <section className="bg-primary/5 border border-primary/20 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
@@ -68,13 +78,16 @@ export default function DashboardPage() {
       )}
 
       <div className="grid md:grid-cols-3 gap-6">
-        {/* Trilhas em andamento */}
         <div className="md:col-span-2 space-y-4">
           <h2 className="text-xl font-bold text-stone-800">Suas Trilhas</h2>
 
           <div className="grid sm:grid-cols-2 gap-4">
             {trilhas.slice(0, 2).map((trail) => (
-              <Link key={trail.id} href={trail.estaBloqueada ? '#' : `/trilhas/${trail.id}`} className="block group">
+              <Link 
+                key={trail.id} 
+                href={trail.estaBloqueada ? '#' : `/trilhas/${trail.id}`} 
+                className="block group rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              >
                 <div className={`bg-white p-5 rounded-2xl border ${trail.estaBloqueada ? 'border-stone-200 opacity-60 cursor-not-allowed' : 'border-stone-200 hover:border-primary/50 hover:shadow-md'} transition-all h-full`}>
                   <div className="flex items-start justify-between mb-4">
                     <div className={`w-12 h-12 bg-${trail.corBase}-100 text-${trail.corBase}-700 rounded-xl flex items-center justify-center`}>
@@ -99,7 +112,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Resumo e Conquistas */}
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-stone-800">Seu Progresso</h2>
 
@@ -110,7 +122,9 @@ export default function DashboardPage() {
               </div>
               <div>
                 <p className="text-sm text-stone-500">Lições concluídas</p>
-                <p className="font-bold text-lg text-stone-800">12</p>
+                <p className="font-bold text-lg text-stone-800">
+                  <AnimatedCounter value={dadosDashboard.licoesConcluidas} />
+                </p>
               </div>
             </div>
 
@@ -120,25 +134,32 @@ export default function DashboardPage() {
               </div>
               <div>
                 <p className="text-sm text-stone-500">Taxa de acerto</p>
-                <p className="font-bold text-lg text-stone-800">92%</p>
+                <p className="font-bold text-lg text-stone-800">
+                  <AnimatedCounter value={Math.round(dadosDashboard.taxaAcerto)} formatFn={(v) => `${v}%`} />
+                </p>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-stone-100">
-              <h3 className="text-sm font-bold text-stone-700 mb-3 flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-amber-500" />
-                Última conquista
-              </h3>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-2xl border border-amber-200">
-                  🔥
-                </div>
-                <div>
-                  <p className="font-bold text-sm text-stone-800">Fogo Inicial</p>
-                  <p className="text-xs text-stone-500">7 dias seguidos!</p>
+            {ultimaConquista && (
+              <div className="pt-4 border-t border-stone-100">
+                <h3 className="text-sm font-bold text-stone-700 mb-3 flex items-center gap-2">
+                  <Trophy className="w-4 h-4 text-amber-500" />
+                  Última conquista
+                </h3>
+                <div className="flex items-center gap-3">
+                  <div className={`w-12 h-12 bg-${ultimaConquista.corBase}-100 rounded-xl flex items-center justify-center text-2xl border border-${ultimaConquista.corBase}-200 shadow-sm shadow-${ultimaConquista.corBase}-200 text-${ultimaConquista.corBase}-600`} aria-hidden="true">
+                    {(() => {
+                      const Icon = (LucideIcons as any)[ultimaConquista.icone] || LucideIcons.Trophy;
+                      return <Icon className="w-6 h-6" />;
+                    })()}
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm text-stone-800">{ultimaConquista.titulo}</p>
+                    <p className="text-xs text-stone-500 line-clamp-1">{ultimaConquista.descricao}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

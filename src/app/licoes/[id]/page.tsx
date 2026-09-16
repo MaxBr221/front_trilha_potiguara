@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useState, useEffect } from 'react';
@@ -61,7 +62,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (isCorrect) {
       if (indiceAtual + 1 < exercicios.length) {
         setIndiceAtual(prev => prev + 1);
@@ -69,11 +70,11 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
         setSelectedAnswer(null);
         setIsCorrect(false);
       } else {
-        // Fim da lição, volta para trilhas
+        setValidando(true);
+        await servicoExercicio.concluirLicao(id);
         router.push('/dashboard');
       }
     } else {
-      // Try again
       setIsChecked(false);
       setSelectedAnswer(null);
     }
@@ -98,11 +99,10 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {/* Top Bar (Progress & Lives) */}
       <header className="h-16 flex items-center px-4 md:px-8 max-w-4xl w-full mx-auto gap-4">
         <button 
           onClick={() => router.push('/dashboard')}
-          className="p-2 text-stone-400 hover:text-stone-600 transition-colors"
+          className="p-2 text-stone-400 hover:text-stone-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-full"
         >
           <X className="w-6 h-6" />
         </button>
@@ -120,7 +120,6 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
         </div>
       </header>
 
-      {/* Main Content (Exercise) */}
       <main className="flex-1 flex flex-col items-center justify-center p-4">
         <div className="max-w-xl w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
           <h1 className="text-2xl md:text-3xl font-bold text-stone-800 mb-8">
@@ -130,7 +129,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
           <div className="grid gap-3">
             {exercicioAtual.opcoes.map((option) => {
               const isSelected = selectedAnswer === option;
-              let btnClass = 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50 hover:border-stone-300';
+              let btnClass = 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50 hover:border-stone-300 hover:-translate-y-0.5';
               
               if (isSelected) {
                 btnClass = 'border-primary bg-primary/5 text-primary shadow-sm';
@@ -147,7 +146,8 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
                   key={option}
                   disabled={isChecked || validando}
                   onClick={() => setSelectedAnswer(option)}
-                  className={`px-4 py-4 rounded-xl border-2 text-left font-medium transition-all ${btnClass} disabled:opacity-80`}
+                  aria-pressed={isSelected}
+                  className={`px-4 py-4 rounded-xl border-2 text-left font-medium transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${btnClass} disabled:opacity-80 disabled:cursor-not-allowed`}
                 >
                   {option}
                 </button>
@@ -157,15 +157,12 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
         </div>
       </main>
 
-      {/* Footer Area (Check/Continue Botao) */}
       <footer className={`border-t-2 ${isChecked ? (isCorrect ? 'border-emerald-200 bg-emerald-50' : 'border-rose-200 bg-rose-50') : 'border-stone-200 bg-white'}`}>
         <div className="max-w-4xl mx-auto p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          
-          {/* Feedback Message */}
-          <div className="w-full md:w-auto">
+          <div className="w-full md:w-auto" aria-live="polite">
             {isChecked && (
-              <div className="flex items-center gap-4 animate-in fade-in slide-in-from-left-4">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center ${isCorrect ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
+              <div className="flex items-center gap-4 animate-in fade-in slide-in-from-bottom-2">
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center ${isCorrect ? 'bg-emerald-100 text-emerald-600 animate-bounce' : 'bg-rose-100 text-rose-600'}`}>
                   {isCorrect ? <Check className="w-8 h-8" /> : <X className="w-8 h-8" />}
                 </div>
                 <div>

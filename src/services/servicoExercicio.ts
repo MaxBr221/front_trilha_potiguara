@@ -1,4 +1,4 @@
-import { api } from './api';
+﻿import { api } from './api';
 
 export interface Exercicio {
   id: string | number;
@@ -23,18 +23,10 @@ const mockExercicios: Exercicio[] = [
   {
     id: 'mock-1',
     enunciado: 'Como se diz "Bom dia" em Tupi?',
-    tipo: 'múltipla-escolha',
+    tipo: 'mÃºltipla-escolha',
     opcoes: ['Coema', 'Katu', 'Ita', 'Oca'],
     pontuacaoXp: 10,
     ordemIndex: 0
-  },
-  {
-    id: 'mock-2',
-    enunciado: 'O que significa a palavra "Ita"?',
-    tipo: 'múltipla-escolha',
-    opcoes: ['Água', 'Pedra', 'Fogo', 'Vento'],
-    pontuacaoXp: 10,
-    ordemIndex: 1
   }
 ];
 
@@ -43,9 +35,9 @@ export const servicoExercicio = {
     try {
       const response = await api.get<Exercicio[]>(`/licoes/${licaoId}/exercicios`);
       if (response.data && response.data.length > 0) return response.data;
-      return mockExercicios; // Fallback
+      return mockExercicios;
     } catch {
-      return mockExercicios; // Fallback
+      return mockExercicios;
     }
   },
 
@@ -54,13 +46,20 @@ export const servicoExercicio = {
       const response = await api.post<ValidacaoRespostaResponse>(`/exercicios/${exercicioId}/validar`, { respostaUsuario });
       return response.data;
     } catch {
-      // Fallback mock validation
-      const isCorreta = respostaUsuario === 'Coema' || respostaUsuario === 'Pedra';
+      const isCorreta = respostaUsuario === 'Coema';
       return {
         correta: isCorreta,
         xpGanho: isCorreta ? 10 : 0,
-        respostaCorreta: exercicioId === 'mock-1' ? 'Coema' : 'Pedra'
+        respostaCorreta: 'Coema'
       };
+    }
+  },
+
+  async concluirLicao(licaoId: string | number): Promise<void> {
+    try {
+      await api.post(`/licoes/${licaoId}/concluir`);
+    } catch (e) {
+      console.error('Erro ao concluir liÃ§Ã£o', e);
     }
   }
 };

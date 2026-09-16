@@ -1,15 +1,42 @@
+
 'use client';
 
-import { User, Mail, Calendar, LogOut, Bell, Shield, Zap, Flame, BookOpen } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { User, Mail, Calendar, LogOut, Bell, Shield, Zap, Flame, BookOpen, Loader2 } from 'lucide-react';
 import { usarAutenticacao } from '@/contexts/ContextoAutenticacao';
+import { servicoDashboard, DashboardData } from '@/services/servicoDashboard';
+import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 
 export default function PerfilPage() {
   const { usuario, logout } = usarAutenticacao();
+  const [dados, setDados] = useState<DashboardData | null>(null);
+  const [carregando, setCarregando] = useState(true);
 
-  // Dados mockados caso o context não tenha
-  const nomeUsuario = usuario?.nome || 'Potiguara';
-  const emailUsuario = usuario?.email || 'potiguara@tupidigital.com.br';
+  useEffect(() => {
+    const fetchDados = async () => {
+      try {
+        const data = await servicoDashboard.obterDadosDashboard();
+        setDados(data);
+      } catch (error) {
+        console.error('Erro ao buscar dados do perfil', error);
+      } finally {
+        setCarregando(false);
+      }
+    };
+    fetchDados();
+  }, []);
+
+  const nomeUsuario = usuario?.nome || 'Convidado';
+  const emailUsuario = usuario?.email || 'N/A';
   const dataEntrada = 'Agosto 2026';
+
+  if (carregando || !dados) {
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-10">
@@ -19,7 +46,7 @@ export default function PerfilPage() {
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
         
         <div className="w-32 h-32 bg-primary/10 rounded-full flex items-center justify-center shrink-0 border-4 border-white shadow-md relative z-10">
-          <span className="text-5xl font-bold text-primary">{nomeUsuario.charAt(0)}</span>
+          <span className="text-5xl font-bold text-primary">{nomeUsuario.charAt(0).toUpperCase()}</span>
         </div>
         
         <div className="text-center md:text-left flex-1 relative z-10">
@@ -44,7 +71,9 @@ export default function PerfilPage() {
           <div className="w-16 h-16 bg-amber-100 text-amber-500 rounded-2xl flex items-center justify-center mb-4">
             <Flame className="w-8 h-8" />
           </div>
-          <h3 className="text-3xl font-bold text-stone-800">7</h3>
+          <h3 className="text-3xl font-bold text-stone-800">
+            <AnimatedCounter value={dados.diasOfensiva} />
+          </h3>
           <p className="text-stone-500 font-medium">Dias de Ofensiva</p>
         </div>
 
@@ -52,7 +81,9 @@ export default function PerfilPage() {
           <div className="w-16 h-16 bg-blue-100 text-blue-500 rounded-2xl flex items-center justify-center mb-4">
             <Zap className="w-8 h-8" />
           </div>
-          <h3 className="text-3xl font-bold text-stone-800">2.450</h3>
+          <h3 className="text-3xl font-bold text-stone-800">
+            <AnimatedCounter value={dados.xp} />
+          </h3>
           <p className="text-stone-500 font-medium">XP Total</p>
         </div>
 
@@ -60,7 +91,9 @@ export default function PerfilPage() {
           <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-4">
             <BookOpen className="w-8 h-8" />
           </div>
-          <h3 className="text-3xl font-bold text-stone-800">12</h3>
+          <h3 className="text-3xl font-bold text-stone-800">
+            <AnimatedCounter value={dados.licoesConcluidas} />
+          </h3>
           <p className="text-stone-500 font-medium">Lições Concluídas</p>
         </div>
       </div>
