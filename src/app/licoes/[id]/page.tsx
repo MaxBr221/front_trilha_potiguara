@@ -4,7 +4,7 @@
 import { use, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { X, Heart, Check, Flag, Loader2 } from 'lucide-react';
+import { X, Check, Flag, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { servicoExercicio, Exercicio } from '@/services/servicoExercicio';
 
@@ -22,8 +22,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
   const [isCorrect, setIsCorrect] = useState(false);
   const [respostaCertaBackend, setRespostaCertaBackend] = useState('');
   
-  const [lives, setLives] = useState(3);
-  
+
   useEffect(() => {
     const carregarExercicios = async () => {
       try {
@@ -51,9 +50,6 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
       setIsCorrect(validacao.correta);
       setRespostaCertaBackend(validacao.respostaCorreta || '');
       
-      if (!validacao.correta) {
-        setLives(prev => Math.max(0, prev - 1));
-      }
       setIsChecked(true);
     } catch (error) {
       console.error('Erro ao validar resposta', error);
@@ -112,11 +108,6 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
             className="bg-emerald-500 h-3.5 rounded-full transition-all duration-500 ease-in-out" 
             style={{ width: `${progresso}%` }}
           ></div>
-        </div>
-        
-        <div className="flex items-center gap-1.5 text-rose-500 font-bold">
-          <Heart className="w-6 h-6 fill-rose-500" />
-          <span>{lives}</span>
         </div>
       </header>
 
