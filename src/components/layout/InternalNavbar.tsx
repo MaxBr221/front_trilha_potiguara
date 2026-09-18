@@ -34,13 +34,17 @@ export function InternalNavbar() {
 
       <div className="flex items-center gap-4">
         {/* Streak Indicator */}
-        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 text-orange-600 rounded-full font-bold text-sm">
-          <Flame className="w-4 h-4 fill-orange-600" />
+        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-2xl font-bold text-sm transition-all duration-300 ${
+          displayOfensiva > 0 
+            ? 'bg-orange-100 text-orange-600 shadow-[0_0_15px_rgba(249,115,22,0.3)]' 
+            : 'bg-stone-100 text-stone-500'
+        }`}>
+          <Flame className={`w-4 h-4 ${displayOfensiva > 0 ? 'fill-orange-500 animate-pulse' : 'text-stone-400'}`} />
           <span>{displayOfensiva} dias</span>
         </div>
         
         {/* XP Indicator */}
-        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-600 rounded-full font-bold text-sm">
+        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-600 rounded-2xl font-bold text-sm shadow-sm transition-all duration-300 hover:shadow-md">
           <Star className="w-4 h-4 fill-amber-500" />
           <span>{displayXp} XP</span>
         </div>

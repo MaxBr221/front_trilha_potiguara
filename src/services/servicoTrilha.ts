@@ -1,20 +1,19 @@
 import { api } from './api';
-import { Trilha } from '@/mocks/trilhas.mock';
-import { Modulo } from '@/mocks/modulos.mock';
+import { TrilhaResponseDTO, ModuloResponseDTO } from '@/types/dtos';
 
 export const servicoTrilha = {
-  async obterTrilhas(): Promise<Trilha[]> {
-    const response = await api.get<Trilha[]>('/trilhas');
+  async obterTrilhas(): Promise<TrilhaResponseDTO[]> {
+    const response = await api.get<TrilhaResponseDTO[]>('/trilhas');
     return response.data;
   },
 
-  async obterTrilhaPorId(id: string | number): Promise<Trilha | undefined> {
-    const response = await api.get<Trilha[]>('/trilhas');
+  async obterTrilhaPorId(id: string | number): Promise<TrilhaResponseDTO | undefined> {
+    const response = await api.get<TrilhaResponseDTO[]>('/trilhas');
     return response.data.find((t) => String(t.id) === String(id));
   },
 
-  async obterModulosPorIdTrilha(trailId: string | number): Promise<Modulo[]> {
-    const response = await api.get<Modulo[]>(`/trilhas/${trailId}/modulos`);
+  async obterModulosPorIdTrilha(trailId: string | number): Promise<ModuloResponseDTO[]> {
+    const response = await api.get<ModuloResponseDTO[]>(`/trilhas/${trailId}/modulos`);
     return response.data;
   }
 };

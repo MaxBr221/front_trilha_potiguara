@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Lock, Loader2 } from 'lucide-react';
 import { servicoTrilha } from '@/services/servicoTrilha';
-import { trilhasFalsas, Trilha } from '@/mocks/trilhas.mock';
+import { TrilhaResponseDTO } from '@/types/dtos';
 
 export default function TrilhasPage() {
-  const [trails, setTrilhas] = useState<Trilha[]>([]);
+  const [trails, setTrilhas] = useState<TrilhaResponseDTO[]>([]);
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
@@ -45,10 +45,10 @@ export default function TrilhasPage() {
           <div key={trail.id} className="relative">
             <Link 
               href={trail.estaBloqueada ? '#' : `/trilhas/${trail.id}`}
-              className={`block bg-white p-6 rounded-2xl border ${
+              className={`block bg-white p-6 rounded-3xl border-2 ${
                 trail.estaBloqueada 
-                  ? 'border-stone-200 opacity-60 cursor-not-allowed' 
-                  : 'border-stone-200 hover:border-primary/50 hover:shadow-md transition-all'
+                  ? 'opacity-60 grayscale cursor-not-allowed border-stone-200 border-b-[6px]' 
+                  : 'border-stone-200 border-b-[6px] hover:border-primary/40 hover:-translate-y-1 hover:border-b-[8px] active:translate-y-1 active:border-b-2 transition-all duration-200'
               } h-full`}
             >
               <div className="flex items-start justify-between mb-4">
@@ -73,9 +73,9 @@ export default function TrilhasPage() {
                     <span>{trail.progresso}% concluído</span>
                     <span>{trail.quantidadeModulos} módulos</span>
                   </div>
-                  <div className="w-full bg-stone-100 rounded-full h-2.5">
+                  <div className="w-full bg-stone-200 rounded-full h-3 overflow-hidden border border-stone-300/50 mt-1">
                     <div 
-                      className={`bg-${trail.corBase}-500 h-2.5 rounded-full`} 
+                      className={`bg-${trail.corBase}-500 h-3 rounded-full transition-[width] duration-1000 ease-out`} 
                       style={{ width: `${trail.progresso}%`, backgroundColor: trail.progresso > 0 ? 'var(--primary)' : undefined }}
                     ></div>
                   </div>

@@ -6,15 +6,14 @@ import { notFound, useRouter } from 'next/navigation';
 import { ArrowLeft, BookOpen, CheckCircle2, Circle, Lock, Play, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { servicoTrilha } from '@/services/servicoTrilha';
-import { trilhasFalsas, Trilha } from '@/mocks/trilhas.mock';
-import { modulosFalsos, Modulo } from '@/mocks/modulos.mock';
+import { TrilhaResponseDTO, ModuloResponseDTO } from '@/types/dtos';
 
 export default function TrilhaDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { id } = use(params);
   
-  const [trail, setTrilha] = useState<Trilha | null>(null);
-  const [modules, setModulos] = useState<Modulo[]>([]);
+  const [trail, setTrilha] = useState<TrilhaResponseDTO | null>(null);
+  const [modules, setModulos] = useState<ModuloResponseDTO[]>([]);
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
@@ -70,7 +69,7 @@ export default function TrilhaDetailsPage({ params }: { params: Promise<{ id: st
           Voltar para Trilhas
         </button>
         
-        <div className={`bg-${trail.corBase}-50 rounded-3xl p-6 md:p-10 flex flex-col md:flex-row items-center gap-8 border border-${trail.corBase}-100`}>
+        <div className={`bg-${trail.corBase}-50 rounded-3xl p-6 md:p-10 flex flex-col md:flex-row items-center gap-8 border-2 border-b-[6px] border-${trail.corBase}-200/50`}>
           <div className={`w-24 h-24 bg-${trail.corBase}-100 rounded-3xl flex items-center justify-center text-5xl shadow-sm shrink-0`}>
             {trail.icon}
           </div>
@@ -81,14 +80,14 @@ export default function TrilhaDetailsPage({ params }: { params: Promise<{ id: st
             <h1 className="text-3xl md:text-4xl font-bold text-stone-900 mb-2">{trail.title}</h1>
             <p className="text-stone-600 max-w-2xl">{trail.description}</p>
           </div>
-          <div className="w-full md:w-auto bg-white p-4 rounded-2xl shadow-sm border border-stone-200 shrink-0">
+          <div className="w-full md:w-auto bg-white p-5 rounded-3xl border-2 border-b-[4px] border-stone-200 shrink-0">
             <div className="text-sm font-medium text-stone-500 mb-1">Seu progressoo</div>
             <div className="flex items-end gap-2 mb-2">
               <span className={`text-3xl font-bold text-${trail.corBase}-600`}>{trail.progresso}%</span>
             </div>
-            <div className="w-full md:w-40 bg-stone-100 rounded-full h-2">
+            <div className="w-full md:w-40 bg-stone-200 rounded-full h-3 overflow-hidden border border-stone-300/50 mt-1">
               <div 
-                className={`bg-${trail.corBase}-500 h-2 rounded-full`} 
+                className={`bg-${trail.corBase}-500 h-3 rounded-full transition-[width] duration-1000 ease-out`} 
                 style={{ width: `${trail.progresso}%` }}
               ></div>
             </div>
@@ -111,17 +110,17 @@ export default function TrilhaDetailsPage({ params }: { params: Promise<{ id: st
               return (
                 <div key={mod.id} className={`relative z-10 flex flex-col md:flex-row gap-6 ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
                   {/* Modulo Content */}
-                  <div className={`flex-1 ${isEven ? 'md:text-right' : 'md:text-left'} bg-white p-6 rounded-2xl border ${mod.estaBloqueada ? 'border-stone-200 opacity-70' : 'border-stone-300 shadow-sm'}`}>
+                  <div className={`flex-1 ${isEven ? 'md:text-right' : 'md:text-left'} bg-white p-6 rounded-3xl border-2 ${mod.estaBloqueada ? 'opacity-60 grayscale cursor-not-allowed border-stone-200 border-b-[6px]' : 'border-stone-200 border-b-[6px] transition-all duration-200'}`}>
                     <div className="flex items-center gap-3 mb-2 justify-start md:justify-normal" style={{ flexDirection: !isEven ? 'row' : 'row-reverse' }}>
                       <span className="text-sm font-bold text-stone-400">Módulo {index + 1}</span>
                       {mod.estaBloqueada && <Lock className="w-4 h-4 text-stone-400" />}
                     </div>
                     <h3 className="text-xl font-bold text-stone-800 mb-2">{mod.title}</h3>
-                    <p className="text-stone-500 text-sm mb-4">{mod.description}</p>
+                    <p className="text-slate-400 italic font-serif text-sm mb-4">{mod.description}</p>
                     
                     <div className="space-y-2 text-left">
                       {mod.lessons.map(licao => (
-                        <div key={licao.id} className="flex items-center gap-3 p-3 rounded-lg bg-stone-50 border border-stone-100">
+                        <div key={licao.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/60 border border-stone-100 hover:scale-[1.02] hover:shadow-sm transition-all duration-300">
                           {licao.estaConcluida ? (
                             <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
                           ) : (
@@ -144,7 +143,7 @@ export default function TrilhaDetailsPage({ params }: { params: Promise<{ id: st
                     {!mod.estaBloqueada && (
                       <div className={`mt-6 flex ${isEven ? 'md:justify-end' : 'md:justify-start'}`}>
                         <Link href={`/licoes/${(mod.lessons.find(l => !l.estaConcluida) || mod.lessons[0]).id}`}>
-                          <Button size="sm">
+                          <Button size="sm" className="bg-primary text-white border-b-4 border-emerald-800 hover:bg-emerald-600 hover:-translate-y-0.5 hover:border-b-[6px] active:translate-y-1 active:border-b-0 transition-all duration-200">
                             <Play className="w-4 h-4 mr-2" />
                             Começar
                           </Button>
