@@ -65,7 +65,7 @@ export default function ConquistasPage() {
   const conquistasExibidas = getConquistasExibidas();
 
   const renderIcon = (iconeName: string) => {
-    const IconComponent = (LucideIcons as Record<string, React.ElementType>)[iconeName] || LucideIcons.Trophy;
+    const IconComponent = ((LucideIcons as Record<string, unknown>)[iconeName] as React.ElementType) || LucideIcons.Trophy;
     return <IconComponent className="w-7 h-7" />;
   };
 
