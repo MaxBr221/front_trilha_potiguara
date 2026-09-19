@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Usuario } from '@/types/autenticacao';
 
 interface ContextoAutenticacaoType {
@@ -29,26 +29,27 @@ export const ProvedorAutenticacao = ({ children }: { children: React.ReactNode }
     setCarregando(false);
   }, []);
 
-  const login = (token: string, userData: Usuario) => {
+  const login = useCallback((token: string, userData: Usuario) => {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
     window.location.href = '/login';
-  };
+  }, []);
 
-  const atualizarUsuario = (novosDados: Partial<Usuario>) => {
-    if (usuario) {
-      const usuarioAtualizado = { ...usuario, ...novosDados };
+  const atualizarUsuario = useCallback((novosDados: Partial<Usuario>) => {
+    setUser(prevUsuario => {
+      if (!prevUsuario) return null;
+      const usuarioAtualizado = { ...prevUsuario, ...novosDados };
       localStorage.setItem('user', JSON.stringify(usuarioAtualizado));
-      setUser(usuarioAtualizado);
-    }
-  };
+      return usuarioAtualizado;
+    });
+  }, []);
 
   return (
     <ContextoAutenticacao.Provider value={{ usuario, isAuthenticated: !!usuario, login, logout, atualizarUsuario, carregando }}>
