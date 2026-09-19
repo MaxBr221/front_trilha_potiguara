@@ -5,13 +5,13 @@ import Link from 'next/link';
 import { Leaf, LogIn, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { servicoAutenticacao } from '@/services/servicoAutenticacao';
-import { usarAutenticacao } from '@/contexts/ContextoAutenticacao';
+import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = usarAutenticacao();
+  const { login } = useAutenticacao();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [carregando, setCarregando] = useState(false);
@@ -35,20 +35,21 @@ export default function LoginPage() {
         login(response.token, response.usuario);
         router.push('/dashboard');
       }
-    } catch (err: any) {
+    } catch (err) {
+      const error = err as { response?: { status: number; data?: { message?: string } }; message?: string };
       let mensagem = 'Ocorreu um erro inesperado. Tente novamente.';
       
       // Tratamento de erros comuns da API
-      if (err.response) {
-        if (err.response.status === 401 || err.response.status === 403) {
+      if (error.response) {
+        if (error.response.status === 401 || error.response.status === 403) {
           mensagem = 'E-mail ou senha incorretos.';
-        } else if (err.response.status === 404) {
+        } else if (error.response.status === 404) {
           mensagem = 'Usuário não encontrado. Crie uma conta.';
-        } else if (err.response.data && err.response.data.message) {
-          mensagem = err.response.data.message;
+        } else if (error.response.data && error.response.data.message) {
+          mensagem = error.response.data.message;
         }
-      } else if (err.message) {
-        mensagem = err.message;
+      } else if (error.message) {
+        mensagem = error.message;
       }
 
       setErro(mensagem);

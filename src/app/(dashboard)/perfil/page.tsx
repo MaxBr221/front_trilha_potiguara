@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { User, Mail, Calendar, LogOut, Shield, Zap, Flame, BookOpen, Loader2, X, Check } from 'lucide-react';
-import { usarAutenticacao } from '@/contexts/ContextoAutenticacao';
+import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
 import { servicoDashboard, DashboardData } from '@/services/servicoDashboard';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 
 export default function PerfilPage() {
-  const { usuario, logout, atualizarUsuario } = usarAutenticacao();
+  const { usuario, logout, atualizarUsuario } = useAutenticacao();
   const [dados, setDados] = useState<DashboardData | null>(null);
   const [carregando, setCarregando] = useState(true);
 
@@ -34,7 +34,8 @@ export default function PerfilPage() {
 
   useEffect(() => {
     if (usuario) {
-      setNomeForm(usuario.nome);
+      const timeout = setTimeout(() => setNomeForm(usuario.nome), 0);
+      return () => clearTimeout(timeout);
     }
   }, [usuario]);
 

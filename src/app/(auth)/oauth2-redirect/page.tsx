@@ -2,14 +2,14 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { usarAutenticacao } from '@/contexts/ContextoAutenticacao';
+import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
 import { Leaf } from 'lucide-react';
 import { Usuario } from '@/types/autenticacao';
 
 function OAuth2RedirectContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login } = usarAutenticacao();
+  const { login } = useAutenticacao();
   const [erro, setErro] = useState('');
 
   useEffect(() => {
@@ -17,15 +17,17 @@ function OAuth2RedirectContent() {
     const erroUrl = searchParams.get('error');
 
     if (erroUrl) {
-      setErro('Ocorreu um erro ao tentar fazer login com o provedor.');
-      setTimeout(() => router.push('/login'), 3000);
-      return;
+      const timeout = setTimeout(() => {
+        setErro('Ocorreu um erro ao tentar fazer login com o provedor.');
+        setTimeout(() => router.push('/login'), 3000);
+      }, 0);
+      return () => clearTimeout(timeout);
     }
 
     if (token) {
       try {
         // Tenta extrair dados básicos do JWT (assumindo formato padrão)
-        let payload: any = {};
+        let payload: Record<string, unknown> = {};
         try {
           const base64Url = token.split('.')[1];
           const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -38,24 +40,28 @@ function OAuth2RedirectContent() {
         }
 
         const mockUser: Usuario = {
-          id: payload.sub || payload.id || 'google-user',
-          nome: payload.name || payload.nome || 'Usuário Google',
-          email: payload.email || '',
+          id: String(payload.sub || payload.id || 'google-user'),
+          nome: String(payload.name || payload.nome || 'Usuário Google'),
+          email: String(payload.email || ''),
           xp: 0,
           sequenciaAtual: 0,
-          perfil: payload.roles?.[0] || 'USER'
+          perfil: (payload.roles as string[])?.[0] || 'USER'
         };
 
         login(token, mockUser);
         router.push('/dashboard');
       } catch (err) {
-        setErro('Falha ao processar a autenticação. Tente novamente.');
-        setTimeout(() => router.push('/login'), 3000);
+        setTimeout(() => {
+          setErro('Falha ao processar a autenticação. Tente novamente.');
+          setTimeout(() => router.push('/login'), 3000);
+        }, 0);
       }
     } else {
       // Se não tem token nem erro, talvez ainda esteja carregando, mas caso falhe redireciona:
-      setErro('Token não encontrado na resposta.');
-      setTimeout(() => router.push('/login'), 3000);
+      setTimeout(() => {
+        setErro('Token não encontrado na resposta.');
+        setTimeout(() => router.push('/login'), 3000);
+      }, 0);
     }
   }, [searchParams, login, router]);
 

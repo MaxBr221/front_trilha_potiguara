@@ -17,7 +17,9 @@ export default function ConquistasPage() {
 
   useEffect(() => {
     // Para o react-confetti não dar erro de hidratação e pegar o tamanho certo
-    setDimensoes({ width: window.innerWidth, height: window.innerHeight });
+    const timeout = setTimeout(() => {
+      setDimensoes({ width: window.innerWidth, height: window.innerHeight });
+    }, 0);
 
     const fetchDados = async () => {
       try {
@@ -39,6 +41,8 @@ export default function ConquistasPage() {
       }
     };
     fetchDados();
+
+    return () => clearTimeout(timeout);
   }, []);
 
   if (carregando || !dados) {
@@ -61,7 +65,7 @@ export default function ConquistasPage() {
   const conquistasExibidas = getConquistasExibidas();
 
   const renderIcon = (iconeName: string) => {
-    const IconComponent = (LucideIcons as any)[iconeName] || LucideIcons.Trophy;
+    const IconComponent = (LucideIcons as Record<string, React.ElementType>)[iconeName] || LucideIcons.Trophy;
     return <IconComponent className="w-7 h-7" />;
   };
 

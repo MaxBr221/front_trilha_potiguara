@@ -3,11 +3,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Leaf, LayoutDashboard, Map, Trophy, User, LogOut, Book } from 'lucide-react';
-import { usarAutenticacao } from '@/contexts/ContextoAutenticacao';
+import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { logout } = usarAutenticacao();
+  const { logout } = useAutenticacao();
 
   const links = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },

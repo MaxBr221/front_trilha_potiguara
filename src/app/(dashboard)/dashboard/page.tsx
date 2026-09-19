@@ -167,7 +167,7 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-3">
                   <div className={`w-12 h-12 bg-${ultimaConquista.corBase}-100 rounded-xl flex items-center justify-center text-2xl border border-${ultimaConquista.corBase}-200 shadow-sm shadow-${ultimaConquista.corBase}-200 text-${ultimaConquista.corBase}-600`} aria-hidden="true">
                     {(() => {
-                      const Icon = (LucideIcons as any)[ultimaConquista.icone] || LucideIcons.Trophy;
+                      const Icon = (LucideIcons as Record<string, React.ElementType>)[ultimaConquista.icone] || LucideIcons.Trophy;
                       return <Icon className="w-6 h-6" />;
                     })()}
                   </div>

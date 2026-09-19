@@ -21,7 +21,7 @@ export default function EsqueciSenhaPage() {
     try {
       await servicoAutenticacao.esqueciSenha(email);
       setSucesso(true);
-    } catch (err: any) {
+    } catch (err) {
       setErro('Ocorreu um erro ao processar sua solicitação. Verifique o e-mail ou tente novamente.');
     } finally {
       setCarregando(false);

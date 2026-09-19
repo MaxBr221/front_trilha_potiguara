@@ -28,8 +28,8 @@ export default function RegisterPage() {
       setTimeout(() => {
         router.push('/login');
       }, 2000);
-    } catch (err: any) {
-      setErro(err.message || 'Erro ao realizar cadastro.');
+    } catch (err) {
+      setErro((err as Error).message || 'Erro ao realizar cadastro.');
     } finally {
       setCarregando(false);
     }

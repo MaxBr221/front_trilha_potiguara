@@ -1,12 +1,12 @@
 'use client';
 
-import { usarAutenticacao } from '@/contexts/ContextoAutenticacao';
+import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
 import { Menu, Flame, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { servicoDashboard, DashboardData } from '@/services/servicoDashboard';
 
 export function InternalNavbar() {
-  const { usuario } = usarAutenticacao();
+  const { usuario } = useAutenticacao();
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-﻿import { api } from './api';
+import { api } from './api';
 
 export interface Exercicio {
   id: string | number;
@@ -23,7 +23,7 @@ const mockExercicios: Exercicio[] = [
   {
     id: 'mock-1',
     enunciado: 'Como se diz "Bom dia" em Tupi?',
-    tipo: 'mÃºltipla-escolha',
+    tipo: 'múltipla-escolha',
     opcoes: ['Coema', 'Katu', 'Ita', 'Oca'],
     pontuacaoXp: 10,
     ordemIndex: 0
@@ -59,7 +59,7 @@ export const servicoExercicio = {
     try {
       await api.post(`/licoes/${licaoId}/concluir`);
     } catch (e) {
-      console.error('Erro ao concluir liÃ§Ã£o', e);
+      console.error('Erro ao concluir lição', e);
     }
   }
 };

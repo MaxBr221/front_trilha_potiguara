@@ -22,8 +22,9 @@ export default function RedefinirSenhaPage() {
     try {
       await servicoAutenticacao.redefinirSenha(token, novaSenha);
       setSucesso(true);
-    } catch (err: any) {
-      if (err.response && err.response.status === 400) {
+    } catch (err) {
+      const erroAxios = err as { response?: { status: number } };
+      if (erroAxios.response && erroAxios.response.status === 400) {
         setErro('Token inválido ou expirado. Solicite um novo na página de esqueci a senha.');
       } else {
         setErro('Ocorreu um erro ao redefinir a senha. Verifique o token e tente novamente.');

@@ -23,10 +23,14 @@ export const ProvedorAutenticacao = ({ children }: { children: React.ReactNode }
     const token = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
     
-    if (token && storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setCarregando(false);
+    const timeoutId = setTimeout(() => {
+      if (token && storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+      setCarregando(false);
+    }, 0);
+
+    return () => clearTimeout(timeoutId);
   }, []);
 
   const login = useCallback((token: string, userData: Usuario) => {
@@ -58,4 +62,4 @@ export const ProvedorAutenticacao = ({ children }: { children: React.ReactNode }
   );
 };
 
-export const usarAutenticacao = () => useContext(ContextoAutenticacao);
+export const useAutenticacao = () => useContext(ContextoAutenticacao);

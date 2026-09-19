@@ -74,7 +74,7 @@ export default function DicionarioPage() {
             ))
           ) : (
             <div className="col-span-full py-12 text-center text-stone-500">
-              Nenhuma palavra encontrada para "{busca}".
+              Nenhuma palavra encontrada para &quot;{busca}&quot;.
             </div>
           )}
         </div>

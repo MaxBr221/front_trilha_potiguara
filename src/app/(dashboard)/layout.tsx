@@ -2,13 +2,13 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { usarAutenticacao } from '@/contexts/ContextoAutenticacao';
+import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { InternalNavbar } from '@/components/layout/InternalNavbar';
 import { Loader2 } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, carregando } = usarAutenticacao();
+  const { isAuthenticated, carregando } = useAutenticacao();
   const router = useRouter();
 
   useEffect(() => {
