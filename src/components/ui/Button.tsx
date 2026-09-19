@@ -5,10 +5,11 @@ import { Loader2 } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 import { motion, HTMLMotionProps } from 'framer-motion';
 
-export interface ButtonProps extends Omit<HTMLMotionProps<"button">, "size"> {
+export interface ButtonProps extends Omit<HTMLMotionProps<"button">, "size" | "children"> {
   isLoading?: boolean;
   variant?: 'primary' | 'outline' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
+  children?: React.ReactNode;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
