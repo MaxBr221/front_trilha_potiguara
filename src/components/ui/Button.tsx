@@ -1,8 +1,11 @@
-import { ButtonHTMLAttributes, forwardRef } from 'react';
+'use client';
+
+import { forwardRef } from 'react';
 import { Loader2 } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
+import { motion, HTMLMotionProps } from 'framer-motion';
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends Omit<HTMLMotionProps<"button">, "size"> {
   isLoading?: boolean;
   variant?: 'primary' | 'outline' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
@@ -25,15 +28,18 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     return (
-      <button
+      <motion.button
         ref={ref}
         disabled={disabled || isLoading}
         className={twMerge(baseStyles, variants[variant], sizes[size], className)}
+        whileHover={{ scale: disabled || isLoading ? 1 : 1.02 }}
+        whileTap={{ scale: disabled || isLoading ? 1 : 0.95 }}
+        transition={{ type: "spring", stiffness: 400, damping: 17 }}
         {...props}
       >
         {isLoading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
         {children}
-      </button>
+      </motion.button>
     );
   }
 );

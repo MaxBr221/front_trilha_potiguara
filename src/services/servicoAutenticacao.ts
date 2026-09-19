@@ -9,5 +9,13 @@ export const servicoAutenticacao = {
 
   async register(nome: string, email: string, senha: string): Promise<void> {
     await api.post('/auth/register', { nome, email, senha, perfil: 'USER' });
+  },
+
+  async esqueciSenha(email: string): Promise<void> {
+    await api.post('/auth/esqueci-senha', { email });
+  },
+
+  async redefinirSenha(token: string, novaSenha: string): Promise<void> {
+    await api.post('/auth/redefinir-senha', { token, novaSenha });
   }
 };

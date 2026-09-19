@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Play, Book, CheckCircle2, Trophy, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import * as LucideIcons from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
@@ -42,7 +43,8 @@ export default function DashboardPage() {
     );
   }
 
-  const primeiraTrilha = trilhas.length > 0 ? trilhas[0] : null;
+  // Busca a primeira trilha não bloqueada que ainda não foi concluída (progresso < 100%)
+  const primeiraTrilha = trilhas.find(t => !t.estaBloqueada && t.progresso < 100) || (trilhas.length > 0 ? trilhas[0] : null);
   const conquistasDesbloqueadas = dadosDashboard.conquistas.filter(c => c.desbloqueada);
   const ultimaConquista = conquistasDesbloqueadas.length > 0 ? conquistasDesbloqueadas[conquistasDesbloqueadas.length - 1] : null;
 
@@ -61,7 +63,12 @@ export default function DashboardPage() {
                 <span>{primeiraTrilha.progresso}%</span>
               </div>
               <div className="w-full bg-stone-200 rounded-full h-3 overflow-hidden">
-                <div className="bg-primary h-3 rounded-full transition-[width] duration-1000 ease-out" style={{ width: `${primeiraTrilha.progresso}%` }}></div>
+                <motion.div 
+                  className="bg-primary h-3 rounded-full" 
+                  initial={{ width: 0 }} 
+                  animate={{ width: `${primeiraTrilha.progresso}%` }} 
+                  transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
+                />
               </div>
             </div>
           </div>
@@ -82,12 +89,17 @@ export default function DashboardPage() {
           <h2 className="text-xl font-bold text-stone-800">Suas Trilhas</h2>
 
           <div className="grid sm:grid-cols-2 gap-4">
-            {trilhas.slice(0, 2).map((trail) => (
-              <Link 
-                key={trail.id} 
-                href={trail.estaBloqueada ? '#' : `/trilhas/${trail.id}`} 
-                className="block group rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            {trilhas.slice(0, 2).map((trail, index) => (
+              <motion.div
+                key={trail.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.15 + 0.1 }}
               >
+                <Link 
+                  href={trail.estaBloqueada ? '#' : `/trilhas/${trail.id}`} 
+                  className="block group rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                >
                 <div className={`bg-white p-5 rounded-3xl border-2 ${trail.estaBloqueada ? 'opacity-60 grayscale cursor-not-allowed border-stone-200 border-b-[6px]' : 'border-stone-200 border-b-[6px] hover:border-primary/40 hover:-translate-y-1 hover:border-b-[8px] active:translate-y-1 active:border-b-2'} transition-all duration-200 h-full`}>
                   <div className="flex items-start justify-between mb-4">
                     <div className={`w-12 h-12 bg-${trail.corBase}-100 text-${trail.corBase}-700 rounded-xl flex items-center justify-center`}>
@@ -95,19 +107,25 @@ export default function DashboardPage() {
                     </div>
                     <span className="bg-stone-100 text-stone-600 text-xs font-bold px-2 py-1 rounded">Nível {trail.nivel}</span>
                   </div>
-                  <h3 className="font-bold text-lg mb-1 group-hover:text-primary transition-colors">{trail.title}</h3>
+                  <h3 className="font-bold text-lg mb-1 text-stone-800 group-hover:text-primary transition-colors">{trail.title}</h3>
                   <p className="text-stone-500 text-sm mb-4 line-clamp-2">{trail.description}</p>
                   
                   {!trail.estaBloqueada && (
                     <div className="flex items-center gap-2 text-sm font-medium text-stone-700">
                       <div className="flex-1 bg-stone-200 rounded-full h-3 overflow-hidden border border-stone-300/50">
-                        <div className="bg-primary h-3 rounded-full transition-[width] duration-1000 ease-out" style={{ width: `${trail.progresso}%` }}></div>
+                        <motion.div 
+                          className="bg-primary h-3 rounded-full" 
+                          initial={{ width: 0 }} 
+                          animate={{ width: `${trail.progresso}%` }} 
+                          transition={{ duration: 1, ease: "easeOut", delay: index * 0.15 + 0.4 }}
+                        />
                       </div>
                       <span>{trail.progresso}%</span>
                     </div>
                   )}
                 </div>
               </Link>
+              </motion.div>
             ))}
           </div>
         </div>
