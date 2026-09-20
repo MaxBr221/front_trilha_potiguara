@@ -4,6 +4,7 @@ import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
 import { Menu, Flame, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { servicoDashboard, DashboardData } from '@/services/servicoDashboard';
+import Link from 'next/link';
 
 export function InternalNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const { usuario } = useAutenticacao();
@@ -50,9 +51,13 @@ export function InternalNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
         </div>
 
         {/* User Avatar Placeholder */}
-        <div className="w-9 h-9 bg-primary/20 text-primary rounded-full flex items-center justify-center font-bold">
-          {usuario?.nome?.charAt(0).toUpperCase() || 'U'}
-        </div>
+        <Link href="/perfil" className="w-9 h-9 bg-primary/20 text-primary rounded-full flex items-center justify-center font-bold overflow-hidden border border-primary/20 hover:ring-2 hover:ring-primary/50 transition-all cursor-pointer">
+          {usuario?.fotoPerfil ? (
+            <img src={usuario.fotoPerfil} alt="Perfil" className="w-full h-full object-cover" />
+          ) : (
+            usuario?.nome?.charAt(0).toUpperCase() || 'U'
+          )}
+        </Link>
       </div>
     </header>
   );

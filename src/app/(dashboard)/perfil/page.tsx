@@ -16,6 +16,7 @@ export default function PerfilPage() {
 
   // Estados dos Formulários
   const [nomeForm, setNomeForm] = useState('');
+  const [fotoPerfilForm, setFotoPerfilForm] = useState('');
   const [mensagemSucesso, setMensagemSucesso] = useState('');
 
   useEffect(() => {
@@ -34,7 +35,10 @@ export default function PerfilPage() {
 
   useEffect(() => {
     if (usuario) {
-      const timeout = setTimeout(() => setNomeForm(usuario.nome), 0);
+      const timeout = setTimeout(() => {
+        setNomeForm(usuario.nome);
+        setFotoPerfilForm(usuario.fotoPerfil || '');
+      }, 0);
       return () => clearTimeout(timeout);
     }
   }, [usuario]);
@@ -42,9 +46,20 @@ export default function PerfilPage() {
   const handleSalvarPerfil = (e: React.FormEvent) => {
     e.preventDefault();
     if (nomeForm.trim()) {
-      atualizarUsuario({ nome: nomeForm });
+      atualizarUsuario({ nome: nomeForm, fotoPerfil: fotoPerfilForm });
       setModalEdicaoAberto(false);
       mostrarSucesso('Perfil atualizado com sucesso!');
+    }
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFotoPerfilForm(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -80,8 +95,12 @@ export default function PerfilPage() {
       <div className="bg-white rounded-3xl p-8 shadow-sm border border-stone-200 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
         
-        <div className="w-32 h-32 bg-primary/10 rounded-full flex items-center justify-center shrink-0 border-4 border-white shadow-md relative z-10">
-          <span className="text-5xl font-bold text-primary">{nomeUsuario.charAt(0).toUpperCase()}</span>
+        <div className="w-32 h-32 bg-primary/10 rounded-full flex items-center justify-center shrink-0 border-4 border-white shadow-md relative z-10 overflow-hidden">
+          {usuario?.fotoPerfil ? (
+            <img src={usuario.fotoPerfil} alt="Perfil" className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-5xl font-bold text-primary">{nomeUsuario.charAt(0).toUpperCase()}</span>
+          )}
         </div>
         
         <div className="text-center md:text-left flex-1 relative z-10">
@@ -179,6 +198,19 @@ export default function PerfilPage() {
               </button>
             </div>
             <form onSubmit={handleSalvarPerfil} className="p-6 space-y-4">
+              <div className="flex flex-col items-center gap-4 mb-2">
+                <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center border-2 border-primary/20 overflow-hidden relative group">
+                  {fotoPerfilForm ? (
+                    <img src={fotoPerfilForm} alt="Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-3xl font-bold text-primary">{nomeForm.charAt(0).toUpperCase() || 'U'}</span>
+                  )}
+                  <label className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                    <span className="text-white text-xs font-bold mt-1">Alterar</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                  </label>
+                </div>
+              </div>
               <div>
                 <label className="block text-sm font-bold text-stone-700 mb-1">Nome de Exibição</label>
                 <input 

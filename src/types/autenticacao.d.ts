@@ -5,6 +5,7 @@ export interface Usuario {
   xp: number;
   sequenciaAtual: number;
   perfil: string;
+  fotoPerfil?: string;
 }
 
 export interface RespostaAutenticacao {
