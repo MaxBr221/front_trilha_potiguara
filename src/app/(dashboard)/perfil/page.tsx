@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { User, Mail, Calendar, LogOut, Shield, Zap, Flame, BookOpen, Loader2, X, Check } from 'lucide-react';
 import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
 import { servicoDashboard, DashboardData } from '@/services/servicoDashboard';
+import { servicoUsuario } from '@/services/servicoUsuario';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 
 export default function PerfilPage() {
@@ -43,12 +44,17 @@ export default function PerfilPage() {
     }
   }, [usuario]);
 
-  const handleSalvarPerfil = (e: React.FormEvent) => {
+  const handleSalvarPerfil = async (e: React.FormEvent) => {
     e.preventDefault();
     if (nomeForm.trim()) {
-      atualizarUsuario({ nome: nomeForm, fotoPerfil: fotoPerfilForm });
-      setModalEdicaoAberto(false);
-      mostrarSucesso('Perfil atualizado com sucesso!');
+      try {
+        await servicoUsuario.atualizarPerfil({ nome: nomeForm, fotoPerfil: fotoPerfilForm });
+        atualizarUsuario({ nome: nomeForm, fotoPerfil: fotoPerfilForm });
+        setModalEdicaoAberto(false);
+        mostrarSucesso('Perfil atualizado com sucesso!');
+      } catch (error) {
+        console.error('Erro ao atualizar perfil', error);
+      }
     }
   };
 
@@ -67,11 +73,16 @@ export default function PerfilPage() {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
         const novaFoto = reader.result as string;
-        setFotoPerfilForm(novaFoto);
-        atualizarUsuario({ fotoPerfil: novaFoto });
-        mostrarSucesso('Foto de perfil atualizada!');
+        try {
+          await servicoUsuario.atualizarPerfil({ fotoPerfil: novaFoto });
+          setFotoPerfilForm(novaFoto);
+          atualizarUsuario({ fotoPerfil: novaFoto });
+          mostrarSucesso('Foto de perfil atualizada!');
+        } catch (error) {
+          console.error('Erro ao atualizar foto de perfil', error);
+        }
       };
       reader.readAsDataURL(file);
     }
