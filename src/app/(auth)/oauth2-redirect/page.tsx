@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
 import { Leaf } from 'lucide-react';
 import { Usuario } from '@/types/autenticacao';
+import { servicoUsuario } from '@/services/servicoUsuario';
 
 function OAuth2RedirectContent() {
   const router = useRouter();
@@ -25,37 +26,23 @@ function OAuth2RedirectContent() {
     }
 
     if (token) {
-      try {
-        // Tenta extrair dados básicos do JWT (assumindo formato padrão)
-        let payload: Record<string, unknown> = {};
+      const initOAuth2 = async () => {
         try {
-          const base64Url = token.split('.')[1];
-          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-          const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-              return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-          }).join(''));
-          payload = JSON.parse(jsonPayload);
-        } catch (e) {
-          console.error("Falha ao decodificar token JWT", e);
-        }
-
-        const mockUser: Usuario = {
-          id: String(payload.sub || payload.id || 'google-user'),
-          nome: String(payload.name || payload.nome || 'Usuário Google'),
-          email: String(payload.email || ''),
-          xp: 0,
-          sequenciaAtual: 0,
-          perfil: (payload.roles as string[])?.[0] || 'USER'
-        };
-
-        login(token, mockUser);
-        router.push('/dashboard');
-      } catch (err) {
-        setTimeout(() => {
+          // Salva o token temporariamente para o api.ts interceptor conseguir enviá-lo
+          localStorage.setItem('token', token);
+          
+          const freshUser = await servicoUsuario.obterPerfil();
+          
+          login(token, freshUser);
+          router.push('/dashboard');
+        } catch (err) {
+          console.error('Falha ao obter perfil do OAuth2', err);
           setErro('Falha ao processar a autenticação. Tente novamente.');
           setTimeout(() => router.push('/login'), 3000);
-        }, 0);
-      }
+        }
+      };
+      
+      initOAuth2();
     } else {
       // Se não tem token nem erro, talvez ainda esteja carregando, mas caso falhe redireciona:
       setTimeout(() => {

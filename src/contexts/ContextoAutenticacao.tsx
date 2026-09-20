@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Usuario } from '@/types/autenticacao';
+import { servicoUsuario } from '@/services/servicoUsuario';
 
 interface ContextoAutenticacaoType {
   usuario: Usuario | null;
@@ -23,9 +24,18 @@ export const ProvedorAutenticacao = ({ children }: { children: React.ReactNode }
     const token = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
     
-    const timeoutId = setTimeout(() => {
-      if (token && storedUser) {
-        setUser(JSON.parse(storedUser));
+    const timeoutId = setTimeout(async () => {
+      if (token) {
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+        }
+        try {
+          const freshUser = await servicoUsuario.obterPerfil();
+          setUser(freshUser);
+          localStorage.setItem('user', JSON.stringify(freshUser));
+        } catch (error) {
+          console.error("Erro ao obter perfil atualizado:", error);
+        }
       }
       setCarregando(false);
     }, 0);
