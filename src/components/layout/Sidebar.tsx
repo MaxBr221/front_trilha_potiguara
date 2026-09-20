@@ -25,7 +25,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () =>
           onClick={onClose}
         />
       )}
-      <aside className={`w-64 bg-white border-r border-stone-200 h-screen flex flex-col fixed md:sticky top-0 left-0 z-50 transition-transform duration-300 ${
+      <aside className={`w-64 bg-white border-r border-stone-200 h-dvh flex flex-col fixed md:sticky top-0 left-0 z-50 transition-transform duration-300 ${
         isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}>
       <div className="p-6">
@@ -35,7 +35,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () =>
         </Link>
       </div>
 
-      <nav className="flex-1 px-4 space-y-2 mt-4">
+      <nav className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto">
         {links.map((link) => {
           const Icon = link.icon;
           const isActive = pathname.startsWith(link.href);

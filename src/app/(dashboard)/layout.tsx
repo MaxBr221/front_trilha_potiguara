@@ -20,7 +20,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (carregando) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-stone-50">
+      <div className="h-dvh w-screen flex items-center justify-center bg-stone-50">
         <Loader2 className="w-10 h-10 animate-spin text-primary" />
       </div>
     );
@@ -31,9 +31,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="flex h-screen bg-stone-50 overflow-hidden">
+    <div className="flex h-dvh bg-stone-50 overflow-hidden">
       <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col h-dvh overflow-hidden">
         <InternalNavbar onMenuClick={() => setIsMobileMenuOpen(true)} />
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
           <div className="max-w-5xl mx-auto">

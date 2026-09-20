@@ -78,7 +78,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
 
   if (carregando) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-stone-50">
+      <div className="h-dvh w-screen flex items-center justify-center bg-stone-50">
         <Loader2 className="w-10 h-10 animate-spin text-primary" />
       </div>
     );
@@ -86,7 +86,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
 
   if (!exercicioAtual) {
     return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center flex-col">
+      <div className="min-h-dvh bg-stone-50 flex items-center justify-center flex-col">
         <h2 className="text-xl font-bold text-stone-700 mb-4">Nenhum exercício encontrado.</h2>
         <Button onClick={() => router.push('/dashboard')}>Voltar</Button>
       </div>
@@ -94,7 +94,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-dvh bg-white flex flex-col">
       <header className="h-16 flex items-center px-4 md:px-8 max-w-4xl w-full mx-auto gap-4">
         <button 
           onClick={() => router.push('/dashboard')}

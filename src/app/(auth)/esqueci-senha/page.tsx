@@ -38,7 +38,7 @@ export default function EsqueciSenhaPage() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative">
+    <div className="min-h-dvh bg-stone-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative">
       
       {/* Toast Notification */}
       {toastErro && (

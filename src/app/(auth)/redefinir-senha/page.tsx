@@ -35,7 +35,7 @@ export default function RedefinirSenhaPage() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative">
+    <div className="min-h-dvh bg-stone-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative">
       <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
         <Link href="/" className="flex items-center gap-2 text-primary font-bold text-3xl mb-6">
           <Leaf className="w-8 h-8 text-primary" />
