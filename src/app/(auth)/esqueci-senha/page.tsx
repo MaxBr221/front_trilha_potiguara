@@ -12,17 +12,26 @@ export default function EsqueciSenhaPage() {
   const [carregando, setCarregando] = useState(false);
   const [sucesso, setSucesso] = useState(false);
   const [erro, setErro] = useState('');
+  const [toastErro, setToastErro] = useState('');
+
+  const mostrarToast = (msg: string) => {
+    setToastErro(msg);
+    setTimeout(() => setToastErro(''), 5000);
+  };
 
   const lidarComEnvio = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro('');
+    setToastErro('');
     setCarregando(true);
 
     try {
       await servicoAutenticacao.esqueciSenha(email);
       setSucesso(true);
     } catch (err) {
-      setErro('Ocorreu um erro ao processar sua solicitação. Verifique o e-mail ou tente novamente.');
+      const msg = 'Ocorreu um erro ao processar sua solicitação. Verifique o e-mail ou tente novamente.';
+      setErro(msg);
+      mostrarToast(msg);
     } finally {
       setCarregando(false);
     }
@@ -30,6 +39,15 @@ export default function EsqueciSenhaPage() {
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative">
+      
+      {/* Toast Notification */}
+      {toastErro && (
+        <div className="fixed top-10 right-8 bg-red-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 z-50 animate-in slide-in-from-top-4">
+          <AlertCircle className="w-6 h-6 shrink-0" />
+          <span className="font-bold">{toastErro}</span>
+        </div>
+      )}
+
       <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
         <Link href="/" className="flex items-center gap-2 text-primary font-bold text-3xl mb-6">
           <Leaf className="w-8 h-8 text-primary" />

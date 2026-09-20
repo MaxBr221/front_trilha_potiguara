@@ -1,9 +1,8 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Play, Book, CheckCircle2, Trophy, Loader2 } from 'lucide-react';
+import { Play, Book, CheckCircle2, Trophy, Loader2, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import * as LucideIcons from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -16,6 +15,7 @@ export default function DashboardPage() {
   const [trilhas, setTrilhas] = useState<TrilhaResponseDTO[]>([]);
   const [dadosDashboard, setDadosDashboard] = useState<DashboardData | null>(null);
   const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState('');
 
   useEffect(() => {
     const fetchDados = async () => {
@@ -28,6 +28,8 @@ export default function DashboardPage() {
         setDadosDashboard(dashboardData);
       } catch (error) {
         console.error('Erro ao buscar dados do dashboard:', error);
+        setErro('Não foi possível carregar os dados. Tente novamente mais tarde.');
+        setTimeout(() => setErro(''), 5000);
       } finally {
         setCarregando(false);
       }
@@ -35,10 +37,22 @@ export default function DashboardPage() {
     fetchDados();
   }, []);
 
-  if (carregando || !dadosDashboard) {
+  if (carregando || (!dadosDashboard && !erro)) {
     return (
       <div className="flex justify-center py-20">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Se deu erro e não tem dados do dashboard, não podemos renderizar a página inteira
+  if (!dadosDashboard) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <AlertCircle className="w-12 h-12 text-rose-500 mb-4" />
+        <h2 className="text-xl font-bold text-stone-800">Ops! Algo deu errado.</h2>
+        <p className="text-stone-600 mb-4">{erro}</p>
+        <Button onClick={() => window.location.reload()}>Tentar Novamente</Button>
       </div>
     );
   }
@@ -49,7 +63,16 @@ export default function DashboardPage() {
   const ultimaConquista = conquistasDesbloqueadas.length > 0 ? conquistasDesbloqueadas[conquistasDesbloqueadas.length - 1] : null;
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 relative">
+      
+      {/* Toast de Erro */}
+      {erro && (
+        <div className="fixed top-20 right-8 bg-rose-500 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-2 z-50 animate-in slide-in-from-top-4">
+          <AlertCircle className="w-5 h-5" />
+          <span className="font-bold">{erro}</span>
+        </div>
+      )}
+
       {primeiraTrilha && (
         <section className="bg-primary/5 border-2 border-b-[6px] border-primary/20 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 transition-all duration-200 hover:-translate-y-1 hover:border-b-[8px] active:translate-y-1 active:border-b-2">
           <div>
