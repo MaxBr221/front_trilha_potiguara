@@ -6,6 +6,7 @@ export interface Usuario {
   sequenciaAtual: number;
   perfil: string;
   fotoPerfil?: string;
+  createdAt?: string;
 }
 
 export interface RespostaAutenticacao {

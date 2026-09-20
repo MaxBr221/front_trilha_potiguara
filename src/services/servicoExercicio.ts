@@ -17,6 +17,7 @@ export interface ValidacaoRespostaResponse {
   correta: boolean;
   xpGanho: number;
   respostaCorreta: string;
+  contextoCultural?: string;
 }
 
 export const servicoExercicio = {

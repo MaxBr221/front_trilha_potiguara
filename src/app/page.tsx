@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Leaf, Map, Trophy, BookOpen } from 'lucide-react';
+import { ArrowRight, Leaf, Map, Trophy, BookOpen, Instagram, Linkedin } from 'lucide-react';
 import { Navbar } from '@/components/layout/Navbar';
 
 export default function Home() {
@@ -91,7 +91,31 @@ export default function Home() {
             <Leaf className="w-6 h-6 text-primary" />
             <span>Tupi Digital</span>
           </div>
-          <p className="text-stone-500">Desenvolvido para valorizar a língua e cultura indígena.</p>
+          <p className="text-stone-500 mb-6">Desenvolvido para valorizar a língua e cultura indígena.</p>
+          
+          <div className="flex flex-col items-center justify-center pt-6 border-t border-stone-100">
+            <p className="text-sm font-medium text-stone-400 mb-3">Desenvolvido por</p>
+            <div className="flex items-center gap-4">
+              <a 
+                href="https://www.instagram.com/_maxsueel?stkn=MW9vbHFkbWh5dWEzdw==" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-stone-500 hover:text-primary transition-colors bg-stone-50 px-4 py-2 rounded-full font-medium text-sm"
+              >
+                <Instagram className="w-4 h-4" />
+                @_maxsueel
+              </a>
+              <a 
+                href="https://www.linkedin.com/in/maxsuel-lima-5a27a635b/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-stone-500 hover:text-[#0a66c2] transition-colors bg-stone-50 px-4 py-2 rounded-full font-medium text-sm"
+              >
+                <Linkedin className="w-4 h-4" />
+                Maxsuel Lima
+              </a>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

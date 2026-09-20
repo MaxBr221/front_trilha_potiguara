@@ -43,10 +43,19 @@ export const ProvedorAutenticacao = ({ children }: { children: React.ReactNode }
     return () => clearTimeout(timeoutId);
   }, []);
 
-  const login = useCallback((token: string, userData: Usuario) => {
+  const login = useCallback(async (token: string, userData: Usuario) => {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
+    
+    // Busca os dados atualizados (foto, xp, etc) assim que logar
+    try {
+      const freshUser = await servicoUsuario.obterPerfil();
+      setUser(freshUser);
+      localStorage.setItem('user', JSON.stringify(freshUser));
+    } catch (error) {
+      console.error("Erro ao atualizar perfil após login:", error);
+    }
   }, []);
 
   const logout = useCallback(() => {

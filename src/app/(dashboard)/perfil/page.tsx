@@ -95,7 +95,14 @@ export default function PerfilPage() {
 
   const nomeUsuario = usuario?.nome || 'Convidado';
   const emailUsuario = usuario?.email || 'N/A';
-  const dataEntrada = 'Agosto 2026';
+  
+  const formatarData = (dataString?: string) => {
+    if (!dataString) return 'Recentemente';
+    const data = new Date(dataString);
+    if (isNaN(data.getTime())) return 'Recentemente';
+    return new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(data);
+  };
+  const dataEntrada = formatarData(usuario?.createdAt);
 
   if (carregando || !dados) {
     return (

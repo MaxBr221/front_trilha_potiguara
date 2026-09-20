@@ -4,7 +4,8 @@
 import { use, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { X, Check, Flag, Loader2 } from 'lucide-react';
+import { X, Check, Flag, Loader2, Info } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import { servicoExercicio, Exercicio } from '@/services/servicoExercicio';
 
@@ -21,6 +22,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
   const [isChecked, setIsChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [respostaCertaBackend, setRespostaCertaBackend] = useState('');
+  const [contextoCultural, setContextoCultural] = useState('');
   
 
   useEffect(() => {
@@ -49,6 +51,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
       
       setIsCorrect(validacao.correta);
       setRespostaCertaBackend(validacao.respostaCorreta || '');
+      setContextoCultural(validacao.contextoCultural || 'Os povos Tupi habitavam grande parte do litoral brasileiro e sua língua influenciou fortemente o português que falamos hoje!');
       
       setIsChecked(true);
     } catch (error) {
@@ -151,21 +154,47 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
       <footer className={`border-t-2 transition-colors duration-300 ${isChecked ? (isCorrect ? 'border-emerald-200 bg-emerald-50' : 'border-rose-200 bg-rose-50') : 'border-stone-200 bg-white'}`}>
         <div className="max-w-4xl mx-auto p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="w-full md:w-auto" aria-live="polite">
-            {isChecked && (
-              <div className="flex items-center gap-4 animate-in fade-in slide-in-from-bottom-2">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center ${isCorrect ? 'bg-emerald-100 text-emerald-600 animate-pulse' : 'bg-rose-100 text-rose-600 animate-shake'}`}>
-                  {isCorrect ? <Check className="w-8 h-8" /> : <X className="w-8 h-8" />}
-                </div>
-                <div>
-                  <h3 className={`text-xl font-bold ${isCorrect ? 'text-emerald-700' : 'text-rose-700'}`}>
-                    {isCorrect ? 'Excelente!' : 'Resposta incorreta'}
-                  </h3>
-                  {!isCorrect && (
-                    <p className="text-rose-600 font-medium mt-1">Resposta correta: {respostaCertaBackend}</p>
+            <AnimatePresence>
+              {isChecked && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="flex flex-col gap-3"
+                >
+                  <div className="flex items-center gap-4">
+                    <motion.div 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", bounce: 0.5 }}
+                      className={`w-14 h-14 rounded-full flex items-center justify-center ${isCorrect ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}
+                    >
+                      {isCorrect ? <Check className="w-8 h-8" /> : <X className="w-8 h-8" />}
+                    </motion.div>
+                    <div>
+                      <h3 className={`text-xl font-bold ${isCorrect ? 'text-emerald-700' : 'text-rose-700'}`}>
+                        {isCorrect ? 'Excelente!' : 'Resposta incorreta'}
+                      </h3>
+                      {!isCorrect && (
+                        <p className="text-rose-600 font-medium mt-1">Resposta correta: {respostaCertaBackend}</p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {contextoCultural && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      transition={{ delay: 0.2 }}
+                      className={`mt-2 p-4 rounded-2xl flex items-start gap-3 ${isCorrect ? 'bg-emerald-100/50 text-emerald-800' : 'bg-rose-100/50 text-rose-800'}`}
+                    >
+                      <Info className="w-5 h-5 shrink-0 mt-0.5" />
+                      <p className="text-sm font-medium leading-relaxed">{contextoCultural}</p>
+                    </motion.div>
                   )}
-                </div>
-              </div>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
           
           <Button
