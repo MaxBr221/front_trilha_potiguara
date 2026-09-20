@@ -63,6 +63,20 @@ export default function PerfilPage() {
     }
   };
 
+  const handleImageUploadDirect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const novaFoto = reader.result as string;
+        setFotoPerfilForm(novaFoto);
+        atualizarUsuario({ fotoPerfil: novaFoto });
+        mostrarSucesso('Foto de perfil atualizada!');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const mostrarSucesso = (msg: string) => {
     setMensagemSucesso(msg);
     setTimeout(() => setMensagemSucesso(''), 3000);
@@ -95,12 +109,16 @@ export default function PerfilPage() {
       <div className="bg-white rounded-3xl p-8 shadow-sm border border-stone-200 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
         
-        <div className="w-32 h-32 bg-primary/10 rounded-full flex items-center justify-center shrink-0 border-4 border-white shadow-md relative z-10 overflow-hidden">
+        <div className="w-32 h-32 bg-primary/10 rounded-full flex items-center justify-center shrink-0 border-4 border-white shadow-md relative z-10 overflow-hidden group">
           {usuario?.fotoPerfil ? (
             <img src={usuario.fotoPerfil} alt="Perfil" className="w-full h-full object-cover" />
           ) : (
             <span className="text-5xl font-bold text-primary">{nomeUsuario.charAt(0).toUpperCase()}</span>
           )}
+          <label className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+            <span className="text-white text-sm font-bold mt-1">Alterar</span>
+            <input type="file" accept="image/*" className="hidden" onChange={handleImageUploadDirect} />
+          </label>
         </div>
         
         <div className="text-center md:text-left flex-1 relative z-10">
