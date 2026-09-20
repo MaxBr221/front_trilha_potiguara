@@ -5,7 +5,7 @@ import { Menu, Flame, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { servicoDashboard, DashboardData } from '@/services/servicoDashboard';
 
-export function InternalNavbar() {
+export function InternalNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const { usuario } = useAutenticacao();
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
 
@@ -21,7 +21,7 @@ export function InternalNavbar() {
   return (
     <header className="h-16 bg-white border-b border-stone-200 flex items-center justify-between px-4 sticky top-0 z-40">
       <div className="flex items-center md:hidden">
-        <button className="p-2 text-stone-600 hover:bg-stone-100 rounded-lg">
+        <button onClick={onMenuClick} className="p-2 text-stone-600 hover:bg-stone-100 rounded-lg">
           <Menu className="w-6 h-6" />
         </button>
       </div>

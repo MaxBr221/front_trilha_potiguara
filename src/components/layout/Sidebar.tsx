@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Leaf, LayoutDashboard, Map, Trophy, User, LogOut, Book } from 'lucide-react';
 import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
 
-export function Sidebar() {
+export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }) {
   const pathname = usePathname();
   const { logout } = useAutenticacao();
 
@@ -18,9 +18,18 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-white border-r border-stone-200 h-screen hidden md:flex flex-col sticky top-0 left-0">
+    <>
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={onClose}
+        />
+      )}
+      <aside className={`w-64 bg-white border-r border-stone-200 h-screen flex flex-col fixed md:sticky top-0 left-0 z-50 transition-transform duration-300 ${
+        isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      }`}>
       <div className="p-6">
-        <Link href="/dashboard" className="flex items-center gap-2 text-primary font-bold text-2xl">
+        <Link href="/dashboard" onClick={() => onClose && onClose()} className="flex items-center gap-2 text-primary font-bold text-2xl">
           <Leaf className="w-8 h-8 text-primary" />
           <span>Tupi Digital</span>
         </Link>
@@ -35,6 +44,7 @@ export function Sidebar() {
             <Link
               key={link.name}
               href={link.href}
+              onClick={() => onClose && onClose()}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
                 isActive
                   ? 'bg-primary/10 text-primary'
@@ -58,5 +68,6 @@ export function Sidebar() {
         </button>
       </div>
     </aside>
+    </>
   );
 }
