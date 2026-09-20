@@ -49,7 +49,12 @@ export default function LoginPage() {
           mensagem = error.response.data.message;
         }
       } else if (error.message) {
-        mensagem = error.message;
+        if (error.message === 'Network Error') {
+          // Quando o backend bloqueia o CORS em respostas 401/403, o Axios lança 'Network Error'
+          mensagem = 'E-mail ou senha incorretos.';
+        } else {
+          mensagem = error.message;
+        }
       }
 
       setErro(mensagem);
