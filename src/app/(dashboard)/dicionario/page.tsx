@@ -13,7 +13,11 @@ export default function DicionarioPage() {
   const tocarAudioTupi = (palavraTupi: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Evita copiar a palavra ao clicar no som
     window.speechSynthesis.cancel();
-    const fala = new SpeechSynthesisUtterance(palavraTupi);
+    
+    // Remove o apóstrofo (e outros caracteres que pausam a voz) para que o motor leia a palavra inteira
+    const palavraSanitizada = palavraTupi.replace(/['´`]/g, '');
+
+    const fala = new SpeechSynthesisUtterance(palavraSanitizada);
     fala.lang = 'pt-BR';
     fala.rate = 0.9;
     fala.pitch = 1.0;
