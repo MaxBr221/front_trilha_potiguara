@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Leaf, LogIn, AlertCircle } from 'lucide-react';
+import { Leaf, LogIn, AlertCircle, Instagram, Linkedin } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { servicoAutenticacao } from '@/services/servicoAutenticacao';
 import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
@@ -172,6 +172,31 @@ export default function LoginPage() {
               </button>
             </div>
           </div>
+        </div>
+      </div>
+      
+      {/* Developer Links */}
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center justify-center">
+        <p className="text-sm font-medium text-stone-400 mb-3">Desenvolvido por</p>
+        <div className="flex items-center gap-4">
+          <a 
+            href="https://www.instagram.com/_maxsueel?stkn=MW9vbHFkbWh5dWEzdw==" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-stone-500 hover:text-primary transition-colors bg-white border border-stone-200 px-4 py-2 rounded-full font-medium text-sm shadow-sm"
+          >
+            <Instagram className="w-4 h-4" />
+            @_maxsueel
+          </a>
+          <a 
+            href="https://www.linkedin.com/in/maxsuel-lima-5a27a635b/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-stone-500 hover:text-[#0a66c2] transition-colors bg-white border border-stone-200 px-4 py-2 rounded-full font-medium text-sm shadow-sm"
+          >
+            <Linkedin className="w-4 h-4" />
+            Maxsuel Lima
+          </a>
         </div>
       </div>
     </div>
