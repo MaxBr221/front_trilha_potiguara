@@ -1,5 +1,5 @@
 import { api } from './api';
-import { Usuario } from '@/types/autenticacao';
+import { Usuario, Amigo, PerfilPublico } from '@/types/autenticacao';
 
 export const servicoUsuario = {
   async atualizarPerfil(dados: { fotoPerfil?: string; nome?: string }): Promise<Usuario> {
@@ -9,5 +9,19 @@ export const servicoUsuario = {
   async obterPerfil(): Promise<Usuario> {
     const response = await api.get<Usuario>('/usuarios/me');
     return response.data;
+  },
+  async listarAmigos(): Promise<Amigo[]> {
+    const response = await api.get<Amigo[]>('/usuarios/amigos');
+    return response.data;
+  },
+  async obterPerfilPublico(id: string): Promise<PerfilPublico> {
+    const response = await api.get<PerfilPublico>(`/usuarios/perfil/${id}`);
+    return response.data;
+  },
+  async seguirUsuario(id: string): Promise<void> {
+    await api.post(`/usuarios/amigos/${id}`);
+  },
+  async deixarDeSeguirUsuario(id: string): Promise<void> {
+    await api.delete(`/usuarios/amigos/${id}`);
   }
 };

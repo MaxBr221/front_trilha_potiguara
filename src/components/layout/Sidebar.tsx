@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Leaf, LayoutDashboard, Map, Trophy, User, LogOut, Book } from 'lucide-react';
+import { Leaf, LayoutDashboard, Map, Trophy, User, LogOut, Book, Users } from 'lucide-react';
 import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
 
 export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }) {
@@ -13,6 +13,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () =>
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Trilhas', href: '/trilhas', icon: Map },
     { name: 'Conquistas', href: '/conquistas', icon: Trophy },
+    { name: 'Amigos', href: '/amigos', icon: Users },
     { name: 'Perfil', href: '/perfil', icon: User },
     { name: 'Dicionário', href: '/dicionario', icon: Book },
   ];

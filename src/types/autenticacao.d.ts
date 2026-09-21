@@ -13,3 +13,16 @@ export interface RespostaAutenticacao {
   token: string;
   usuario?: Usuario; // Temporário para o mock
 }
+
+export interface Amigo {
+  id: string;
+  nome: string;
+  xp: number;
+  sequenciaAtual: number;
+  fotoPerfil?: string;
+}
+
+export interface PerfilPublico extends Amigo {
+  totalAmigos: number;
+  isAmigo: boolean;
+}
