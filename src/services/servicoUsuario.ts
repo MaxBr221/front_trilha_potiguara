@@ -23,5 +23,10 @@ export const servicoUsuario = {
   },
   async deixarDeSeguirUsuario(id: string): Promise<void> {
     await api.delete(`/usuarios/amigos/${id}`);
+  },
+  async buscarUsuarios(nome?: string): Promise<Amigo[]> {
+    const params = nome ? { nome } : {};
+    const response = await api.get<Amigo[]>('/usuarios/busca', { params });
+    return response.data;
   }
 };
