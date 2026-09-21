@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Leaf, Map, Trophy, BookOpen, Instagram, Linkedin } from 'lucide-react';
+import { ArrowRight, Leaf, Map, Trophy, BookOpen } from 'lucide-react';
 import { Navbar } from '@/components/layout/Navbar';
 
 export default function Home() {
@@ -94,15 +94,15 @@ export default function Home() {
           <p className="text-stone-500 mb-6">Desenvolvido para valorizar a língua e cultura indígena.</p>
           
           <div className="flex flex-col items-center justify-center pt-6 border-t border-stone-100">
-            <p className="text-sm font-medium text-stone-400 mb-3">Desenvolvido por</p>
-            <div className="flex items-center gap-4">
+            <p className="text-sm font-medium text-stone-400 mb-3 text-center">Desenvolvido por</p>
+            <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 w-full">
               <a 
                 href="https://www.instagram.com/_maxsueel?stkn=MW9vbHFkbWh5dWEzdw==" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-stone-500 hover:text-primary transition-colors bg-stone-50 px-4 py-2 rounded-full font-medium text-sm"
+                className="flex items-center gap-2 text-stone-500 hover:text-[#E1306C] transition-colors bg-stone-50 px-4 py-2 rounded-full font-medium text-sm"
               >
-                <Instagram className="w-4 h-4" />
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
                 @_maxsueel
               </a>
               <a 
@@ -111,7 +111,7 @@ export default function Home() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-stone-500 hover:text-[#0a66c2] transition-colors bg-stone-50 px-4 py-2 rounded-full font-medium text-sm"
               >
-                <Linkedin className="w-4 h-4" />
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
                 Maxsuel Lima
               </a>
             </div>
