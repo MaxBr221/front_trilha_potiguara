@@ -12,7 +12,30 @@ export default function DicionarioPage() {
 
   useEffect(() => {
     servicoDicionario.listarTodos()
-      .then(setPalavras)
+      .then((dados) => {
+        // Normalização no Front-end
+        const processadas: ConteudoLinguistico[] = [];
+        const vistas = new Set<string>();
+
+        dados.forEach(item => {
+          // Se houver múltiplas palavras separadas por vírgula no campo, vamos separar
+          const palavras = item.palavraTupi.split(',').map(p => p.trim()).filter(Boolean);
+          
+          palavras.forEach(p => {
+            const idNormalizada = p.toLowerCase();
+            if (!vistas.has(idNormalizada)) {
+              vistas.add(idNormalizada);
+              processadas.push({
+                ...item,
+                id: processadas.length > 0 ? `${item.id}-${p}` : item.id, // Garante IDs únicos
+                palavraTupi: p
+              });
+            }
+          });
+        });
+
+        setPalavras(processadas);
+      })
       .catch(console.error)
       .finally(() => setCarregando(false));
   }, []);
