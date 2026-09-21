@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, Loader2, Book, Copy, Check } from 'lucide-react';
+import { Search, Loader2, Book, Copy, Check, Volume2 } from 'lucide-react';
 import { servicoDicionario, ConteudoLinguistico } from '@/services/servicoDicionario';
 
 export default function DicionarioPage() {
@@ -10,15 +10,23 @@ export default function DicionarioPage() {
   const [carregando, setCarregando] = useState(true);
   const [toast, setToast] = useState('');
 
+  const tocarAudioTupi = (palavraTupi: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Evita copiar a palavra ao clicar no som
+    window.speechSynthesis.cancel();
+    const fala = new SpeechSynthesisUtterance(palavraTupi);
+    fala.lang = 'pt-BR';
+    fala.rate = 0.9;
+    fala.pitch = 1.0;
+    window.speechSynthesis.speak(fala);
+  };
+
   useEffect(() => {
     servicoDicionario.listarTodos()
       .then((dados) => {
-        // Normalização no Front-end
         const processadas: ConteudoLinguistico[] = [];
         const vistas = new Set<string>();
 
         dados.forEach(item => {
-          // Se houver múltiplas palavras separadas por vírgula no campo, vamos separar
           const palavras = item.palavraTupi.split(',').map(p => p.trim()).filter(Boolean);
           
           palavras.forEach(p => {
@@ -27,7 +35,7 @@ export default function DicionarioPage() {
               vistas.add(idNormalizada);
               processadas.push({
                 ...item,
-                id: processadas.length > 0 ? `${item.id}-${p}` : item.id, // Garante IDs únicos
+                id: processadas.length > 0 ? `${item.id}-${p}` : item.id,
                 palavraTupi: p
               });
             }
@@ -59,7 +67,6 @@ export default function DicionarioPage() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-10 relative">
       
-      {/* Toast Notification */}
       {toast && (
         <div className="fixed top-20 right-8 bg-stone-800 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-2 z-50 animate-in slide-in-from-top-4">
           <Check className="w-5 h-5 text-emerald-400" />
@@ -107,9 +114,18 @@ export default function DicionarioPage() {
                 </div>
                 
                 <div className="flex justify-between items-start mb-2 pr-8">
-                  <h3 className="text-xl font-bold text-primary group-hover:text-primary-600 transition-colors">
-                    {palavra.palavraTupi}
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xl font-bold text-primary group-hover:text-primary-600 transition-colors">
+                      {palavra.palavraTupi}
+                    </h3>
+                    <button 
+                      onClick={(e) => tocarAudioTupi(palavra.palavraTupi, e)}
+                      className="p-1.5 text-stone-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                      title="Ouvir pronúncia"
+                    >
+                      <Volume2 className="w-5 h-5" />
+                    </button>
+                  </div>
                   <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-1 bg-stone-100 text-stone-500 rounded">
                     {palavra.tipo}
                   </span>
