@@ -169,9 +169,33 @@ export default function LoginPage() {
                   <path d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.8704 19.245 6.21538 17.135 5.26538 14.29L1.27539 17.385C3.25539 21.31 7.3104 24.0001 12.0004 24.0001Z" fill="#34A853" />
                 </svg>
                 Continuar com Google
-              </div>
+              </button>
             </div>
           </div>
+        </div>
+      </div>
+      
+      {/* Absolute Developer Links to avoid footer/scroll */}
+      <div className="absolute bottom-6 left-0 right-0 px-4">
+        <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 max-w-md mx-auto">
+          <a 
+            href="https://www.instagram.com/_maxsueel?stkn=MW9vbHFkbWh5dWEzdw==" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-stone-500 hover:text-[#E1306C] transition-colors bg-white/80 backdrop-blur-sm border border-stone-200/60 px-3 py-1.5 rounded-full font-medium text-xs shadow-sm"
+          >
+            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+            @_maxsueel
+          </a>
+          <a 
+            href="https://www.linkedin.com/in/maxsuel-lima-5a27a635b/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-stone-500 hover:text-[#0a66c2] transition-colors bg-white/80 backdrop-blur-sm border border-stone-200/60 px-3 py-1.5 rounded-full font-medium text-xs shadow-sm"
+          >
+            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+            Maxsuel Lima
+          </a>
         </div>
       </div>
     </div>
