@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, Loader2, Book, Volume2, Copy, Check } from 'lucide-react';
+import { Search, Loader2, Book, Copy, Check } from 'lucide-react';
 import { servicoDicionario, ConteudoLinguistico } from '@/services/servicoDicionario';
 
 export default function DicionarioPage() {
@@ -17,10 +17,14 @@ export default function DicionarioPage() {
       .finally(() => setCarregando(false));
   }, []);
 
+  const removerAcentos = (texto: string) => {
+    return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  };
+
   const palavrasFiltradas = palavras.filter(p => {
-    const termo = busca.toLowerCase();
-    return p.palavraTupi.toLowerCase().includes(termo) || 
-           p.traducaoPtBr.toLowerCase().includes(termo);
+    const termo = removerAcentos(busca);
+    return removerAcentos(p.palavraTupi).includes(termo) || 
+           removerAcentos(p.traducaoPtBr).includes(termo);
   });
 
   const copiarPalavra = (palavra: string) => {
@@ -88,13 +92,6 @@ export default function DicionarioPage() {
                   </span>
                 </div>
                 <p className="text-stone-700 font-medium mb-3">{palavra.traducaoPtBr}</p>
-                
-                {palavra.fonetica && (
-                  <div className="flex items-center gap-2 text-sm text-stone-500 bg-stone-50 px-3 py-2 rounded-lg w-fit">
-                    <Volume2 className="w-4 h-4 text-stone-400" />
-                    <span>/{palavra.fonetica}/</span>
-                  </div>
-                )}
               </div>
             ))
           ) : (

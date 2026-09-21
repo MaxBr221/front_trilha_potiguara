@@ -19,6 +19,7 @@ export default function PerfilPage() {
   const [nomeForm, setNomeForm] = useState('');
   const [fotoPerfilForm, setFotoPerfilForm] = useState('');
   const [mensagemSucesso, setMensagemSucesso] = useState('');
+  const [carregandoSave, setCarregandoSave] = useState(false);
 
   useEffect(() => {
     const fetchDados = async () => {
@@ -47,6 +48,7 @@ export default function PerfilPage() {
   const handleSalvarPerfil = async (e: React.FormEvent) => {
     e.preventDefault();
     if (nomeForm.trim()) {
+      setCarregandoSave(true);
       try {
         await servicoUsuario.atualizarPerfil({ nome: nomeForm, fotoPerfil: fotoPerfilForm });
         atualizarUsuario({ nome: nomeForm, fotoPerfil: fotoPerfilForm });
@@ -54,6 +56,8 @@ export default function PerfilPage() {
         mostrarSucesso('Perfil atualizado com sucesso!');
       } catch (error) {
         console.error('Erro ao atualizar perfil', error);
+      } finally {
+        setCarregandoSave(false);
       }
     }
   };
@@ -266,8 +270,15 @@ export default function PerfilPage() {
                   readOnly
                 />
               </div>
-              <button type="submit" className="w-full bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary/90 transition-colors mt-4">
-                Salvar Alterações
+              <button type="submit" disabled={carregandoSave} className="w-full bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary/90 transition-colors mt-4 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                {carregandoSave ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Salvando...
+                  </>
+                ) : (
+                  'Salvar Alterações'
+                )}
               </button>
             </form>
           </div>

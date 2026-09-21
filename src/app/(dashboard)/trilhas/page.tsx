@@ -41,7 +41,10 @@ export default function TrilhasPage() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        {trails.map((trail) => (
+        {trails.map((trail) => {
+          const isTrilhaAtual = !trail.estaBloqueada && trail.progresso < 100 && trail === trails.find(t => !t.estaBloqueada && t.progresso < 100);
+
+          return (
           <div key={trail.id} className="relative">
             <Link 
               href={trail.estaBloqueada ? '#' : `/trilhas/${trail.id}`}
@@ -60,7 +63,12 @@ export default function TrilhasPage() {
                     <Lock className="w-4 h-4" />
                   </div>
                 ) : (
-                  <span className="bg-stone-100 text-stone-600 text-xs font-bold px-2 py-1 rounded">Nível {trail.nivel}</span>
+                  <div className="flex items-center gap-2">
+                    {isTrilhaAtual && (
+                      <span className="bg-primary/10 text-primary border border-primary/20 text-xs font-bold px-2 py-1 rounded">Trilha Atual</span>
+                    )}
+                    <span className="bg-stone-100 text-stone-600 text-xs font-bold px-2 py-1 rounded">Nível {trail.nivel}</span>
+                  </div>
                 )}
               </div>
               
@@ -83,7 +91,7 @@ export default function TrilhasPage() {
               )}
             </Link>
           </div>
-        ))}
+        )})}
       </div>
     </div>
   );

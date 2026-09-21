@@ -109,7 +109,12 @@ export default function DashboardPage() {
 
       <div className="grid md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
-          <h2 className="text-xl font-bold text-stone-800">Suas Trilhas</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-stone-800">Suas Trilhas</h2>
+            <Link href="/trilhas" className="text-sm font-bold text-primary hover:text-emerald-600 transition-colors">
+              Ver todas
+            </Link>
+          </div>
 
           <div className="grid sm:grid-cols-2 gap-4">
             {trilhas.slice(0, 2).map((trail, index) => (
