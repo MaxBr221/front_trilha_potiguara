@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Loader2, UserPlus, UserMinus, Flame, Trophy, Users } from 'lucide-react';
+import { ArrowLeft, Loader2, UserPlus, UserMinus, Flame, Trophy, Users, X } from 'lucide-react';
 import { servicoUsuario } from '@/services/servicoUsuario';
 import { PerfilPublico } from '@/types/autenticacao';
 
@@ -15,6 +15,7 @@ export default function PerfilPublicoPage() {
   const [carregando, setCarregando] = useState(true);
   const [processandoAcao, setProcessandoAcao] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  const [modalFotoAberta, setModalFotoAberta] = useState(false);
 
   useEffect(() => {
     const carregarPerfil = async () => {
@@ -96,13 +97,21 @@ export default function PerfilPublicoPage() {
         animate={{ opacity: 1, y: 0 }}
         className="bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-sm p-8 text-center"
       >
-        <div className="w-32 h-32 mx-auto rounded-full bg-stone-200 overflow-hidden border-4 border-white shadow-lg mb-6">
+        <div 
+          className="w-32 h-32 mx-auto rounded-full bg-stone-200 overflow-hidden border-4 border-white shadow-lg mb-6 cursor-pointer hover:opacity-90 transition-opacity relative group"
+          onClick={() => perfil.fotoPerfil && setModalFotoAberta(true)}
+        >
           {perfil.fotoPerfil ? (
-            <img 
-              src={perfil.fotoPerfil} 
-              alt={`Foto de ${perfil.nome}`} 
-              className="w-full h-full object-cover"
-            />
+            <>
+              <img 
+                src={perfil.fotoPerfil} 
+                alt={`Foto de ${perfil.nome}`} 
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-white text-xs font-bold">Ver Foto</span>
+              </div>
+            </>
           ) : (
             <div className="w-full h-full bg-primary/20 text-primary flex items-center justify-center font-bold text-5xl">
               {perfil.nome.charAt(0).toUpperCase()}
@@ -162,6 +171,25 @@ export default function PerfilPublicoPage() {
           )}
         </button>
       </motion.div>
+
+      {/* Modal para visualizar foto */}
+      {modalFotoAberta && perfil?.fotoPerfil && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="relative max-w-2xl w-full flex justify-center">
+            <button 
+              onClick={() => setModalFotoAberta(false)} 
+              className="absolute -top-12 right-0 text-white hover:text-stone-300 transition-colors bg-white/10 p-2 rounded-full"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <img 
+              src={perfil.fotoPerfil} 
+              alt={`Foto de ${perfil.nome}`} 
+              className="w-full max-w-md h-auto max-h-[80vh] object-contain rounded-xl shadow-2xl animate-in zoom-in-95 duration-200"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

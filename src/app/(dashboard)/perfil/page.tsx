@@ -250,6 +250,15 @@ export default function PerfilPage() {
                     <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
                   </label>
                 </div>
+                {fotoPerfilForm && (
+                  <button 
+                    type="button" 
+                    onClick={() => setFotoPerfilForm('')}
+                    className="text-sm text-red-500 font-bold hover:text-red-600 transition-colors"
+                  >
+                    Remover Foto
+                  </button>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-bold text-stone-700 mb-1">Nome de Exibição</label>
