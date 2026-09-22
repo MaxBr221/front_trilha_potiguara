@@ -9,8 +9,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import { PalavrasEnsino } from '@/components/features/PalavrasEnsino';
 import { LigarColunasExercicio } from '@/components/features/LigarColunasExercicio';
-import { PalavrasEnsino } from '@/components/features/PalavrasEnsino';
-import { LigarColunasExercicio } from '@/components/features/LigarColunasExercicio';
 import { servicoExercicio, Exercicio } from '@/services/servicoExercicio';
 
 export default function LicaoPage({ params }: { params: Promise<{ id: string }> }) {
