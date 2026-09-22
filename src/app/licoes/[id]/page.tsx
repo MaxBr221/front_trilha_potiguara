@@ -212,7 +212,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
             disabled={(exercicioAtual.tipo !== 'ENSINO' && exercicioAtual.tipo !== 'LIGAR_COLUNAS' && !selectedAnswer) || validando || (exercicioAtual.tipo === 'LIGAR_COLUNAS' && !isChecked)}
             isLoading={validando}
             onClick={exercicioAtual.tipo === 'ENSINO' ? () => { setIsCorrect(true); handleNext(); } : (isChecked ? handleNext : handleCheck)}
-            className={w-full md:w-auto min-w-[150px] font-bold transition-all duration-200 border-b-4 hover:-translate-y-0.5 hover:border-b-[6px] active:translate-y-1 active:border-b-0 }
+            className="w-full md:w-auto min-w-[150px] font-bold transition-all duration-200 border-b-4 hover:-translate-y-0.5 hover:border-b-[6px] active:translate-y-1 active:border-b-0"
           >
             {isChecked || exercicioAtual.tipo === 'ENSINO' ? 'Continuar' : 'Verificar'}
           </Button>
