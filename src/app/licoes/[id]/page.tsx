@@ -9,6 +9,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import { PalavrasEnsino } from '@/components/features/PalavrasEnsino';
 import { LigarColunasExercicio } from '@/components/features/LigarColunasExercicio';
+import { PalavrasEnsino } from '@/components/features/PalavrasEnsino';
+import { LigarColunasExercicio } from '@/components/features/LigarColunasExercicio';
 import { servicoExercicio, Exercicio } from '@/services/servicoExercicio';
 
 export default function LicaoPage({ params }: { params: Promise<{ id: string }> }) {
@@ -136,7 +138,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
                   btnClass = 'border-primary border-b-[6px] bg-primary/10 text-primary active:translate-y-1 active:border-b-2';
                 }
                 
-                if (isChecked && isSelected) {
+                if (isChecked && selectedAnswer === option) {
                   btnClass = isCorrect 
                     ? 'border-emerald-500 border-b-[6px] bg-emerald-100 text-emerald-800'
                     : 'border-rose-500 border-b-[6px] bg-rose-100 text-rose-800 animate-shake';
@@ -148,7 +150,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
                     disabled={isChecked || validando}
                     onClick={() => setSelectedAnswer(option)}
                     aria-pressed={isSelected}
-                    className={px-4 py-4 rounded-2xl border-2 text-left font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2  disabled:opacity-80 disabled:cursor-not-allowed}
+                    className={`px-4 py-4 rounded-2xl border-2 text-left font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${btnClass} disabled:opacity-80 disabled:cursor-not-allowed`}
                   >
                     {option}
                   </button>
