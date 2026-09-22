@@ -31,7 +31,21 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
     const carregarExercicios = async () => {
       try {
         const dados = await servicoExercicio.obterExerciciosPorLicao(id);
-        setExercicios(dados);
+        
+        // Embaralha as opções de cada exercício para não ficarem sempre na mesma ordem
+        const dadosEmbaralhados = dados.map(ex => {
+          if (ex.opcoes && ex.opcoes.length > 0 && ex.tipo !== 'ENSINO') {
+            const opcoes = [...ex.opcoes];
+            for (let i = opcoes.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [opcoes[i], opcoes[j]] = [opcoes[j], opcoes[i]];
+            }
+            return { ...ex, opcoes };
+          }
+          return ex;
+        });
+
+        setExercicios(dadosEmbaralhados);
       } catch (error) {
         console.error('Erro ao buscar exercícios', error);
       } finally {
@@ -189,17 +203,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
                     </div>
                   </div>
                   
-                  {!isCorrect && contextoCultural && (
-                    <motion.div 
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      transition={{ delay: 0.2 }}
-                      className={`mt-2 p-4 rounded-2xl flex items-start gap-3 ${isCorrect ? 'bg-emerald-100/50 text-emerald-800' : 'bg-rose-100/50 text-rose-800'}`}
-                    >
-                      <Info className="w-5 h-5 shrink-0 mt-0.5" />
-                      <p className="text-sm font-medium leading-relaxed">{contextoCultural}</p>
-                    </motion.div>
-                  )}
+
                 </motion.div>
               )}
             </AnimatePresence>
