@@ -5,7 +5,7 @@ import { Exercicio } from '@/services/servicoExercicio';
 
 interface LigarColunasExercicioProps {
   exercicio: Exercicio;
-  onComplete: () => void;
+  onComplete: (xp: number) => void;
 }
 
 // Helper para embaralhar listas (Fisher-Yates)
@@ -86,11 +86,11 @@ export function LigarColunasExercicio({ exercicio, onComplete }: LigarColunasExe
     if (exercicio.opcoes.length > 0 && matchedPairs.length === exercicio.opcoes.length) {
       // Pequeno delay para mostrar a animação do último botão antes de avançar
       const timer = setTimeout(() => {
-        onComplete();
+        onComplete(exercicio.pontuacaoXp);
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [matchedPairs, exercicio.opcoes, onComplete]);
+  }, [matchedPairs, exercicio.opcoes, exercicio.pontuacaoXp, onComplete]);
 
   const handleLeftClick = (val: string) => {
     // Previne clique se estiver processando uma animação ou se o botão já foi acertado
@@ -109,8 +109,8 @@ export function LigarColunasExercicio({ exercicio, onComplete }: LigarColunasExe
       ? matchedPairs.some(p => p.startsWith(val + ':'))
       : matchedPairs.some(p => p.endsWith(':' + val));
     
-    // Some o botão se o par já foi resolvido
-    if (isMatched) return 'opacity-0 pointer-events-none scale-95';
+    // Some o botão se o par já foi resolvido, mantendo o espaço (opacidade 0)
+    if (isMatched) return 'opacity-0 pointer-events-none';
 
     const isSuccess = side === 'left' ? successPair?.left === val : successPair?.right === val;
     const isError = side === 'left' ? errorPair?.left === val : errorPair?.right === val;

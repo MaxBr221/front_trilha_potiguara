@@ -5,10 +5,23 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Users, Loader2, Trophy, Flame, Search, Bell, UserPlus } from 'lucide-react';
 import { servicoUsuario } from '@/services/servicoUsuario';
+import { api } from '@/services/api';
 import { Amigo } from '@/types/autenticacao';
 import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
 
 type Aba = 'ranking' | 'busca' | 'notificacoes';
+
+interface NotificacaoDTO {
+  id: string;
+  remetente: {
+    nome: string;
+    fotoPerfil: string | null;
+  };
+  tipo: string;
+  mensagem: string;
+  lida: boolean;
+  criadoEm: string;
+}
 
 export default function AmigosPage() {
   const [abaAtual, setAbaAtual] = useState<Aba>('ranking');
@@ -24,12 +37,9 @@ export default function AmigosPage() {
   
   const [erro, setErro] = useState<string | null>(null);
   
-  // Estado Aba Notificações (Mock, pois o backend não suporta notificações ainda)
-  const [notificacoesMock] = useState([
-    { id: '1', nome: 'João Pedro', texto: 'começou a seguir você.', lida: false, tempo: '2 horas atrás' },
-    { id: '2', nome: 'Maria Clara', texto: 'começou a seguir você.', lida: true, tempo: '1 dia atrás' },
-    { id: '3', nome: 'Ana', texto: 'começou a seguir você.', lida: true, tempo: '3 dias atrás' }
-  ]);
+  // Estado Aba Notificações
+  const [notificacoes, setNotificacoes] = useState<NotificacaoDTO[]>([]);
+  const [carregandoNotificacoes, setCarregandoNotificacoes] = useState(false);
   const { usuario } = useAutenticacao();
 
   // Carregar Ranking
@@ -99,6 +109,25 @@ export default function AmigosPage() {
     return () => clearTimeout(delayDebounce);
   }, [busca, abaAtual]);
 
+  // Carregar Notificações
+  useEffect(() => {
+    if (abaAtual !== 'notificacoes') return;
+    
+    const carregarNotificacoes = async () => {
+      try {
+        setCarregandoNotificacoes(true);
+        const response = await api.get<NotificacaoDTO[]>('/usuarios/notificacoes');
+        setNotificacoes(response.data);
+      } catch (err) {
+        console.error('Erro ao carregar notificações:', err);
+      } finally {
+        setCarregandoNotificacoes(false);
+      }
+    };
+
+    carregarNotificacoes();
+  }, [abaAtual]);
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center gap-3 mb-6">
@@ -145,7 +174,7 @@ export default function AmigosPage() {
         >
           <Bell className="w-4 h-4 hidden sm:block" />
           <span>Notificações</span>
-          {notificacoesMock.some(n => !n.lida) && (
+          {notificacoes.some(n => !n.lida) && (
             <span className="absolute top-3 right-3 sm:relative sm:top-0 sm:right-0 w-2 h-2 bg-red-500 rounded-full" />
           )}
         </button>
@@ -326,33 +355,47 @@ export default function AmigosPage() {
       {abaAtual === 'notificacoes' && (
         <div className="bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="p-4 bg-stone-50 border-b border-stone-200 text-sm font-semibold text-stone-500 flex justify-between px-6">
-            <span>Avisos Recentes (Demonstração)</span>
+            <span>Notificações</span>
           </div>
-          <ul className="divide-y divide-stone-100">
-            {notificacoesMock.map((notificacao) => (
-              <li 
-                key={notificacao.id}
-                className={`p-4 px-6 transition-colors flex items-center justify-between ${
-                  notificacao.lida ? 'bg-white hover:bg-stone-50' : 'bg-primary/5 hover:bg-primary/10'
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-stone-200 flex items-center justify-center text-stone-500">
-                    <UserPlus className="w-5 h-5" />
+          {carregandoNotificacoes ? (
+            <div className="flex justify-center items-center h-64">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          ) : notificacoes.length === 0 ? (
+            <div className="p-8 text-center text-stone-500">Nenhuma notificação no momento.</div>
+          ) : (
+            <ul className="divide-y divide-stone-100">
+              {notificacoes.map((notificacao) => (
+                <li 
+                  key={notificacao.id}
+                  className={`p-4 px-6 transition-colors flex items-center justify-between ${
+                    notificacao.lida ? 'bg-white hover:bg-stone-50' : 'bg-primary/5 hover:bg-primary/10'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-stone-200 flex-shrink-0 flex items-center justify-center text-stone-500 border-2 border-white shadow-sm">
+                      {notificacao.remetente.fotoPerfil ? (
+                        <img src={notificacao.remetente.fotoPerfil} alt={`Foto de ${notificacao.remetente.nome}`} className="w-full h-full object-cover" />
+                      ) : (
+                        <UserPlus className="w-5 h-5" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-stone-800">
+                        <span className="font-bold">{notificacao.remetente.nome}</span> {notificacao.mensagem}
+                      </p>
+                      <p className="text-sm text-stone-500 mt-1">
+                        {new Date(notificacao.criadoEm).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-stone-800">
-                      <span className="font-bold">{notificacao.nome}</span> {notificacao.texto}
-                    </p>
-                    <p className="text-sm text-stone-500 mt-1">{notificacao.tempo}</p>
-                  </div>
-                </div>
-                {!notificacao.lida && (
-                  <div className="w-3 h-3 bg-primary rounded-full" />
-                )}
-              </li>
-            ))}
-          </ul>
+                  {!notificacao.lida && (
+                    <div className="w-3 h-3 bg-green-500 rounded-full flex-shrink-0" title="Não lida" />
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
     </div>
