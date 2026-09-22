@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 import { X, Check, Flag, Loader2, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
+import { PalavrasEnsino } from '@/components/features/PalavrasEnsino';
+import { LigarColunasExercicio } from '@/components/features/LigarColunasExercicio';
 import { servicoExercicio, Exercicio } from '@/services/servicoExercicio';
 
 export default function LicaoPage({ params }: { params: Promise<{ id: string }> }) {
@@ -115,40 +117,46 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center p-4">
-        <div className="max-w-xl w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <h1 className="text-2xl md:text-3xl font-bold text-stone-800 mb-8">
-            {exercicioAtual.enunciado}
-          </h1>
-          
-          <div className="grid gap-3">
-            {exercicioAtual.opcoes.map((option) => {
-              const isSelected = selectedAnswer === option;
-              let btnClass = 'border-stone-200 border-b-[6px] bg-white text-stone-700 hover:bg-stone-50 hover:border-stone-300 hover:-translate-y-1 hover:border-b-[8px] active:translate-y-1 active:border-b-2';
-              
-              if (isSelected) {
-                btnClass = 'border-primary border-b-[6px] bg-primary/10 text-primary active:translate-y-1 active:border-b-2';
-              }
-              
-              if (isChecked && isSelected) {
-                btnClass = isCorrect 
-                  ? 'border-emerald-500 border-b-[6px] bg-emerald-100 text-emerald-800'
-                  : 'border-rose-500 border-b-[6px] bg-rose-100 text-rose-800 animate-shake';
-              }
+        {exercicioAtual.tipo === 'ENSINO' ? (
+          <PalavrasEnsino exercicio={exercicioAtual} />
+        ) : exercicioAtual.tipo === 'LIGAR_COLUNAS' ? (
+          <LigarColunasExercicio exercicio={exercicioAtual} onComplete={() => { setIsChecked(true); setIsCorrect(true); }} />
+        ) : (
+          <div className="max-w-xl w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <h1 className="text-2xl md:text-3xl font-bold text-stone-800 mb-8">
+              {exercicioAtual.enunciado}
+            </h1>
+            
+            <div className="grid gap-3">
+              {exercicioAtual.opcoes.map((option) => {
+                const isSelected = selectedAnswer === option;
+                let btnClass = 'border-stone-200 border-b-[6px] bg-white text-stone-700 hover:bg-stone-50 hover:border-stone-300 hover:-translate-y-1 hover:border-b-[8px] active:translate-y-1 active:border-b-2';
+                
+                if (isSelected) {
+                  btnClass = 'border-primary border-b-[6px] bg-primary/10 text-primary active:translate-y-1 active:border-b-2';
+                }
+                
+                if (isChecked && isSelected) {
+                  btnClass = isCorrect 
+                    ? 'border-emerald-500 border-b-[6px] bg-emerald-100 text-emerald-800'
+                    : 'border-rose-500 border-b-[6px] bg-rose-100 text-rose-800 animate-shake';
+                }
 
-              return (
-                <button
-                  key={option}
-                  disabled={isChecked || validando}
-                  onClick={() => setSelectedAnswer(option)}
-                  aria-pressed={isSelected}
-                  className={`px-4 py-4 rounded-2xl border-2 text-left font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${btnClass} disabled:opacity-80 disabled:cursor-not-allowed`}
-                >
-                  {option}
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={option}
+                    disabled={isChecked || validando}
+                    onClick={() => setSelectedAnswer(option)}
+                    aria-pressed={isSelected}
+                    className={px-4 py-4 rounded-2xl border-2 text-left font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2  disabled:opacity-80 disabled:cursor-not-allowed}
+                  >
+                    {option}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
       </main>
 
       <footer className={`border-t-2 transition-colors duration-300 ${isChecked ? (isCorrect ? 'border-emerald-200 bg-emerald-50' : 'border-rose-200 bg-rose-50') : 'border-stone-200 bg-white'}`}>
@@ -199,16 +207,12 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
           
           <Button
             size="lg"
-            disabled={!selectedAnswer || validando}
+            disabled={(exercicioAtual.tipo !== 'ENSINO' && exercicioAtual.tipo !== 'LIGAR_COLUNAS' && !selectedAnswer) || validando || (exercicioAtual.tipo === 'LIGAR_COLUNAS' && !isChecked)}
             isLoading={validando}
-            onClick={isChecked ? handleNext : handleCheck}
-            className={`w-full md:w-auto min-w-[150px] font-bold transition-all duration-200 border-b-4 hover:-translate-y-0.5 hover:border-b-[6px] active:translate-y-1 active:border-b-0 ${
-              isChecked 
-                ? (isCorrect ? 'bg-emerald-500 text-white border-emerald-700 hover:bg-emerald-400 focus:ring-emerald-500' : 'bg-rose-500 text-white border-rose-700 hover:bg-rose-400 focus:ring-rose-500') 
-                : 'bg-primary text-white border-emerald-800 hover:bg-emerald-600 focus:ring-primary'
-            }`}
+            onClick={exercicioAtual.tipo === 'ENSINO' ? () => { setIsCorrect(true); handleNext(); } : (isChecked ? handleNext : handleCheck)}
+            className={w-full md:w-auto min-w-[150px] font-bold transition-all duration-200 border-b-4 hover:-translate-y-0.5 hover:border-b-[6px] active:translate-y-1 active:border-b-0 }
           >
-            {isChecked ? 'Continuar' : 'Verificar'}
+            {isChecked || exercicioAtual.tipo === 'ENSINO' ? 'Continuar' : 'Verificar'}
           </Button>
         </div>
       </footer>
