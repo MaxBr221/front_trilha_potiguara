@@ -37,6 +37,7 @@ export default function AmigosPage() {
   const [buscando, setBuscando] = useState(false);
   
   const [erro, setErro] = useState<string | null>(null);
+  const [seguidos, setSeguidos] = useState<Set<string>>(new Set());
   
   // Estado Aba Notificações
   const [notificacoes, setNotificacoes] = useState<NotificacaoDTO[]>([]);
@@ -58,6 +59,11 @@ export default function AmigosPage() {
         if (!perfilAtual) {
           perfilAtual = await servicoUsuario.obterPerfil();
         }
+
+        // Pre-popular lista de seguidos
+        const idsSeguidos = new Set(amigosList.map(a => String(a.id)));
+        idsSeguidos.delete(String(perfilAtual.id));
+        setSeguidos(idsSeguidos);
 
         const euComoAmigo: Amigo = {
           id: String(perfilAtual.id),
@@ -296,7 +302,7 @@ export default function AmigosPage() {
               <ul className="divide-y divide-stone-100">
                 {resultadosBusca.map((amigo, index) => {
                   const isMe = String(amigo.id) === String(usuario?.id);
-                  if (isMe && !busca.trim()) return null; // Não sugerir a si mesmo se não buscou nome exato
+                  if (isMe && !busca.trim()) return null;
 
                   return (
                     <motion.li 
@@ -305,11 +311,8 @@ export default function AmigosPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
                     >
-                      <Link 
-                        href={`/perfil/${amigo.id}`}
-                        className="flex items-center justify-between p-4 px-6 hover:bg-stone-50 transition-colors cursor-pointer bg-white"
-                      >
-                        <div className="flex items-center gap-4">
+                      <div className="flex items-center justify-between p-4 px-6 hover:bg-stone-50 transition-colors bg-white">
+                        <Link href={`/perfil/${amigo.id}`} className="flex items-center gap-4 flex-1 min-w-0">
                           <div className="w-12 h-12 rounded-full bg-stone-200 overflow-hidden flex-shrink-0 border-2 border-white shadow-sm">
                             {amigo.fotoPerfil ? (
                               <img 
@@ -325,20 +328,56 @@ export default function AmigosPage() {
                             )}
                           </div>
                           
-                          <div>
-                            <h3 className="font-bold text-stone-800">
+                          <div className="min-w-0">
+                            <h3 className="font-bold text-stone-800 truncate">
                               {amigo.nome} {isMe && '(Você)'}
                             </h3>
                             <div className="text-stone-500 text-sm font-medium">
                               {amigo.xp} XP globais
                             </div>
                           </div>
-                        </div>
+                        </Link>
                         
-                        <div className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold rounded-xl text-sm transition-colors">
-                          Ver Perfil
+                        <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                          {!isMe && (
+                            <button
+                              onClick={async (e) => {
+                                e.preventDefault();
+                                const btn = e.currentTarget;
+                                const jaSeguindo = seguidos.has(String(amigo.id));
+                                try {
+                                  btn.disabled = true;
+                                  if (jaSeguindo) {
+                                    await servicoUsuario.deixarDeSeguirUsuario(String(amigo.id));
+                                    setSeguidos(prev => { const next = new Set(prev); next.delete(String(amigo.id)); return next; });
+                                  } else {
+                                    await servicoUsuario.seguirUsuario(String(amigo.id));
+                                    setSeguidos(prev => new Set(prev).add(String(amigo.id)));
+                                  }
+                                } catch (err) {
+                                  console.error('Erro ao seguir/deixar de seguir:', err);
+                                } finally {
+                                  btn.disabled = false;
+                                }
+                              }}
+                              className={`px-4 py-2 font-bold rounded-xl text-sm transition-colors flex items-center gap-1.5 ${
+                                seguidos.has(String(amigo.id))
+                                  ? 'bg-primary/10 text-primary hover:bg-primary/20'
+                                  : 'bg-primary text-white hover:bg-primary/90'
+                              }`}
+                            >
+                              <UserPlus className="w-4 h-4" />
+                              {seguidos.has(String(amigo.id)) ? 'Seguindo' : 'Seguir'}
+                            </button>
+                          )}
+                          <Link
+                            href={`/perfil/${amigo.id}`}
+                            className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold rounded-xl text-sm transition-colors"
+                          >
+                            Ver Perfil
+                          </Link>
                         </div>
-                      </Link>
+                      </div>
                     </motion.li>
                   );
                 })}
