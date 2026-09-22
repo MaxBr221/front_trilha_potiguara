@@ -6,6 +6,7 @@ export interface Usuario {
   sequenciaAtual: number;
   perfil: string;
   fotoPerfil?: string;
+  fotoPerfilPosicao?: string;
   createdAt?: string;
 }
 
@@ -20,6 +21,7 @@ export interface Amigo {
   xp: number;
   sequenciaAtual: number;
   fotoPerfil?: string;
+  fotoPerfilPosicao?: string;
 }
 
 export interface PerfilPublico extends Amigo {

@@ -2,7 +2,7 @@ import { api } from './api';
 import { Usuario, Amigo, PerfilPublico } from '@/types/autenticacao';
 
 export const servicoUsuario = {
-  async atualizarPerfil(dados: { fotoPerfil?: string; nome?: string }): Promise<Usuario> {
+  async atualizarPerfil(dados: { fotoPerfil?: string; fotoPerfilPosicao?: string; nome?: string }): Promise<Usuario> {
     const response = await api.put<Usuario>('/usuarios/me', dados);
     return response.data;
   },

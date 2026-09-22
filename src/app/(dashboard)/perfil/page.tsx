@@ -18,6 +18,7 @@ export default function PerfilPage() {
   // Estados dos Formulários
   const [nomeForm, setNomeForm] = useState('');
   const [fotoPerfilForm, setFotoPerfilForm] = useState('');
+  const [fotoPerfilPosicaoForm, setFotoPerfilPosicaoForm] = useState('center');
   const [mensagemSucesso, setMensagemSucesso] = useState('');
   const [carregandoSave, setCarregandoSave] = useState(false);
 
@@ -40,6 +41,7 @@ export default function PerfilPage() {
       const timeout = setTimeout(() => {
         setNomeForm(usuario.nome);
         setFotoPerfilForm(usuario.fotoPerfil || '');
+        setFotoPerfilPosicaoForm(usuario.fotoPerfilPosicao || 'center');
       }, 0);
       return () => clearTimeout(timeout);
     }
@@ -50,8 +52,8 @@ export default function PerfilPage() {
     if (nomeForm.trim()) {
       setCarregandoSave(true);
       try {
-        await servicoUsuario.atualizarPerfil({ nome: nomeForm, fotoPerfil: fotoPerfilForm });
-        atualizarUsuario({ nome: nomeForm, fotoPerfil: fotoPerfilForm });
+        await servicoUsuario.atualizarPerfil({ nome: nomeForm, fotoPerfil: fotoPerfilForm, fotoPerfilPosicao: fotoPerfilPosicaoForm });
+        atualizarUsuario({ nome: nomeForm, fotoPerfil: fotoPerfilForm, fotoPerfilPosicao: fotoPerfilPosicaoForm });
         setModalEdicaoAberto(false);
         mostrarSucesso('Perfil atualizado com sucesso!');
       } catch (error) {
@@ -80,9 +82,10 @@ export default function PerfilPage() {
       reader.onloadend = async () => {
         const novaFoto = reader.result as string;
         try {
-          await servicoUsuario.atualizarPerfil({ fotoPerfil: novaFoto });
+          await servicoUsuario.atualizarPerfil({ fotoPerfil: novaFoto, fotoPerfilPosicao: 'center' });
           setFotoPerfilForm(novaFoto);
-          atualizarUsuario({ fotoPerfil: novaFoto });
+          setFotoPerfilPosicaoForm('center');
+          atualizarUsuario({ fotoPerfil: novaFoto, fotoPerfilPosicao: 'center' });
           mostrarSucesso('Foto de perfil atualizada!');
         } catch (error) {
           console.error('Erro ao atualizar foto de perfil', error);
@@ -133,7 +136,7 @@ export default function PerfilPage() {
         
         <div className="w-32 h-32 bg-primary/10 rounded-full flex items-center justify-center shrink-0 border-4 border-white shadow-md relative z-10 overflow-hidden group">
           {usuario?.fotoPerfil ? (
-            <img src={usuario.fotoPerfil} alt="Perfil" className="w-full h-full object-cover" />
+            <img src={usuario.fotoPerfil} alt="Perfil" className="w-full h-full object-cover" style={{ objectPosition: usuario.fotoPerfilPosicao || 'center' }} />
           ) : (
             <span className="text-5xl font-bold text-primary">{nomeUsuario.charAt(0).toUpperCase()}</span>
           )}
@@ -241,7 +244,7 @@ export default function PerfilPage() {
               <div className="flex flex-col items-center gap-4 mb-2">
                 <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center border-2 border-primary/20 overflow-hidden relative group">
                   {fotoPerfilForm ? (
-                    <img src={fotoPerfilForm} alt="Preview" className="w-full h-full object-cover" />
+                    <img src={fotoPerfilForm} alt="Preview" className="w-full h-full object-cover" style={{ objectPosition: fotoPerfilPosicaoForm || 'center' }} />
                   ) : (
                     <span className="text-3xl font-bold text-primary">{nomeForm.charAt(0).toUpperCase() || 'U'}</span>
                   )}
@@ -251,13 +254,30 @@ export default function PerfilPage() {
                   </label>
                 </div>
                 {fotoPerfilForm && (
-                  <button 
-                    type="button" 
-                    onClick={() => setFotoPerfilForm('')}
-                    className="text-sm text-red-500 font-bold hover:text-red-600 transition-colors"
-                  >
-                    Remover Foto
-                  </button>
+                  <div className="flex flex-col items-center gap-2 w-full">
+                    <button 
+                      type="button" 
+                      onClick={() => { setFotoPerfilForm(''); setFotoPerfilPosicaoForm('center'); }}
+                      className="text-sm text-red-500 font-bold hover:text-red-600 transition-colors"
+                    >
+                      Remover Foto
+                    </button>
+                    
+                    <div className="w-full mt-2">
+                      <label className="block text-sm font-bold text-stone-700 mb-1">Alinhamento da Foto</label>
+                      <select
+                        value={fotoPerfilPosicaoForm}
+                        onChange={(e) => setFotoPerfilPosicaoForm(e.target.value)}
+                        className="w-full border-2 border-stone-200 bg-white text-stone-800 rounded-xl p-2 focus:border-primary focus:outline-none transition-colors"
+                      >
+                        <option value="center">Centro</option>
+                        <option value="top">Cima</option>
+                        <option value="bottom">Baixo</option>
+                        <option value="left">Esquerda</option>
+                        <option value="right">Direita</option>
+                      </select>
+                    </div>
+                  </div>
                 )}
               </div>
               <div>

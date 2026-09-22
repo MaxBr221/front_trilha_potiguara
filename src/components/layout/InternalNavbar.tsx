@@ -53,7 +53,7 @@ export function InternalNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
         {/* User Avatar Placeholder */}
         <Link href="/perfil" className="w-9 h-9 bg-primary/20 text-primary rounded-full flex items-center justify-center font-bold overflow-hidden border border-primary/20 hover:ring-2 hover:ring-primary/50 transition-all cursor-pointer">
           {usuario?.fotoPerfil ? (
-            <img src={usuario.fotoPerfil} alt="Perfil" className="w-full h-full object-cover" />
+            <img src={usuario.fotoPerfil} alt="Perfil" className="w-full h-full object-cover" style={{ objectPosition: usuario.fotoPerfilPosicao || 'center' }} />
           ) : (
             usuario?.nome?.charAt(0).toUpperCase() || 'U'
           )}

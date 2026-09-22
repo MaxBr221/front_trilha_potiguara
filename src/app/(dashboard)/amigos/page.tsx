@@ -16,6 +16,7 @@ interface NotificacaoDTO {
   remetente: {
     nome: string;
     fotoPerfil: string | null;
+    fotoPerfilPosicao?: string;
   };
   tipo: string;
   mensagem: string;
@@ -63,7 +64,8 @@ export default function AmigosPage() {
           nome: perfilAtual.nome,
           xp: perfilAtual.xp,
           sequenciaAtual: perfilAtual.sequenciaAtual,
-          fotoPerfil: perfilAtual.fotoPerfil
+          fotoPerfil: perfilAtual.fotoPerfil,
+          fotoPerfilPosicao: perfilAtual.fotoPerfilPosicao
         };
 
         const todos = [...amigosList];
@@ -234,6 +236,7 @@ export default function AmigosPage() {
                               src={amigo.fotoPerfil} 
                               alt={`Foto de ${amigo.nome}`} 
                               className="w-full h-full object-cover"
+                              style={{ objectPosition: amigo.fotoPerfilPosicao || 'center' }}
                             />
                           ) : (
                             <div className="w-full h-full bg-primary/20 text-primary flex items-center justify-center font-bold text-lg">
@@ -313,6 +316,7 @@ export default function AmigosPage() {
                                 src={amigo.fotoPerfil} 
                                 alt={`Foto de ${amigo.nome}`} 
                                 className="w-full h-full object-cover"
+                                style={{ objectPosition: amigo.fotoPerfilPosicao || 'center' }}
                               />
                             ) : (
                               <div className="w-full h-full bg-primary/20 text-primary flex items-center justify-center font-bold text-lg">
@@ -375,7 +379,7 @@ export default function AmigosPage() {
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-full overflow-hidden bg-stone-200 flex-shrink-0 flex items-center justify-center text-stone-500 border-2 border-white shadow-sm">
                       {notificacao.remetente.fotoPerfil ? (
-                        <img src={notificacao.remetente.fotoPerfil} alt={`Foto de ${notificacao.remetente.nome}`} className="w-full h-full object-cover" />
+                        <img src={notificacao.remetente.fotoPerfil} alt={`Foto de ${notificacao.remetente.nome}`} className="w-full h-full object-cover" style={{ objectPosition: notificacao.remetente.fotoPerfilPosicao || 'center' }} />
                       ) : (
                         <UserPlus className="w-5 h-5" />
                       )}
