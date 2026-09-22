@@ -191,7 +191,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
                     </div>
                   </div>
                   
-                  {contextoCultural && (
+                  {!isCorrect && contextoCultural && (
                     <motion.div 
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
