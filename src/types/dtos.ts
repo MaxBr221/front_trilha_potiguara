@@ -23,4 +23,5 @@ export interface TrilhaResponseDTO {
   icon: string;
   corBase: string;
   estaBloqueada?: boolean;
+  imageUrl?: string;
 }

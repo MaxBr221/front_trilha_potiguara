@@ -8,6 +8,12 @@ import { Button } from '@/components/ui/Button';
 import { servicoTrilha } from '@/services/servicoTrilha';
 import { TrilhaResponseDTO, ModuloResponseDTO } from '@/types/dtos';
 
+const imgMap: Record<string, string> = {
+  'Trilha Potiguara Básica': '/images/trilhas/potiguara_basica.jpg',
+  'Vocabulário do Dia a Dia': '/images/trilhas/vocabulario.jpg',
+  'Mitos e Lendas Tupi': '/images/trilhas/mitos.jpg'
+};
+
 export default function TrilhaDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { id } = use(params);
@@ -70,8 +76,14 @@ export default function TrilhaDetailsPage({ params }: { params: Promise<{ id: st
         </button>
         
         <div className={`bg-${trail.corBase}-50 rounded-3xl p-6 md:p-10 flex flex-col md:flex-row items-center gap-8 border-2 border-b-[6px] border-${trail.corBase}-200/50`}>
-          <div className={`w-24 h-24 bg-${trail.corBase}-100 rounded-3xl flex items-center justify-center text-5xl shadow-sm shrink-0`}>
-            {trail.icon}
+          <div className={`w-24 h-24 bg-${trail.corBase}-100 rounded-3xl flex items-center justify-center text-5xl shadow-sm shrink-0 overflow-hidden`}>
+            {trail.imageUrl ? (
+              <img src={trail.imageUrl} alt={trail.title} className="w-full h-full object-cover" />
+            ) : imgMap[trail.title.trim()] ? (
+              <img src={imgMap[trail.title.trim()]} alt={trail.title} className="w-full h-full object-cover" />
+            ) : (
+              trail.icon
+            )}
           </div>
           <div className="text-center md:text-left flex-1">
             <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold bg-${trail.corBase}-200 text-${trail.corBase}-800 mb-3`}>

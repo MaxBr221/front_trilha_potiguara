@@ -62,8 +62,10 @@ export default function TrilhasPage() {
             >
               <div className="flex items-start justify-between mb-4">
                 <div className={`w-14 h-14 bg-${trail.corBase}-100 text-${trail.corBase}-700 rounded-2xl flex items-center justify-center text-3xl overflow-hidden shadow-sm`}>
-                  {imgMap[trail.title] ? (
-                    <img src={imgMap[trail.title]} alt={trail.title} className="w-full h-full object-cover" />
+                  {trail.imageUrl ? (
+                    <img src={trail.imageUrl} alt={trail.title} className="w-full h-full object-cover" />
+                  ) : imgMap[trail.title.trim()] ? (
+                    <img src={imgMap[trail.title.trim()]} alt={trail.title} className="w-full h-full object-cover" />
                   ) : (
                     trail.icon
                   )}
