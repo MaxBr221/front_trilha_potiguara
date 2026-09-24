@@ -15,7 +15,17 @@ export default function DicionarioPage() {
     window.speechSynthesis.cancel();
     
     // Remove o apóstrofo (e outros caracteres que pausam a voz) para que o motor leia a palavra inteira
-    const palavraSanitizada = palavraTupi.replace(/['´`]/g, '');
+    let palavraSanitizada = palavraTupi.replace(/['´`]/g, '');
+
+    // Mapeamento fonético para a voz em pt-BR pronunciar corretamente os sons nasais e vogais do Tupi
+    palavraSanitizada = palavraSanitizada
+      .replace(/ĩ/g, 'im')
+      .replace(/ẽ/g, 'em')
+      .replace(/ũ/g, 'um')
+      .replace(/ỹ/g, 'im')
+      .replace(/y/g, 'i')
+      .replace(/î/g, 'i')
+      .replace(/û/g, 'u');
 
     const fala = new SpeechSynthesisUtterance(palavraSanitizada);
     fala.lang = 'pt-BR';
