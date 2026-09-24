@@ -86,7 +86,7 @@ export default function PerfilPublicoPage() {
     <div className="max-w-2xl mx-auto space-y-6">
       <button 
         onClick={() => router.back()}
-        className="flex items-center gap-2 text-stone-500 hover:text-stone-800 mb-6 transition-colors"
+        className="flex items-center gap-2 text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>Voltar</span>
@@ -95,10 +95,10 @@ export default function PerfilPublicoPage() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-sm p-8 text-center"
+        className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-sm p-8 text-center"
       >
         <div 
-          className="w-32 h-32 mx-auto rounded-full bg-stone-200 overflow-hidden border-4 border-white shadow-lg mb-6 cursor-pointer hover:opacity-90 transition-opacity relative group"
+          className="w-32 h-32 mx-auto rounded-full bg-stone-200 dark:bg-stone-800 overflow-hidden border-4 border-white dark:border-stone-900 shadow-lg mb-6 cursor-pointer hover:opacity-90 transition-opacity relative group"
           onClick={() => perfil.fotoPerfil && setModalFotoAberta(true)}
         >
           {perfil.fotoPerfil ? (
@@ -120,31 +120,31 @@ export default function PerfilPublicoPage() {
           )}
         </div>
 
-        <h1 className="text-3xl font-bold text-stone-800 mb-2">{perfil.nome}</h1>
+        <h1 className="text-3xl font-bold text-stone-800 dark:text-stone-100 mb-2">{perfil.nome}</h1>
         
         <div className="flex flex-wrap justify-center gap-6 mt-8 mb-8">
           <div className="flex flex-col items-center gap-1">
-            <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600">
+            <div className="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
               <Trophy className="w-6 h-6" />
             </div>
-            <span className="font-bold text-stone-800">{perfil.xp}</span>
-            <span className="text-xs text-stone-500 uppercase font-bold tracking-wider">XP Total</span>
+            <span className="font-bold text-stone-800 dark:text-stone-100">{perfil.xp}</span>
+            <span className="text-xs text-stone-500 dark:text-stone-400 uppercase font-bold tracking-wider">XP Total</span>
           </div>
 
           <div className="flex flex-col items-center gap-1">
-            <div className="w-12 h-12 rounded-2xl bg-orange-100 flex items-center justify-center text-orange-500">
+            <div className="w-12 h-12 rounded-2xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-500 dark:text-orange-400">
               <Flame className="w-6 h-6" />
             </div>
-            <span className="font-bold text-stone-800">{perfil.sequenciaAtual}</span>
-            <span className="text-xs text-stone-500 uppercase font-bold tracking-wider">Dias Seguidos</span>
+            <span className="font-bold text-stone-800 dark:text-stone-100">{perfil.sequenciaAtual}</span>
+            <span className="text-xs text-stone-500 dark:text-stone-400 uppercase font-bold tracking-wider">Dias Seguidos</span>
           </div>
 
           <div className="flex flex-col items-center gap-1">
-            <div className="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center text-blue-500">
+            <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-500 dark:text-blue-400">
               <Users className="w-6 h-6" />
             </div>
-            <span className="font-bold text-stone-800">{perfil.totalAmigos}</span>
-            <span className="text-xs text-stone-500 uppercase font-bold tracking-wider">Amigos</span>
+            <span className="font-bold text-stone-800 dark:text-stone-100">{perfil.totalAmigos}</span>
+            <span className="text-xs text-stone-500 dark:text-stone-400 uppercase font-bold tracking-wider">Amigos</span>
           </div>
         </div>
 
@@ -153,7 +153,7 @@ export default function PerfilPublicoPage() {
           disabled={processandoAcao}
           className={`w-full max-w-sm mx-auto flex items-center justify-center gap-2 py-4 rounded-2xl font-bold text-lg transition-all active:scale-95 ${
             perfil.isAmigo 
-              ? 'bg-stone-100 text-stone-700 hover:bg-stone-200' 
+              ? 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700' 
               : 'bg-primary text-white hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30'
           } disabled:opacity-70 disabled:cursor-not-allowed`}
         >

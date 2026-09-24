@@ -131,14 +131,14 @@ export default function PerfilPage() {
       )}
 
       {/* Header Profile */}
-      <div className="bg-white rounded-3xl p-8 shadow-sm border border-stone-200 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
+      <div className="bg-white dark:bg-stone-900 rounded-3xl p-8 shadow-sm border border-stone-200 dark:border-stone-800 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 dark:bg-primary/10 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
         
-        <div className="w-32 h-32 bg-primary/10 rounded-full flex items-center justify-center shrink-0 border-4 border-white shadow-md relative z-10 overflow-hidden group">
+        <div className="w-32 h-32 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center shrink-0 border-4 border-white dark:border-stone-900 shadow-md relative z-10 overflow-hidden group">
           {usuario?.fotoPerfil ? (
             <img src={usuario.fotoPerfil} alt="Perfil" className="w-full h-full object-cover" style={{ objectPosition: usuario.fotoPerfilPosicao || 'center' }} />
           ) : (
-            <span className="text-5xl font-bold text-primary">{nomeUsuario.charAt(0).toUpperCase()}</span>
+            <span className="text-5xl font-bold text-primary dark:text-primary-400">{nomeUsuario.charAt(0).toUpperCase()}</span>
           )}
           <label className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
             <span className="text-white text-sm font-bold mt-1">Alterar</span>
@@ -147,8 +147,8 @@ export default function PerfilPage() {
         </div>
         
         <div className="text-center md:text-left flex-1 relative z-10">
-          <h1 className="text-3xl font-bold text-stone-800 mb-2">{nomeUsuario}</h1>
-          <div className="flex flex-col md:flex-row items-center gap-4 text-stone-500">
+          <h1 className="text-3xl font-bold text-stone-800 dark:text-stone-100 mb-2">{nomeUsuario}</h1>
+          <div className="flex flex-col md:flex-row items-center gap-4 text-stone-500 dark:text-stone-400">
             <span className="flex items-center gap-1">
               <Mail className="w-4 h-4" />
               {emailUsuario}
@@ -164,55 +164,55 @@ export default function PerfilPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-stone-200 flex flex-col items-center justify-center text-center hover:shadow-md transition-shadow">
-          <div className="w-16 h-16 bg-amber-100 text-amber-500 rounded-2xl flex items-center justify-center mb-4">
+        <div className="bg-white dark:bg-stone-900 p-6 rounded-2xl border border-stone-200 dark:border-stone-800 flex flex-col items-center justify-center text-center hover:shadow-md transition-shadow">
+          <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 text-amber-500 dark:text-amber-400 rounded-2xl flex items-center justify-center mb-4">
             <Flame className="w-8 h-8" />
           </div>
-          <h3 className="text-3xl font-bold text-stone-800">
+          <h3 className="text-3xl font-bold text-stone-800 dark:text-stone-100">
             <AnimatedCounter value={dados.diasOfensiva} />
           </h3>
-          <p className="text-stone-500 font-medium">Dias de Ofensiva</p>
+          <p className="text-stone-500 dark:text-stone-400 font-medium">Dias de Ofensiva</p>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-stone-200 flex flex-col items-center justify-center text-center hover:shadow-md transition-shadow">
-          <div className="w-16 h-16 bg-blue-100 text-blue-500 rounded-2xl flex items-center justify-center mb-4">
+        <div className="bg-white dark:bg-stone-900 p-6 rounded-2xl border border-stone-200 dark:border-stone-800 flex flex-col items-center justify-center text-center hover:shadow-md transition-shadow">
+          <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 text-blue-500 dark:text-blue-400 rounded-2xl flex items-center justify-center mb-4">
             <Zap className="w-8 h-8" />
           </div>
-          <h3 className="text-3xl font-bold text-stone-800">
+          <h3 className="text-3xl font-bold text-stone-800 dark:text-stone-100">
             <AnimatedCounter value={dados.xp} />
           </h3>
-          <p className="text-stone-500 font-medium">XP Total</p>
+          <p className="text-stone-500 dark:text-stone-400 font-medium">XP Total</p>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-stone-200 flex flex-col items-center justify-center text-center hover:shadow-md transition-shadow">
-          <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-4">
+        <div className="bg-white dark:bg-stone-900 p-6 rounded-2xl border border-stone-200 dark:border-stone-800 flex flex-col items-center justify-center text-center hover:shadow-md transition-shadow">
+          <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center mb-4">
             <BookOpen className="w-8 h-8" />
           </div>
-          <h3 className="text-3xl font-bold text-stone-800">
+          <h3 className="text-3xl font-bold text-stone-800 dark:text-stone-100">
             <AnimatedCounter value={dados.licoesConcluidas} />
           </h3>
-          <p className="text-stone-500 font-medium">Lições Concluídas</p>
+          <p className="text-stone-500 dark:text-stone-400 font-medium">Lições Concluídas</p>
         </div>
       </div>
 
       {/* Settings Sections */}
       <div className="grid md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
-          <div className="p-6 border-b border-stone-100">
-            <h2 className="text-xl font-bold text-stone-800">Configurações da Conta</h2>
+        <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden">
+          <div className="p-6 border-b border-stone-100 dark:border-stone-800">
+            <h2 className="text-xl font-bold text-stone-800 dark:text-stone-100">Configurações da Conta</h2>
           </div>
           <div className="p-2">
             <button 
               onClick={() => setModalEdicaoAberto(true)}
-              className="w-full flex items-center justify-between p-4 hover:bg-stone-50 rounded-xl transition-colors text-left group"
+              className="w-full flex items-center justify-between p-4 hover:bg-stone-50 dark:hover:bg-stone-800/50 rounded-xl transition-colors text-left group"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-stone-100 text-stone-600 rounded-full flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                <div className="w-10 h-10 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 rounded-full flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition-colors">
                   <User className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="font-bold text-stone-800">Editar Perfil</p>
-                  <p className="text-sm text-stone-500">Altere seu nome de exibição</p>
+                  <p className="font-bold text-stone-800 dark:text-stone-100">Editar Perfil</p>
+                  <p className="text-sm text-stone-500 dark:text-stone-400">Altere seu nome de exibição</p>
                 </div>
               </div>
             </button>
@@ -222,7 +222,7 @@ export default function PerfilPage() {
         <div className="space-y-6 flex flex-col justify-end">
           <button 
             onClick={logout}
-            className="w-full bg-white border border-red-200 text-red-600 rounded-2xl p-4 flex items-center justify-center gap-2 font-bold hover:bg-red-50 transition-colors"
+            className="w-full bg-white dark:bg-stone-900 border border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-500 rounded-2xl p-4 flex items-center justify-center gap-2 font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
           >
             <LogOut className="w-5 h-5" />
             Sair da Conta
@@ -233,10 +233,10 @@ export default function PerfilPage() {
       {/* Modal Editar Perfil */}
       {modalEdicaoAberto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center p-6 border-b border-stone-100">
-              <h3 className="text-xl font-bold text-stone-800">Editar Perfil</h3>
-              <button onClick={() => setModalEdicaoAberto(false)} className="text-stone-400 hover:text-stone-600 transition-colors">
+          <div className="bg-white dark:bg-stone-900 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-6 border-b border-stone-100 dark:border-stone-800">
+              <h3 className="text-xl font-bold text-stone-800 dark:text-stone-100">Editar Perfil</h3>
+              <button onClick={() => setModalEdicaoAberto(false)} className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors">
                 <X className="w-6 h-6" />
               </button>
             </div>
@@ -264,11 +264,11 @@ export default function PerfilPage() {
                     </button>
                     
                     <div className="w-full mt-2">
-                      <label className="block text-sm font-bold text-stone-700 mb-1">Alinhamento da Foto</label>
+                      <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-1">Alinhamento da Foto</label>
                       <select
                         value={fotoPerfilPosicaoForm}
                         onChange={(e) => setFotoPerfilPosicaoForm(e.target.value)}
-                        className="w-full border-2 border-stone-200 bg-white text-stone-800 rounded-xl p-2 focus:border-primary focus:outline-none transition-colors"
+                        className="w-full border-2 border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-100 rounded-xl p-2 focus:border-primary focus:outline-none transition-colors"
                       >
                         <option value="center">Centro</option>
                         <option value="top">Cima</option>
@@ -281,21 +281,21 @@ export default function PerfilPage() {
                 )}
               </div>
               <div>
-                <label className="block text-sm font-bold text-stone-700 mb-1">Nome de Exibição</label>
+                <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-1">Nome de Exibição</label>
                 <input 
                   type="text" 
                   value={nomeForm}
                   onChange={(e) => setNomeForm(e.target.value)}
-                  className="w-full border-2 border-stone-200 bg-white text-stone-800 rounded-xl p-3 focus:border-primary focus:outline-none transition-colors"
+                  className="w-full border-2 border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-100 rounded-xl p-3 focus:border-primary focus:outline-none transition-colors"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold text-stone-700 mb-1">E-mail (Apenas leitura)</label>
+                <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-1">E-mail (Apenas leitura)</label>
                 <input 
                   type="email" 
                   value={emailUsuario}
-                  className="w-full border-2 border-stone-100 bg-stone-50 text-stone-500 rounded-xl p-3 cursor-not-allowed outline-none"
+                  className="w-full border-2 border-stone-100 dark:border-stone-800 bg-stone-50 dark:bg-stone-900/50 text-stone-500 dark:text-stone-400 rounded-xl p-3 cursor-not-allowed outline-none"
                   readOnly
                 />
               </div>

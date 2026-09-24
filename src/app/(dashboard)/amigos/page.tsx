@@ -139,23 +139,23 @@ export default function AmigosPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+        <div className="w-12 h-12 rounded-2xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary dark:text-primary-400">
           <Trophy className="w-6 h-6" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-stone-800">Ranking de Amigos</h1>
-          <p className="text-stone-500">Veja quem está dominando o Tupi Digital</p>
+          <h1 className="text-3xl font-bold text-stone-800 dark:text-stone-100">Ranking de Amigos</h1>
+          <p className="text-stone-500 dark:text-stone-400">Veja quem está dominando o Tupi Digital</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex p-1 bg-stone-200/50 rounded-2xl w-full mb-6">
+      <div className="flex p-1 bg-stone-200/50 dark:bg-stone-800/50 rounded-2xl w-full mb-6">
         <button
           onClick={() => setAbaAtual('ranking')}
           className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${
             abaAtual === 'ranking' 
-              ? 'bg-white text-stone-800 shadow-sm' 
-              : 'text-stone-500 hover:text-stone-700'
+              ? 'bg-white dark:bg-stone-700 text-stone-800 dark:text-white shadow-sm' 
+              : 'text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200'
           }`}
         >
           <Trophy className="w-4 h-4 hidden sm:block" />
@@ -165,8 +165,8 @@ export default function AmigosPage() {
           onClick={() => setAbaAtual('busca')}
           className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${
             abaAtual === 'busca' 
-              ? 'bg-white text-stone-800 shadow-sm' 
-              : 'text-stone-500 hover:text-stone-700'
+              ? 'bg-white dark:bg-stone-700 text-stone-800 dark:text-white shadow-sm' 
+              : 'text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200'
           }`}
         >
           <Search className="w-4 h-4 hidden sm:block" />
@@ -176,8 +176,8 @@ export default function AmigosPage() {
           onClick={() => setAbaAtual('notificacoes')}
           className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 relative ${
             abaAtual === 'notificacoes' 
-              ? 'bg-white text-stone-800 shadow-sm' 
-              : 'text-stone-500 hover:text-stone-700'
+              ? 'bg-white dark:bg-stone-700 text-stone-800 dark:text-white shadow-sm' 
+              : 'text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200'
           }`}
         >
           <Bell className="w-4 h-4 hidden sm:block" />
@@ -201,24 +201,24 @@ export default function AmigosPage() {
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : (
-          <div className="bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="p-4 bg-stone-50 border-b border-stone-200 text-sm font-semibold text-stone-500 flex justify-between px-6">
+          <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="p-4 bg-stone-50 dark:bg-stone-900/50 border-b border-stone-200 dark:border-stone-800 text-sm font-semibold text-stone-500 dark:text-stone-400 flex justify-between px-6">
               <span>Posição / Amigo</span>
               <span>Pontuação</span>
             </div>
-            <ul className="divide-y divide-stone-100">
+            <ul className="divide-y divide-stone-100 dark:divide-stone-800">
               {ranking.map((amigo, index) => {
                 const isMe = String(amigo.id) === String(usuario?.id);
                 const posicao = index + 1;
                 
                 let medalColor = 'text-stone-400 font-bold';
-                let bgStyle = 'bg-white';
+                let bgStyle = 'bg-white dark:bg-stone-900';
                 
                 if (posicao === 1) medalColor = 'text-yellow-500 font-black text-xl';
                 else if (posicao === 2) medalColor = 'text-stone-400 font-bold text-lg';
                 else if (posicao === 3) medalColor = 'text-amber-600 font-bold text-lg';
 
-                if (isMe) bgStyle = 'bg-primary/5';
+                if (isMe) bgStyle = 'bg-primary/5 dark:bg-primary/10';
 
                 return (
                   <motion.li 
@@ -229,14 +229,14 @@ export default function AmigosPage() {
                   >
                     <Link 
                       href={`/perfil/${amigo.id}`}
-                      className={`flex items-center justify-between p-4 px-6 hover:bg-stone-50 transition-colors cursor-pointer ${bgStyle}`}
+                      className={`flex items-center justify-between p-4 px-6 hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors cursor-pointer ${bgStyle}`}
                     >
                       <div className="flex items-center gap-4">
                         <span className={`w-6 text-center ${medalColor}`}>
                           {posicao}
                         </span>
                         
-                        <div className="w-12 h-12 rounded-full bg-stone-200 overflow-hidden flex-shrink-0 border-2 border-white shadow-sm">
+                        <div className="w-12 h-12 rounded-full bg-stone-200 dark:bg-stone-800 overflow-hidden flex-shrink-0 border-2 border-white dark:border-stone-900 shadow-sm">
                           {amigo.fotoPerfil ? (
                             <img 
                               src={amigo.fotoPerfil} 
@@ -252,7 +252,7 @@ export default function AmigosPage() {
                         </div>
                         
                         <div>
-                          <h3 className={`font-bold text-stone-800 ${isMe ? 'text-primary' : ''}`}>
+                          <h3 className={`font-bold text-stone-800 dark:text-stone-100 ${isMe ? 'text-primary dark:text-primary-400' : ''}`}>
                             {amigo.nome} {isMe && '(Você)'}
                           </h3>
                           {amigo.sequenciaAtual > 0 && (
@@ -264,7 +264,7 @@ export default function AmigosPage() {
                         </div>
                       </div>
                       
-                      <div className="font-bold text-stone-700">
+                      <div className="font-bold text-stone-700 dark:text-stone-300">
                         {amigo.xp} XP
                       </div>
                     </Link>
@@ -280,13 +280,13 @@ export default function AmigosPage() {
       {abaAtual === 'busca' && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400 dark:text-stone-500" />
             <input 
               type="text" 
               placeholder="Buscar por nome..."
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-stone-200 bg-white text-stone-800 placeholder:text-stone-400 focus:border-primary focus:ring-4 focus:ring-primary/20 outline-none transition-all font-medium"
+              className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:border-primary focus:ring-4 focus:ring-primary/20 outline-none transition-all font-medium"
             />
           </div>
 
@@ -295,11 +295,11 @@ export default function AmigosPage() {
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
           ) : (
-            <div className="bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-sm">
-              <div className="p-4 bg-stone-50 border-b border-stone-200 text-sm font-semibold text-stone-500 px-6">
+            <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-sm">
+              <div className="p-4 bg-stone-50 dark:bg-stone-900/50 border-b border-stone-200 dark:border-stone-800 text-sm font-semibold text-stone-500 dark:text-stone-400 px-6">
                 {busca.trim() ? 'Resultados da busca' : 'Sugestões de amigos'}
               </div>
-              <ul className="divide-y divide-stone-100">
+              <ul className="divide-y divide-stone-100 dark:divide-stone-800">
                 {resultadosBusca.map((amigo, index) => {
                   const isMe = String(amigo.id) === String(usuario?.id);
                   if (isMe && !busca.trim()) return null;
@@ -311,9 +311,9 @@ export default function AmigosPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 px-6 hover:bg-stone-50 transition-colors bg-white gap-4 sm:gap-0">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 px-6 hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors bg-white dark:bg-stone-900 gap-4 sm:gap-0">
                         <Link href={`/perfil/${amigo.id}`} className="flex items-center gap-4 flex-1 min-w-0">
-                          <div className="w-12 h-12 rounded-full bg-stone-200 overflow-hidden flex-shrink-0 border-2 border-white shadow-sm">
+                          <div className="w-12 h-12 rounded-full bg-stone-200 dark:bg-stone-800 overflow-hidden flex-shrink-0 border-2 border-white dark:border-stone-900 shadow-sm">
                             {amigo.fotoPerfil ? (
                               <img 
                                 src={amigo.fotoPerfil} 
@@ -329,10 +329,10 @@ export default function AmigosPage() {
                           </div>
                           
                           <div className="min-w-0">
-                            <h3 className="font-bold text-stone-800 truncate">
+                            <h3 className="font-bold text-stone-800 dark:text-stone-100 truncate">
                               {amigo.nome} {isMe && '(Você)'}
                             </h3>
-                            <div className="text-stone-500 text-sm font-medium">
+                            <div className="text-stone-500 dark:text-stone-400 text-sm font-medium">
                               {amigo.xp} XP globais
                             </div>
                           </div>
@@ -372,7 +372,7 @@ export default function AmigosPage() {
                           )}
                           <Link
                             href={`/perfil/${amigo.id}`}
-                            className="flex-1 sm:flex-none text-center px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold rounded-xl text-sm transition-colors"
+                            className="flex-1 sm:flex-none text-center px-4 py-2 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 font-bold rounded-xl text-sm transition-colors"
                           >
                             Ver Perfil
                           </Link>
@@ -396,8 +396,8 @@ export default function AmigosPage() {
 
       {/* Aba: Notificações */}
       {abaAtual === 'notificacoes' && (
-        <div className="bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="p-4 bg-stone-50 border-b border-stone-200 text-sm font-semibold text-stone-500 flex justify-between px-6">
+        <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="p-4 bg-stone-50 dark:bg-stone-900/50 border-b border-stone-200 dark:border-stone-800 text-sm font-semibold text-stone-500 dark:text-stone-400 flex justify-between px-6">
             <span>Notificações</span>
           </div>
           {carregandoNotificacoes ? (
@@ -407,16 +407,16 @@ export default function AmigosPage() {
           ) : notificacoes.length === 0 ? (
             <div className="p-8 text-center text-stone-500">Nenhuma notificação no momento.</div>
           ) : (
-            <ul className="divide-y divide-stone-100">
+            <ul className="divide-y divide-stone-100 dark:divide-stone-800">
               {notificacoes.map((notificacao) => (
                 <li 
                   key={notificacao.id}
                   className={`p-4 px-6 transition-colors flex items-center justify-between ${
-                    notificacao.lida ? 'bg-white hover:bg-stone-50' : 'bg-primary/5 hover:bg-primary/10'
+                    notificacao.lida ? 'bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800/50' : 'bg-primary/5 dark:bg-primary/10 hover:bg-primary/10 dark:hover:bg-primary/20'
                   }`}
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-stone-200 flex-shrink-0 flex items-center justify-center text-stone-500 border-2 border-white shadow-sm">
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-stone-200 dark:bg-stone-800 flex-shrink-0 flex items-center justify-center text-stone-500 dark:text-stone-400 border-2 border-white dark:border-stone-900 shadow-sm">
                       {notificacao.remetente.fotoPerfil ? (
                         <img src={notificacao.remetente.fotoPerfil} alt={`Foto de ${notificacao.remetente.nome}`} className="w-full h-full object-cover" style={{ objectPosition: notificacao.remetente.fotoPerfilPosicao || 'center' }} />
                       ) : (
@@ -424,10 +424,10 @@ export default function AmigosPage() {
                       )}
                     </div>
                     <div>
-                      <p className="text-stone-800">
+                      <p className="text-stone-800 dark:text-stone-200">
                         <span className="font-bold">{notificacao.remetente.nome}</span> {notificacao.mensagem}
                       </p>
-                      <p className="text-sm text-stone-500 mt-1">
+                      <p className="text-sm text-stone-500 dark:text-stone-400 mt-1">
                         {new Date(notificacao.criadoEm).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
                       </p>
                     </div>

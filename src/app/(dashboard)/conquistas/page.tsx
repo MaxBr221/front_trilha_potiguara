@@ -70,10 +70,10 @@ export default function ConquistasPage() {
   };
 
   const getRaridade = (progressoTotal: number) => {
-    if (progressoTotal > 80) return { label: 'Lendária', cor: 'text-amber-500', bg: 'bg-amber-100', border: 'border-amber-300' };
-    if (progressoTotal > 50) return { label: 'Épica', cor: 'text-purple-500', bg: 'bg-purple-100', border: 'border-purple-300' };
-    if (progressoTotal > 20) return { label: 'Rara', cor: 'text-blue-500', bg: 'bg-blue-100', border: 'border-blue-300' };
-    return { label: 'Comum', cor: 'text-stone-500', bg: 'bg-stone-100', border: 'border-stone-300' };
+    if (progressoTotal > 80) return { label: 'Lendária', cor: 'text-amber-500 dark:text-amber-400', bg: 'bg-amber-100 dark:bg-amber-900/30', border: 'border-amber-300 dark:border-amber-700' };
+    if (progressoTotal > 50) return { label: 'Épica', cor: 'text-purple-500 dark:text-purple-400', bg: 'bg-purple-100 dark:bg-purple-900/30', border: 'border-purple-300 dark:border-purple-700' };
+    if (progressoTotal > 20) return { label: 'Rara', cor: 'text-blue-500 dark:text-blue-400', bg: 'bg-blue-100 dark:bg-blue-900/30', border: 'border-blue-300 dark:border-blue-700' };
+    return { label: 'Comum', cor: 'text-stone-500 dark:text-stone-400', bg: 'bg-stone-100 dark:bg-stone-800', border: 'border-stone-300 dark:border-stone-700' };
   };
 
   return (
@@ -94,24 +94,24 @@ export default function ConquistasPage() {
       </div>
 
       {/* Navegação por abas */}
-      <div className="flex gap-2 border-b border-stone-200 pb-2 overflow-x-auto hide-scrollbar">
+      <div className="flex gap-2 border-b border-stone-200 dark:border-stone-800 pb-2 overflow-x-auto hide-scrollbar">
         <button 
           onClick={() => setAbaAtiva('todas')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold whitespace-nowrap transition-colors ${abaAtiva === 'todas' ? 'bg-primary text-white' : 'bg-transparent text-stone-500 hover:bg-stone-100'}`}
+          className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold whitespace-nowrap transition-colors ${abaAtiva === 'todas' ? 'bg-primary text-white' : 'bg-transparent text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'}`}
         >
           <Target className="w-4 h-4" />
           Todas
         </button>
         <button 
           onClick={() => setAbaAtiva('desbloqueadas')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold whitespace-nowrap transition-colors ${abaAtiva === 'desbloqueadas' ? 'bg-primary text-white' : 'bg-transparent text-stone-500 hover:bg-stone-100'}`}
+          className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold whitespace-nowrap transition-colors ${abaAtiva === 'desbloqueadas' ? 'bg-primary text-white' : 'bg-transparent text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'}`}
         >
           <CheckCircle2 className="w-4 h-4" />
           Desbloqueadas
         </button>
         <button 
           onClick={() => setAbaAtiva('bloqueadas')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold whitespace-nowrap transition-colors ${abaAtiva === 'bloqueadas' ? 'bg-primary text-white' : 'bg-transparent text-stone-500 hover:bg-stone-100'}`}
+          className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold whitespace-nowrap transition-colors ${abaAtiva === 'bloqueadas' ? 'bg-primary text-white' : 'bg-transparent text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'}`}
         >
           <Lock className="w-4 h-4" />
           Em Progresso
@@ -120,9 +120,9 @@ export default function ConquistasPage() {
 
       {/* Lista de Conquistas */}
       {conquistasExibidas.length === 0 ? (
-        <div className="text-center py-10 bg-stone-50 rounded-3xl border border-stone-200">
-          <Award className="w-12 h-12 text-stone-300 mx-auto mb-4" />
-          <p className="text-stone-500 font-medium">Nenhuma conquista encontrada nessa categoria.</p>
+        <div className="text-center py-10 bg-stone-50 dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800">
+          <Award className="w-12 h-12 text-stone-300 dark:text-stone-600 mx-auto mb-4" />
+          <p className="text-stone-500 dark:text-stone-400 font-medium">Nenhuma conquista encontrada nessa categoria.</p>
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -131,26 +131,26 @@ export default function ConquistasPage() {
             
             if (!conquista.desbloqueada) {
               return (
-                <div key={conquista.id} className="bg-stone-50 p-6 rounded-2xl border border-stone-200 opacity-80 hover:opacity-100 transition-opacity flex flex-col h-full">
+                <div key={conquista.id} className="bg-stone-50 dark:bg-stone-900/50 p-6 rounded-2xl border border-stone-200 dark:border-stone-800 opacity-80 hover:opacity-100 transition-opacity flex flex-col h-full">
                   <div className="flex items-start justify-between mb-4">
-                    <div className="w-14 h-14 bg-stone-200 text-stone-400 rounded-2xl flex items-center justify-center">
+                    <div className="w-14 h-14 bg-stone-200 dark:bg-stone-800 text-stone-400 dark:text-stone-500 rounded-2xl flex items-center justify-center">
                       <Lock className="w-6 h-6" />
                     </div>
                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${raridade.bg} ${raridade.cor}`}>
                       {raridade.label}
                     </span>
                   </div>
-                  <h3 className="font-bold text-xl text-stone-700 mb-2">Misteriosa</h3>
-                  <p className="text-stone-500 text-sm mb-6 leading-relaxed flex-grow">Continue progredindo nas trilhas para descobrir e desbloquear esta conquista.</p>
+                  <h3 className="font-bold text-xl text-stone-700 dark:text-stone-300 mb-2">Misteriosa</h3>
+                  <p className="text-stone-500 dark:text-stone-400 text-sm mb-6 leading-relaxed flex-grow">Continue progredindo nas trilhas para descobrir e desbloquear esta conquista.</p>
                   
                   <div className="space-y-2 mt-auto">
-                    <div className="flex justify-between text-xs font-bold text-stone-500">
+                    <div className="flex justify-between text-xs font-bold text-stone-500 dark:text-stone-400">
                       <span>Progresso</span>
                       <span>{Math.round(conquista.progresso)}%</span>
                     </div>
-                    <div className="w-full bg-stone-200 rounded-full h-2">
+                    <div className="w-full bg-stone-200 dark:bg-stone-800 rounded-full h-2">
                       <div 
-                        className={`h-2 rounded-full bg-${conquista.corBase}-400`} 
+                        className={`h-2 rounded-full bg-${conquista.corBase}-400 dark:bg-${conquista.corBase}-600`} 
                         style={{ width: `${conquista.progresso}%` }}
                       ></div>
                     </div>
@@ -160,19 +160,19 @@ export default function ConquistasPage() {
             }
 
             return (
-              <div key={conquista.id} className={`bg-white p-6 rounded-2xl border-2 ${raridade.border} shadow-sm hover:shadow-md hover:-translate-y-1 transition-all group flex flex-col h-full`}>
+              <div key={conquista.id} className={`bg-white dark:bg-stone-900 p-6 rounded-2xl border-2 ${raridade.border} shadow-sm hover:shadow-md hover:-translate-y-1 transition-all group flex flex-col h-full`}>
                 <div className="flex items-start justify-between mb-4">
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform bg-${conquista.corBase}-100 text-${conquista.corBase}-600`}>
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform bg-${conquista.corBase}-100 dark:bg-${conquista.corBase}-900/30 text-${conquista.corBase}-600 dark:text-${conquista.corBase}-400`}>
                     {renderIcon(conquista.icone)}
                   </div>
                   <span className={`text-xs font-bold px-2 py-1 rounded-full ${raridade.bg} ${raridade.cor}`}>
                     {raridade.label}
                   </span>
                 </div>
-                <h3 className="font-bold text-xl text-stone-800 mb-1">{conquista.titulo}</h3>
-                <p className="text-stone-500 text-sm leading-relaxed mb-6 flex-grow">{conquista.descricao}</p>
+                <h3 className="font-bold text-xl text-stone-800 dark:text-stone-100 mb-1">{conquista.titulo}</h3>
+                <p className="text-stone-500 dark:text-stone-400 text-sm leading-relaxed mb-6 flex-grow">{conquista.descricao}</p>
                 
-                <div className="flex justify-between items-center text-xs font-bold text-stone-400 mt-auto pt-4 border-t border-stone-100">
+                <div className="flex justify-between items-center text-xs font-bold text-stone-400 dark:text-stone-500 mt-auto pt-4 border-t border-stone-100 dark:border-stone-800">
                   <span className="flex items-center gap-1">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Desbloqueada
                   </span>

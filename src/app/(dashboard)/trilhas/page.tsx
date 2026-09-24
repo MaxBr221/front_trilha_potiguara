@@ -42,8 +42,8 @@ export default function TrilhasPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-stone-800 mb-2">Trilhas de Aprendizado</h1>
-        <p className="text-stone-600">Escolha o seu próximo caminho de conhecimento.</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-stone-800 dark:text-stone-100 mb-2">Trilhas de Aprendizado</h1>
+        <p className="text-stone-600 dark:text-stone-300">Escolha o seu próximo caminho de conhecimento.</p>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
@@ -54,14 +54,14 @@ export default function TrilhasPage() {
           <div key={trail.id} className="relative">
             <Link 
               href={trail.estaBloqueada ? '#' : `/trilhas/${trail.id}`}
-              className={`block bg-white p-6 rounded-3xl border-2 ${
+              className={`block bg-white dark:bg-stone-900 p-6 rounded-3xl border-2 ${
                 trail.estaBloqueada 
-                  ? 'opacity-60 grayscale cursor-not-allowed border-stone-200 border-b-[6px]' 
-                  : 'border-stone-200 border-b-[6px] hover:border-primary/40 hover:-translate-y-1 hover:border-b-[8px] active:translate-y-1 active:border-b-2 transition-all duration-200'
+                  ? 'opacity-60 grayscale cursor-not-allowed border-stone-200 dark:border-stone-800 border-b-[6px]' 
+                  : 'border-stone-200 dark:border-stone-800 border-b-[6px] hover:border-primary/40 hover:-translate-y-1 hover:border-b-[8px] active:translate-y-1 active:border-b-2 transition-all duration-200'
               } h-full`}
             >
               <div className="flex items-start justify-between mb-4">
-                <div className={`w-14 h-14 bg-${trail.corBase}-100 text-${trail.corBase}-700 rounded-2xl flex items-center justify-center text-3xl overflow-hidden shadow-sm`}>
+                <div className={`w-14 h-14 bg-${trail.corBase}-100 dark:bg-${trail.corBase}-900/30 text-${trail.corBase}-700 dark:text-${trail.corBase}-400 rounded-2xl flex items-center justify-center text-3xl overflow-hidden shadow-sm`}>
                   {trail.imageUrl ? (
                     <img src={trail.imageUrl} alt={trail.title} className="w-full h-full object-cover" />
                   ) : imgMap[trail.title.trim()] ? (
@@ -71,29 +71,29 @@ export default function TrilhasPage() {
                   )}
                 </div>
                 {trail.estaBloqueada ? (
-                  <div className="bg-stone-100 text-stone-500 p-2 rounded-full">
+                  <div className="bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 p-2 rounded-full">
                     <Lock className="w-4 h-4" />
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
                     {isTrilhaAtual && (
-                      <span className="bg-primary/10 text-primary border border-primary/20 text-xs font-bold px-2 py-1 rounded">Trilha Atual</span>
+                      <span className="bg-primary/10 text-primary border border-primary/20 dark:border-primary/30 text-xs font-bold px-2 py-1 rounded">Trilha Atual</span>
                     )}
-                    <span className="bg-stone-100 text-stone-600 text-xs font-bold px-2 py-1 rounded">Nível {trail.nivel}</span>
+                    <span className="bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 text-xs font-bold px-2 py-1 rounded">Nível {trail.nivel}</span>
                   </div>
                 )}
               </div>
               
-              <h3 className="font-bold text-xl mb-2 text-stone-800">{trail.title}</h3>
-              <p className="text-stone-500 text-sm mb-6">{trail.description}</p>
+              <h3 className="font-bold text-xl mb-2 text-stone-800 dark:text-stone-100">{trail.title}</h3>
+              <p className="text-stone-500 dark:text-stone-400 text-sm mb-6">{trail.description}</p>
               
               {!trail.estaBloqueada && (
                 <div className="space-y-2">
-                  <div className="flex justify-between text-xs font-medium text-stone-600">
+                  <div className="flex justify-between text-xs font-medium text-stone-600 dark:text-stone-300">
                     <span>{trail.progresso}% concluído</span>
                     <span>{trail.quantidadeModulos} módulos</span>
                   </div>
-                  <div className="w-full bg-stone-200 rounded-full h-3 overflow-hidden border border-stone-300/50 mt-1">
+                  <div className="w-full bg-stone-200 dark:bg-stone-800 rounded-full h-3 overflow-hidden border border-stone-300/50 dark:border-stone-700 mt-1">
                     <div 
                       className={`bg-${trail.corBase}-500 h-3 rounded-full transition-[width] duration-1000 ease-out`} 
                       style={{ width: `${trail.progresso}%`, backgroundColor: trail.progresso > 0 ? 'var(--primary)' : undefined }}
