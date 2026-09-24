@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -63,20 +63,20 @@ export function LigarColunasExercicio({ exercicio, onComplete }: Props) {
 
   return (
     <div className="max-w-2xl w-full mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <h1 className="text-2xl md:text-3xl font-bold text-stone-800 mb-8 text-center">
+      <h1 className="text-2xl md:text-3xl font-bold text-stone-800 dark:text-stone-100 mb-8 text-center">
         {exercicio.enunciado}
       </h1>
       
       <div className="flex gap-4 md:gap-8">
         <div className="flex-1 flex flex-col gap-3">
-          <h2 className="text-lg font-bold text-stone-500 text-center mb-2">Tupi</h2>
+          <h2 className="text-lg font-bold text-stone-500 dark:text-stone-400 text-center mb-2">Tupi</h2>
           {esquerda.map(item => {
             const isMatched = paresCorretos.includes(item.correspondencia);
             const isSelected = selecionadoEsq === item.id;
             
-            let btnClass = 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50 hover:border-stone-300';
-            if (isSelected) btnClass = 'border-primary bg-primary/10 text-primary';
-            if (isMatched) btnClass = 'border-emerald-500 bg-emerald-100 text-emerald-800 opacity-50 cursor-default';
+            let btnClass = 'border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800/50 hover:border-stone-300 dark:hover:border-stone-700';
+            if (isSelected) btnClass = 'border-primary dark:border-primary-600 bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-400';
+            if (isMatched) btnClass = 'border-emerald-500 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400 opacity-50 cursor-default';
 
             return (
               <button
@@ -92,14 +92,14 @@ export function LigarColunasExercicio({ exercicio, onComplete }: Props) {
         </div>
         
         <div className="flex-1 flex flex-col gap-3">
-          <h2 className="text-lg font-bold text-stone-500 text-center mb-2">Português</h2>
+          <h2 className="text-lg font-bold text-stone-500 dark:text-stone-400 text-center mb-2">Português</h2>
           {direita.map(item => {
             const isMatched = paresCorretos.includes(item.correspondencia);
             const isSelected = selecionadoDir === item.id;
             
-            let btnClass = 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50 hover:border-stone-300';
-            if (isSelected) btnClass = 'border-primary bg-primary/10 text-primary';
-            if (isMatched) btnClass = 'border-emerald-500 bg-emerald-100 text-emerald-800 opacity-50 cursor-default';
+            let btnClass = 'border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800/50 hover:border-stone-300 dark:hover:border-stone-700';
+            if (isSelected) btnClass = 'border-primary dark:border-primary-600 bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-400';
+            if (isMatched) btnClass = 'border-emerald-500 dark:border-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400 opacity-50 cursor-default';
 
             return (
               <button

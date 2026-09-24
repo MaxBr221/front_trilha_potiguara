@@ -97,7 +97,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
 
   if (carregando) {
     return (
-      <div className="h-dvh w-screen flex items-center justify-center bg-stone-50">
+      <div className="h-dvh w-screen flex items-center justify-center bg-stone-50 dark:bg-stone-950">
         <Loader2 className="w-10 h-10 animate-spin text-primary" />
       </div>
     );
@@ -105,24 +105,24 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
 
   if (!exercicioAtual) {
     return (
-      <div className="min-h-dvh bg-stone-50 flex items-center justify-center flex-col">
-        <h2 className="text-xl font-bold text-stone-700 mb-4">Nenhum exercício encontrado.</h2>
+      <div className="min-h-dvh bg-stone-50 dark:bg-stone-950 flex items-center justify-center flex-col">
+        <h2 className="text-xl font-bold text-stone-700 dark:text-stone-300 mb-4">Nenhum exercício encontrado.</h2>
         <Button onClick={() => router.push('/dashboard')}>Voltar</Button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-dvh bg-white flex flex-col">
+    <div className="min-h-dvh bg-white dark:bg-stone-950 flex flex-col">
       <header className="h-16 flex items-center px-4 md:px-8 max-w-4xl w-full mx-auto gap-4">
         <button 
           onClick={() => router.push('/dashboard')}
-          className="p-2 text-stone-400 hover:text-stone-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-full"
+          className="p-2 text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-full"
         >
           <X className="w-6 h-6" />
         </button>
         
-        <div className="flex-1 bg-stone-200 rounded-full h-4 overflow-hidden border border-stone-300/50">
+        <div className="flex-1 bg-stone-200 dark:bg-stone-800 rounded-full h-4 overflow-hidden border border-stone-300/50 dark:border-stone-700">
           <div 
             className="bg-emerald-500 h-4 rounded-full transition-[width] duration-1000 ease-out" 
             style={{ width: `${progresso}%` }}
@@ -137,23 +137,23 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
           <LigarColunasExercicio exercicio={exercicioAtual} onComplete={() => { setIsChecked(true); setIsCorrect(true); }} />
         ) : (
           <div className="max-w-xl w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h1 className="text-2xl md:text-3xl font-bold text-stone-800 mb-8">
+            <h1 className="text-2xl md:text-3xl font-bold text-stone-800 dark:text-stone-100 mb-8">
               {exercicioAtual.enunciado}
             </h1>
             
             <div className="grid gap-3">
               {exercicioAtual.opcoes.map((option) => {
                 const isSelected = selectedAnswer === option;
-                let btnClass = 'border-stone-200 border-b-[6px] bg-white text-stone-700 hover:bg-stone-50 hover:border-stone-300 hover:-translate-y-1 hover:border-b-[8px] active:translate-y-1 active:border-b-2';
+                let btnClass = 'border-stone-200 dark:border-stone-800 border-b-[6px] bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800/50 hover:border-stone-300 dark:hover:border-stone-700 hover:-translate-y-1 hover:border-b-[8px] active:translate-y-1 active:border-b-2';
                 
                 if (isSelected) {
-                  btnClass = 'border-primary border-b-[6px] bg-primary/10 text-primary active:translate-y-1 active:border-b-2';
+                  btnClass = 'border-primary dark:border-primary-600 border-b-[6px] bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-400 active:translate-y-1 active:border-b-2';
                 }
                 
                 if (isChecked && selectedAnswer === option) {
                   btnClass = isCorrect 
-                    ? 'border-emerald-500 border-b-[6px] bg-emerald-100 text-emerald-800'
-                    : 'border-rose-500 border-b-[6px] bg-rose-100 text-rose-800 animate-shake';
+                    ? 'border-emerald-500 dark:border-emerald-600 border-b-[6px] bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400'
+                    : 'border-rose-500 dark:border-rose-600 border-b-[6px] bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-400 animate-shake';
                 }
 
                 return (
@@ -173,7 +173,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
         )}
       </main>
 
-      <footer className={`border-t-2 transition-colors duration-300 ${isChecked ? (isCorrect ? 'border-emerald-200 bg-emerald-50' : 'border-rose-200 bg-rose-50') : 'border-stone-200 bg-white'}`}>
+      <footer className={`border-t-2 transition-colors duration-300 ${isChecked ? (isCorrect ? 'border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-900/20' : 'border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-900/20') : 'border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950'}`}>
         <div className="max-w-4xl mx-auto p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="w-full md:w-auto" aria-live="polite">
             <AnimatePresence>
@@ -189,16 +189,16 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: "spring", bounce: 0.5 }}
-                      className={`w-14 h-14 rounded-full flex items-center justify-center ${isCorrect ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}
+                      className={`w-14 h-14 rounded-full flex items-center justify-center ${isCorrect ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400'}`}
                     >
                       {isCorrect ? <Check className="w-8 h-8" /> : <X className="w-8 h-8" />}
                     </motion.div>
                     <div>
-                      <h3 className={`text-xl font-bold ${isCorrect ? 'text-emerald-700' : 'text-rose-700'}`}>
+                      <h3 className={`text-xl font-bold ${isCorrect ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`}>
                         {isCorrect ? 'Excelente!' : 'Resposta incorreta'}
                       </h3>
                       {!isCorrect && (
-                        <p className="text-rose-600 font-medium mt-1">Resposta correta: {respostaCertaBackend}</p>
+                        <p className="text-rose-600 dark:text-rose-400 font-medium mt-1">Resposta correta: {respostaCertaBackend}</p>
                       )}
                     </div>
                   </div>
