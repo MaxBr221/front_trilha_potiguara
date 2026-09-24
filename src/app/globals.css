@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 :root {
   /* Tupi Digital Theme */
   --background: #fafaf9; /* Stone 50 */
@@ -25,14 +27,12 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #1c1917; /* Stone 900 */
-    --foreground: #fafaf9; /* Stone 50 */
-    --primary: #40916c; /* Lighter nature green */
-    --secondary: #e28743; /* Earth */
-    --accent: #f4a261;
-  }
+.dark {
+  --background: #1c1917; /* Stone 900 */
+  --foreground: #fafaf9; /* Stone 50 */
+  --primary: #40916c; /* Lighter nature green */
+  --secondary: #e28743; /* Earth */
+  --accent: #f4a261;
 }
 
 body {

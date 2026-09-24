@@ -5,6 +5,7 @@ import { Menu, Flame, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { servicoDashboard, DashboardData } from '@/services/servicoDashboard';
 import Link from 'next/link';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export function InternalNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const { usuario } = useAutenticacao();
@@ -34,6 +35,8 @@ export function InternalNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
       </div>
 
       <div className="flex items-center gap-4">
+        <ThemeToggle />
+        
         {/* Streak Indicator */}
         <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-2xl font-bold text-sm transition-all duration-300 ${
           displayOfensiva > 0 

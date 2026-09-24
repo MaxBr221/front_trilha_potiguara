@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 };
 
 import { ProvedorAutenticacao } from "@/contexts/ContextoAutenticacao";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -26,7 +27,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <ProvedorAutenticacao>{children}</ProvedorAutenticacao>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <ProvedorAutenticacao>{children}</ProvedorAutenticacao>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Leaf } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export function Navbar() {
   return (
@@ -10,6 +11,7 @@ export function Navbar() {
           <span>Tupi Digital</span>
         </Link>
         <div className="flex items-center gap-4">
+          <ThemeToggle />
           <Link href="/login" className="text-sm font-medium hover:text-primary transition-colors">
             Entrar
           </Link>
