@@ -21,15 +21,15 @@ export function InternalNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const displayOfensiva = dashboard?.diasOfensiva ?? usuario?.sequenciaAtual ?? 0;
 
   return (
-    <header className="h-16 bg-white border-b border-stone-200 flex items-center justify-between px-4 sticky top-0 z-40">
+    <header className="h-16 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 flex items-center justify-between px-4 sticky top-0 z-40">
       <div className="flex items-center md:hidden">
-        <button onClick={onMenuClick} className="p-2 text-stone-600 hover:bg-stone-100 rounded-lg">
+        <button onClick={onMenuClick} className="p-2 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg">
           <Menu className="w-6 h-6" />
         </button>
       </div>
 
       <div className="hidden md:block">
-        <h2 className="text-lg font-bold text-stone-800">
+        <h2 className="text-lg font-bold text-stone-800 dark:text-stone-100">
           Olá, {usuario?.nome?.split(' ')[0] || 'Aprendiz'}!
         </h2>
       </div>
@@ -40,15 +40,15 @@ export function InternalNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
         {/* Streak Indicator */}
         <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-2xl font-bold text-sm transition-all duration-300 ${
           displayOfensiva > 0 
-            ? 'bg-orange-100 text-orange-600 shadow-[0_0_15px_rgba(249,115,22,0.3)]' 
-            : 'bg-stone-100 text-stone-500'
+            ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.3)]' 
+            : 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400'
         }`}>
           <Flame className={`w-4 h-4 ${displayOfensiva > 0 ? 'fill-orange-500 animate-pulse' : 'text-stone-400'}`} />
           <span>{displayOfensiva} dias</span>
         </div>
         
         {/* XP Indicator */}
-        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-600 rounded-2xl font-bold text-sm shadow-sm transition-all duration-300 hover:shadow-md">
+        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-2xl font-bold text-sm shadow-sm transition-all duration-300 hover:shadow-md">
           <Star className="w-4 h-4 fill-amber-500" />
           <span>{displayXp} XP</span>
         </div>

@@ -26,7 +26,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () =>
           onClick={onClose}
         />
       )}
-      <aside className={`w-64 bg-white border-r border-stone-200 h-dvh flex flex-col fixed md:sticky top-0 left-0 z-50 transition-transform duration-300 ${
+      <aside className={`w-64 bg-white dark:bg-stone-900 border-r border-stone-200 dark:border-stone-800 h-dvh flex flex-col fixed md:sticky top-0 left-0 z-50 transition-transform duration-300 ${
         isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}>
       <div className="p-6">
@@ -49,7 +49,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () =>
               className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
                 isActive
                   ? 'bg-primary/10 text-primary'
-                  : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+                  : 'text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-900 dark:hover:text-white'
               }`}
             >
               <Icon className="w-5 h-5" />
@@ -59,10 +59,10 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () =>
         })}
       </nav>
 
-      <div className="p-4 border-t border-stone-200">
+      <div className="p-4 border-t border-stone-200 dark:border-stone-800">
         <button
           onClick={logout}
-          className="flex items-center gap-3 px-4 py-3 w-full rounded-xl font-medium text-stone-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+          className="flex items-center gap-3 px-4 py-3 w-full rounded-xl font-medium text-stone-600 dark:text-stone-300 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 transition-colors"
         >
           <LogOut className="w-5 h-5" />
           Sair
