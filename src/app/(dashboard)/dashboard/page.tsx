@@ -11,6 +11,12 @@ import { servicoTrilha } from '@/services/servicoTrilha';
 import { servicoDashboard, DashboardData } from '@/services/servicoDashboard';
 import { TrilhaResponseDTO } from '@/types/dtos';
 
+const imgMap: Record<string, string> = {
+  'Trilha Potiguara Básica': '/images/trilhas/potiguara_basica.jpg',
+  'Vocabulário do Dia a Dia': '/images/trilhas/vocabulario.jpg',
+  'Mitos e Lendas Tupi': '/images/trilhas/mitos.jpg'
+};
+
 export default function DashboardPage() {
   const [trilhas, setTrilhas] = useState<TrilhaResponseDTO[]>([]);
   const [dadosDashboard, setDadosDashboard] = useState<DashboardData | null>(null);
@@ -130,8 +136,14 @@ export default function DashboardPage() {
                 >
                 <div className={`bg-white p-5 rounded-3xl border-2 ${trail.estaBloqueada ? 'opacity-60 grayscale cursor-not-allowed border-stone-200 border-b-[6px]' : 'border-stone-200 border-b-[6px] hover:border-primary/40 hover:-translate-y-1 hover:border-b-[8px] active:translate-y-1 active:border-b-2'} transition-all duration-200 h-full`}>
                   <div className="flex items-start justify-between mb-4">
-                    <div className={`w-12 h-12 bg-${trail.corBase}-100 text-${trail.corBase}-700 rounded-xl flex items-center justify-center`}>
-                      <span className="text-2xl">{trail.icon}</span>
+                    <div className={`w-12 h-12 bg-${trail.corBase}-100 text-${trail.corBase}-700 rounded-xl flex items-center justify-center overflow-hidden`}>
+                      {trail.imageUrl ? (
+                        <img src={trail.imageUrl} alt={trail.title} className="w-full h-full object-cover" />
+                      ) : imgMap[trail.title.trim()] ? (
+                        <img src={imgMap[trail.title.trim()]} alt={trail.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-2xl">{trail.icon}</span>
+                      )}
                     </div>
                     <span className="bg-stone-100 text-stone-600 text-xs font-bold px-2 py-1 rounded">Nível {trail.nivel}</span>
                   </div>
