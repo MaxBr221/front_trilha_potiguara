@@ -36,12 +36,6 @@ export default function Home() {
               Começar a aprender
               <ArrowRight className="w-5 h-5" />
             </Link>
-            <Link
-              href="/sobre"
-              className="inline-flex items-center justify-center gap-2 bg-white text-foreground border border-stone-200 px-8 py-4 rounded-full text-lg font-bold hover:bg-stone-50 transition-all"
-            >
-              Conheça o projeto
-            </Link>
           </div>
         </section>
 
