@@ -311,7 +311,7 @@ export default function AmigosPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
                     >
-                      <div className="flex items-center justify-between p-4 px-6 hover:bg-stone-50 transition-colors bg-white">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 px-6 hover:bg-stone-50 transition-colors bg-white gap-4 sm:gap-0">
                         <Link href={`/perfil/${amigo.id}`} className="flex items-center gap-4 flex-1 min-w-0">
                           <div className="w-12 h-12 rounded-full bg-stone-200 overflow-hidden flex-shrink-0 border-2 border-white shadow-sm">
                             {amigo.fotoPerfil ? (
@@ -338,7 +338,7 @@ export default function AmigosPage() {
                           </div>
                         </Link>
                         
-                        <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                        <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                           {!isMe && (
                             <button
                               onClick={async (e) => {
@@ -360,7 +360,7 @@ export default function AmigosPage() {
                                   btn.disabled = false;
                                 }
                               }}
-                              className={`px-4 py-2 font-bold rounded-xl text-sm transition-colors flex items-center gap-1.5 ${
+                              className={`flex-1 sm:flex-none px-4 py-2 font-bold rounded-xl text-sm transition-colors flex items-center justify-center gap-1.5 ${
                                 seguidos.has(String(amigo.id))
                                   ? 'bg-primary/10 text-primary hover:bg-primary/20'
                                   : 'bg-primary text-white hover:bg-primary/90'
@@ -372,7 +372,7 @@ export default function AmigosPage() {
                           )}
                           <Link
                             href={`/perfil/${amigo.id}`}
-                            className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold rounded-xl text-sm transition-colors"
+                            className="flex-1 sm:flex-none text-center px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold rounded-xl text-sm transition-colors"
                           >
                             Ver Perfil
                           </Link>

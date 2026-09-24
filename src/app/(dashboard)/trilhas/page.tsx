@@ -6,6 +6,12 @@ import { Lock, Loader2 } from 'lucide-react';
 import { servicoTrilha } from '@/services/servicoTrilha';
 import { TrilhaResponseDTO } from '@/types/dtos';
 
+const imgMap: Record<string, string> = {
+  'Trilha Potiguara Básica': '/images/trilhas/potiguara_basica.jpg',
+  'Vocabulário do Dia a Dia': '/images/trilhas/vocabulario.jpg',
+  'Mitos e Lendas Tupi': '/images/trilhas/mitos.jpg'
+};
+
 export default function TrilhasPage() {
   const [trails, setTrilhas] = useState<TrilhaResponseDTO[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -55,8 +61,12 @@ export default function TrilhasPage() {
               } h-full`}
             >
               <div className="flex items-start justify-between mb-4">
-                <div className={`w-14 h-14 bg-${trail.corBase}-100 text-${trail.corBase}-700 rounded-2xl flex items-center justify-center text-3xl`}>
-                  {trail.icon}
+                <div className={`w-14 h-14 bg-${trail.corBase}-100 text-${trail.corBase}-700 rounded-2xl flex items-center justify-center text-3xl overflow-hidden shadow-sm`}>
+                  {imgMap[trail.title] ? (
+                    <img src={imgMap[trail.title]} alt={trail.title} className="w-full h-full object-cover" />
+                  ) : (
+                    trail.icon
+                  )}
                 </div>
                 {trail.estaBloqueada ? (
                   <div className="bg-stone-100 text-stone-500 p-2 rounded-full">
