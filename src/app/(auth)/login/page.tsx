@@ -66,7 +66,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-dvh bg-stone-50 flex flex-col justify-center pt-8 pb-32 sm:px-6 lg:px-8 relative">
+    <div className="min-h-dvh bg-stone-50 dark:bg-stone-900 flex flex-col justify-center pt-8 pb-32 sm:px-6 lg:px-8 relative">
       
       {/* Toast Notification (Canto superior direito) */}
       {toastErro && (
@@ -90,7 +90,7 @@ export default function LoginPage() {
         <h2 className="text-center text-3xl font-extrabold text-stone-900 dark:text-stone-50">
           Acesse sua conta
         </h2>
-        <p className="mt-2 text-center text-sm text-stone-600">
+        <p className="mt-2 text-center text-sm text-stone-600 dark:text-stone-400">
           Ou{' '}
           <Link href="/cadastro" className="font-medium text-primary hover:text-primary/80">
             crie sua conta gratuitamente
@@ -99,7 +99,7 @@ export default function LoginPage() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-sm border border-stone-200 sm:rounded-3xl sm:px-10">
+        <div className="bg-white dark:bg-stone-800 py-8 px-4 shadow-sm border border-stone-200 dark:border-stone-700 sm:rounded-3xl sm:px-10">
           <form className="space-y-6" onSubmit={lidarComEnvio}>
             <Input
               label="Endereço de E-mail"
@@ -134,7 +134,7 @@ export default function LoginPage() {
             </div>
 
             {erro && (
-              <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-100 flex items-center gap-2">
+              <div className="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/30 p-3 rounded-lg border border-red-100 dark:border-red-900/50 flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 {erro}
               </div>
@@ -156,7 +156,7 @@ export default function LoginPage() {
                 <div className="w-full border-t border-stone-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-stone-500">Ou continue com</span>
+                <span className="px-2 bg-white dark:bg-stone-800 text-stone-500 dark:text-stone-400">Ou continue com</span>
               </div>
             </div>
 
@@ -167,7 +167,7 @@ export default function LoginPage() {
                   const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1').replace('/api/v1', '');
                   window.location.href = `${baseUrl}/oauth2/authorization/google`;
                 }}
-                className="w-full flex justify-center items-center py-3 px-4 border border-stone-300 rounded-xl shadow-sm bg-white text-sm font-medium text-stone-700 hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
+                className="w-full flex justify-center items-center py-3 px-4 border border-stone-300 dark:border-stone-600 rounded-xl shadow-sm bg-white dark:bg-stone-800 text-sm font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
 
               >
                 <svg className="h-5 w-5 mr-2" aria-hidden="true" viewBox="0 0 24 24">

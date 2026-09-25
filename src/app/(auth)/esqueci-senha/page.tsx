@@ -39,7 +39,7 @@ export default function EsqueciSenhaPage() {
   };
 
   return (
-    <div className="min-h-dvh bg-stone-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative">
+    <div className="min-h-dvh bg-stone-50 dark:bg-stone-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative">
       
       {/* Toast Notification */}
       {toastErro && (
@@ -57,21 +57,21 @@ export default function EsqueciSenhaPage() {
         <h2 className="text-center text-3xl font-extrabold text-stone-900 dark:text-stone-50">
           Recuperar Senha
         </h2>
-        <p className="mt-2 text-center text-sm text-stone-600 px-4">
+        <p className="mt-2 text-center text-sm text-stone-600 dark:text-stone-400 px-4">
           Digite seu e-mail abaixo e enviaremos um token de recuperação para você.
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-sm border border-stone-200 sm:rounded-3xl sm:px-10">
+        <div className="bg-white dark:bg-stone-800 py-8 px-4 shadow-sm border border-stone-200 dark:border-stone-700 sm:rounded-3xl sm:px-10">
           
           {sucesso ? (
             <div className="text-center space-y-6">
               <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-bold text-stone-800">E-mail enviado!</h3>
-              <p className="text-stone-600 text-sm">
+              <h3 className="text-xl font-bold text-stone-800 dark:text-stone-50">E-mail enviado!</h3>
+              <p className="text-stone-600 dark:text-stone-400 text-sm">
                 Se o e-mail <strong>{email}</strong> estiver cadastrado, você receberá um token para redefinir sua senha em instantes.
               </p>
               <Link href="/redefinir-senha" className="block w-full">
@@ -94,7 +94,7 @@ export default function EsqueciSenhaPage() {
               />
 
               {erro && (
-                <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-100 flex items-center gap-2">
+                <div className="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/30 p-3 rounded-lg border border-red-100 dark:border-red-900/50 flex items-center gap-2">
                   <AlertCircle className="w-5 h-5 shrink-0" />
                   {erro}
                 </div>

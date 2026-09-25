@@ -36,7 +36,7 @@ export default function RedefinirSenhaPage() {
   };
 
   return (
-    <div className="min-h-dvh bg-stone-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative">
+    <div className="min-h-dvh bg-stone-50 dark:bg-stone-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative">
       <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
         <Link href="/" className="flex items-center gap-2 text-primary font-bold text-3xl mb-6">
           <Image src="/images/logo-potiguara.jpg" alt="Logo" width={32} height={32} className="w-8 h-8 rounded-full shadow-sm object-cover" />
@@ -45,21 +45,21 @@ export default function RedefinirSenhaPage() {
         <h2 className="text-center text-3xl font-extrabold text-stone-900 dark:text-stone-50">
           Nova Senha
         </h2>
-        <p className="mt-2 text-center text-sm text-stone-600 px-4">
+        <p className="mt-2 text-center text-sm text-stone-600 dark:text-stone-400 px-4">
           Digite o token recebido por e-mail e sua nova senha segura.
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-sm border border-stone-200 sm:rounded-3xl sm:px-10">
+        <div className="bg-white dark:bg-stone-800 py-8 px-4 shadow-sm border border-stone-200 dark:border-stone-700 sm:rounded-3xl sm:px-10">
           
           {sucesso ? (
             <div className="text-center space-y-6">
               <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-bold text-stone-800">Senha Redefinida!</h3>
-              <p className="text-stone-600 text-sm">
+              <h3 className="text-xl font-bold text-stone-800 dark:text-stone-50">Senha Redefinida!</h3>
+              <p className="text-stone-600 dark:text-stone-400 text-sm">
                 Sua senha foi alterada com sucesso. Você já pode fazer login.
               </p>
               <Link href="/login" className="block w-full">
@@ -93,7 +93,7 @@ export default function RedefinirSenhaPage() {
               />
 
               {erro && (
-                <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-100 flex items-center gap-2">
+                <div className="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/30 p-3 rounded-lg border border-red-100 dark:border-red-900/50 flex items-center gap-2">
                   <AlertCircle className="w-5 h-5 shrink-0" />
                   {erro}
                 </div>
@@ -112,7 +112,7 @@ export default function RedefinirSenhaPage() {
 
           {!sucesso && (
              <div className="mt-6 text-center">
-              <Link href="/login" className="text-sm font-medium text-stone-500 hover:text-stone-700">
+              <Link href="/login" className="text-sm font-medium text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-300">
                 Lembrei minha senha! Cancelar.
               </Link>
             </div>
