@@ -6,6 +6,7 @@ import { Leaf, Lock, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { servicoAutenticacao } from '@/services/servicoAutenticacao';
+import Image from 'next/image';
 
 export default function RedefinirSenhaPage() {
   const [token, setToken] = useState('');
@@ -38,7 +39,7 @@ export default function RedefinirSenhaPage() {
     <div className="min-h-dvh bg-stone-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative">
       <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
         <Link href="/" className="flex items-center gap-2 text-primary font-bold text-3xl mb-6">
-          <Leaf className="w-8 h-8 text-primary" />
+          <Image src="/images/logo-potiguara.jpg" alt="Logo" width={32} height={32} className="w-8 h-8 rounded-full shadow-sm object-cover" />
           <span>Tupi Digital</span>
         </Link>
         <h2 className="text-center text-3xl font-extrabold text-foreground">

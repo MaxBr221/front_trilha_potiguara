@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { servicoAutenticacao } from '@/services/servicoAutenticacao';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import Image from 'next/image';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -39,7 +40,7 @@ export default function RegisterPage() {
     <div className="min-h-dvh bg-stone-50 flex flex-col justify-center pt-8 pb-32 sm:px-6 lg:px-8 relative">
       <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
         <Link href="/" className="flex items-center gap-2 text-primary font-bold text-3xl mb-6">
-          <Leaf className="w-8 h-8 text-primary" />
+          <Image src="/images/logo-potiguara.jpg" alt="Logo" width={32} height={32} className="w-8 h-8 rounded-full shadow-sm object-cover" />
           <span>Tupi Digital</span>
         </Link>
         <h2 className="text-center text-3xl font-extrabold text-foreground">
@@ -58,7 +59,7 @@ export default function RegisterPage() {
           {sucesso ? (
             <div className="text-center py-4">
               <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Leaf className="w-8 h-8" />
+                <Image src="/images/logo-potiguara.jpg" alt="Logo" width={32} height={32} className="w-8 h-8 rounded-full shadow-sm object-cover" />
               </div>
               <h3 className="text-xl font-bold text-emerald-800 mb-2">Cadastro concluído!</h3>
               <p className="text-stone-600">Redirecionando para o login...</p>

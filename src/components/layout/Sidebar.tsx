@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Leaf, LayoutDashboard, Map, Trophy, User, LogOut, Book, Users } from 'lucide-react';
 import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
+import Image from 'next/image';
 
 export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }) {
   const pathname = usePathname();
@@ -31,7 +32,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () =>
       }`}>
       <div className="p-6">
         <Link href="/dashboard" onClick={() => onClose && onClose()} className="flex items-center gap-2 text-primary font-bold text-2xl">
-          <Leaf className="w-8 h-8 text-primary" />
+          <Image src="/images/logo-potiguara.jpg" alt="Logo" width={32} height={32} className="w-8 h-8 rounded-full shadow-sm object-cover" />
           <span>Tupi Digital</span>
         </Link>
       </div>

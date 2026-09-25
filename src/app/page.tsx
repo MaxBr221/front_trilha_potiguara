@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, Leaf, Map, Trophy, BookOpen } from 'lucide-react';
 import { Navbar } from '@/components/layout/Navbar';
+import Image from 'next/image';
 
 export default function Home() {
   return (
@@ -13,7 +14,7 @@ export default function Home() {
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background"></div>
           
           <div className="inline-flex items-center gap-2 px-3 py-1 mb-8 rounded-full bg-primary/10 text-primary text-sm font-medium">
-            <Leaf className="w-4 h-4" />
+            <Image src="/images/logo-potiguara.jpg" alt="Logo" width={16} height={16} className="w-4 h-4 rounded-full object-cover" />
             <span>Redescubra nossas raízes</span>
           </div>
           
@@ -82,7 +83,7 @@ export default function Home() {
       <footer className="bg-white dark:bg-stone-950 border-t border-stone-200 dark:border-stone-800 py-12">
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center gap-2 text-primary font-bold text-xl mb-4">
-            <Leaf className="w-6 h-6 text-primary" />
+            <Image src="/images/logo-potiguara.jpg" alt="Logo" width={24} height={24} className="w-6 h-6 rounded-full shadow-sm object-cover" />
             <span>Tupi Digital</span>
           </div>
           <p className="text-stone-500 dark:text-stone-400 mb-6">Desenvolvido para valorizar a língua e cultura indígena.</p>

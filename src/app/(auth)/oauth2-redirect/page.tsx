@@ -6,6 +6,7 @@ import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
 import { Leaf } from 'lucide-react';
 import { Usuario } from '@/types/autenticacao';
 import { servicoUsuario } from '@/services/servicoUsuario';
+import Image from 'next/image';
 
 function OAuth2RedirectContent() {
   const router = useRouter();
@@ -55,7 +56,7 @@ function OAuth2RedirectContent() {
   return (
     <div className="min-h-dvh bg-stone-50 flex flex-col items-center justify-center p-4">
       <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-6 animate-pulse">
-        <Leaf className="w-12 h-12 text-primary" />
+        <Image src="/images/logo-potiguara.jpg" alt="Logo" width={48} height={48} className="w-12 h-12 rounded-full shadow-sm object-cover border-2 border-white" />
       </div>
       
       {erro ? (
