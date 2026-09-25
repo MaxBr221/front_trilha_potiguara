@@ -42,7 +42,7 @@ export default function RedefinirSenhaPage() {
           <Image src="/images/logo-potiguara.jpg" alt="Logo" width={32} height={32} className="w-8 h-8 rounded-full shadow-sm object-cover" />
           <span>Tupi Digital</span>
         </Link>
-        <h2 className="text-center text-3xl font-extrabold text-foreground">
+        <h2 className="text-center text-3xl font-extrabold text-stone-900 dark:text-stone-50">
           Nova Senha
         </h2>
         <p className="mt-2 text-center text-sm text-stone-600 px-4">

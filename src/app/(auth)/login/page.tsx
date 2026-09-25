@@ -87,7 +87,7 @@ export default function LoginPage() {
           />
           <span>Tupi Digital</span>
         </Link>
-        <h2 className="text-center text-3xl font-extrabold text-foreground">
+        <h2 className="text-center text-3xl font-extrabold text-stone-900 dark:text-stone-50">
           Acesse sua conta
         </h2>
         <p className="mt-2 text-center text-sm text-stone-600">

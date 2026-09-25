@@ -18,7 +18,7 @@ export default function Home() {
             <span>Redescubra nossas raízes</span>
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-foreground max-w-4xl mb-6">
+          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-stone-900 dark:text-stone-50 max-w-4xl mb-6">
             Aprenda Tupi. <br className="hidden md:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-600">
               Valorize a cultura.
@@ -44,7 +44,7 @@ export default function Home() {
         <section className="py-24 bg-stone-50 dark:bg-stone-900/50 px-4">
           <div className="container mx-auto max-w-6xl">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Como funciona o Tupi Digital?</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-stone-900 dark:text-stone-50 mb-4">Como funciona o Tupi Digital?</h2>
               <p className="text-stone-600 dark:text-stone-300 text-lg max-w-2xl mx-auto">Muito mais que um aplicativo de idiomas, uma jornada de imersão e aprendizado progressoivo.</p>
             </div>
 
