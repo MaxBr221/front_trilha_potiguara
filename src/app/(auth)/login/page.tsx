@@ -8,6 +8,7 @@ import { servicoAutenticacao } from '@/services/servicoAutenticacao';
 import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -77,7 +78,13 @@ export default function LoginPage() {
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
         <Link href="/" className="flex items-center gap-2 text-primary font-bold text-3xl mb-6">
-          <Leaf className="w-8 h-8 text-primary" />
+          <Image 
+            src="/images/logo-potiguara.jpg" 
+            alt="Logo Tupi Digital" 
+            width={96} 
+            height={96} 
+            className="w-24 h-24 rounded-full shadow-md border-4 border-white object-cover"
+          />
           <span>Tupi Digital</span>
         </Link>
         <h2 className="text-center text-3xl font-extrabold text-foreground">
