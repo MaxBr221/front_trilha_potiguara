@@ -188,14 +188,10 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
           ></div>
         </div>
 
-        {fase === 'EXERCICIOS' && ((vocabulario && vocabulario.length > 0) || (exercicioAtual && errosExercicio[exercicioAtual.id] >= 2)) && (
+        {fase === 'EXERCICIOS' && exercicioAtual && errosExercicio[exercicioAtual.id] > 1 && (
           <button 
             onClick={() => setMostrarDica(true)}
-            className={`p-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-full shrink-0 animate-in fade-in zoom-in ${
-              exercicioAtual && errosExercicio[exercicioAtual.id] >= 2 
-                ? 'text-amber-600 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-300 animate-pulse ring-2 ring-amber-400' 
-                : 'text-amber-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20'
-            }`}
+            className="p-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-full shrink-0 animate-in fade-in zoom-in text-amber-600 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-300 animate-pulse ring-2 ring-amber-400"
             title="Ver Dica"
           >
             <Lightbulb className="w-6 h-6" />
