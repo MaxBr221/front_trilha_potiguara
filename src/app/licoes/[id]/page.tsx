@@ -138,6 +138,15 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
   }
 
   if (!exercicioAtual && fase === 'EXERCICIOS') {
+    if (validando) {
+      return (
+        <div className="h-dvh w-screen flex flex-col items-center justify-center gap-4 bg-stone-50 dark:bg-stone-950">
+          <Loader2 className="w-10 h-10 animate-spin text-primary" />
+          <p className="text-stone-600 dark:text-stone-300 font-medium">Salvando seu progresso...</p>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-dvh bg-stone-50 dark:bg-stone-950 flex items-center justify-center flex-col">
         <h2 className="text-xl font-bold text-stone-700 dark:text-stone-300 mb-4">Nenhum exercício encontrado.</h2>
