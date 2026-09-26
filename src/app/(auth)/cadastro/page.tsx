@@ -37,35 +37,35 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-dvh flex flex-col justify-center pt-8 pb-12 sm:px-6 lg:px-8 relative overflow-hidden bg-gradient-to-br from-stone-100 via-stone-50 to-stone-200 dark:from-stone-900 dark:via-stone-950 dark:to-stone-900">
+    <div className="min-h-dvh flex flex-col justify-center py-4 sm:px-6 lg:px-8 relative overflow-hidden bg-gradient-to-br from-stone-100 via-stone-50 to-stone-200 dark:from-stone-900 dark:via-stone-950 dark:to-stone-900">
       
       {/* Decorative Background Elements */}
       <div className="absolute top-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-primary/20 dark:bg-primary/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-70 animate-pulse pointer-events-none" />
       <div className="absolute top-[20%] right-[-10%] w-[35rem] h-[35rem] bg-emerald-400/20 dark:bg-emerald-500/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-70 pointer-events-none" style={{ animationDelay: '2s' }} />
       <div className="absolute bottom-[-20%] left-[20%] w-[40rem] h-[40rem] bg-amber-400/20 dark:bg-amber-500/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-70 animate-pulse pointer-events-none" style={{ animationDelay: '4s' }} />
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="bg-white/80 dark:bg-stone-900/80 backdrop-blur-2xl py-10 px-4 shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white dark:border-stone-700/50 sm:rounded-[2rem] sm:px-10 transition-all flex flex-col items-center">
+      <div className="mt-2 sm:mt-4 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+        <div className="bg-white/80 dark:bg-stone-900/80 backdrop-blur-2xl py-6 sm:py-8 px-4 shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white dark:border-stone-700/50 sm:rounded-[2rem] sm:px-10 transition-all flex flex-col items-center">
           
-          <Link href="/" className="flex flex-col items-center gap-4 mb-8 group w-full">
+          <Link href="/" className="flex flex-col items-center gap-3 mb-6 group w-full">
             <div className="relative">
               <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-colors" />
               <Image 
                 src="/images/logo-potiguara.jpg" 
                 alt="Logo Tupi Digital" 
-                width={112} 
-                height={112} 
-                className="w-28 h-28 rounded-full shadow-lg border-4 border-white dark:border-stone-800 object-cover relative z-10 group-hover:scale-105 transition-transform duration-300"
+                width={80} 
+                height={80} 
+                className="w-20 h-20 rounded-full shadow-lg border-4 border-white dark:border-stone-800 object-cover relative z-10 group-hover:scale-105 transition-transform duration-300"
               />
             </div>
-            <span className="font-black text-3xl text-stone-800 dark:text-stone-100 tracking-tight">Tupi Digital</span>
+            <span className="font-black text-2xl text-stone-800 dark:text-stone-100 tracking-tight">Tupi Digital</span>
           </Link>
 
-          <div className="w-full text-center mb-8">
-            <h2 className="text-2xl font-extrabold text-stone-900 dark:text-stone-50 tracking-tight">
+          <div className="w-full text-center mb-6">
+            <h2 className="text-xl sm:text-2xl font-extrabold text-stone-900 dark:text-stone-50 tracking-tight">
               Crie sua conta
             </h2>
-            <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">
+            <p className="mt-1.5 text-sm text-stone-600 dark:text-stone-400">
               Já possui conta?{' '}
               <Link href="/login" className="font-bold text-primary hover:text-primary/80 transition-colors">
                 Faça login aqui
@@ -127,7 +127,7 @@ export default function RegisterPage() {
                 <Button
                   type="submit"
                   isLoading={carregando}
-                  className="w-full text-lg py-6 mt-2"
+                  className="w-full text-lg py-5 mt-2"
                 >
                   {!carregando && <UserPlus className="w-5 h-5 mr-2" />}
                   Criar conta
