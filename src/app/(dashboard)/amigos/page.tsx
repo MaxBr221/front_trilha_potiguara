@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Users, Loader2, Trophy, Flame, Search, Bell, UserPlus } from 'lucide-react';
+import { Users, Loader2, Trophy, Flame, Search, Bell, UserPlus, Trash2 } from 'lucide-react';
 import { servicoUsuario } from '@/services/servicoUsuario';
 import { api } from '@/services/api';
 import { Amigo } from '@/types/autenticacao';
@@ -138,6 +138,17 @@ export default function AmigosPage() {
     carregarNotificacoes();
   }, [abaAtual]);
 
+  const apagarNotificacao = async (notificacaoId: string) => {
+    // Remove localmente imediatamente
+    setNotificacoes(prev => prev.filter(n => n.id !== notificacaoId));
+    // Tenta remover no back-end (opcional, assumindo rota DELETE /usuarios/notificacoes/:id caso exista)
+    try {
+      await api.delete(`/usuarios/notificacoes/${notificacaoId}`);
+    } catch (err) {
+      console.log('Backend não suporta ou falhou ao apagar notificação');
+    }
+  };
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center gap-4 mb-6">
@@ -221,12 +232,16 @@ export default function AmigosPage() {
                 
                 let medalColor = 'text-stone-400 font-bold';
                 let bgStyle = 'bg-white dark:bg-stone-900';
+                let borderStyle = 'border-transparent border-l-4';
                 
-                if (posicao === 1) medalColor = 'text-yellow-500 font-black text-xl';
-                else if (posicao === 2) medalColor = 'text-stone-400 font-bold text-lg';
-                else if (posicao === 3) medalColor = 'text-amber-600 font-bold text-lg';
+                if (posicao === 1) { medalColor = 'text-yellow-500 font-black text-2xl'; borderStyle = 'border-yellow-400 dark:border-yellow-500 border-l-4'; bgStyle = 'bg-gradient-to-r from-yellow-50 to-white dark:from-yellow-900/20 dark:to-stone-900'; }
+                else if (posicao === 2) { medalColor = 'text-stone-400 font-bold text-xl'; borderStyle = 'border-stone-300 dark:border-stone-500 border-l-4'; bgStyle = 'bg-gradient-to-r from-stone-50 to-white dark:from-stone-800/40 dark:to-stone-900'; }
+                else if (posicao === 3) { medalColor = 'text-amber-700 dark:text-amber-500 font-bold text-xl'; borderStyle = 'border-amber-500 dark:border-amber-600 border-l-4'; bgStyle = 'bg-gradient-to-r from-amber-50 to-white dark:from-amber-900/20 dark:to-stone-900'; }
 
-                if (isMe) bgStyle = 'bg-primary/5 dark:bg-primary/10';
+                if (isMe && posicao > 3) {
+                  bgStyle = 'bg-primary/5 dark:bg-primary/10';
+                  borderStyle = 'border-primary dark:border-primary border-l-4';
+                }
 
                 return (
                   <motion.li 
@@ -237,7 +252,7 @@ export default function AmigosPage() {
                   >
                     <Link 
                       href={`/perfil/${amigo.id}`}
-                      className={`flex items-center justify-between p-4 px-6 hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors cursor-pointer ${bgStyle}`}
+                      className={`flex items-center justify-between p-4 px-6 hover:brightness-95 dark:hover:brightness-110 transition-all cursor-pointer ${borderStyle} ${bgStyle}`}
                     >
                       <div className="flex items-center gap-4">
                         <span className={`w-6 text-center ${medalColor}`}>
@@ -420,7 +435,7 @@ export default function AmigosPage() {
               {notificacoes.map((notificacao) => (
                 <li 
                   key={notificacao.id}
-                  className={`p-4 px-6 transition-colors flex items-center justify-between ${
+                  className={`group p-4 px-6 transition-colors flex items-center justify-between ${
                     notificacao.lida ? 'bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800/50' : 'bg-primary/5 dark:bg-primary/10 hover:bg-primary/10 dark:hover:bg-primary/20'
                   }`}
                 >
@@ -441,9 +456,18 @@ export default function AmigosPage() {
                       </p>
                     </div>
                   </div>
-                  {!notificacao.lida && (
-                    <div className="w-3 h-3 bg-green-500 rounded-full flex-shrink-0" title="Não lida" />
-                  )}
+                  <div className="flex items-center gap-3">
+                    {!notificacao.lida && (
+                      <div className="w-3 h-3 bg-green-500 rounded-full flex-shrink-0 shadow-sm shadow-green-500/50" title="Não lida" />
+                    )}
+                    <button 
+                      onClick={() => apagarNotificacao(notificacao.id)}
+                      className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-full opacity-50 sm:opacity-0 sm:group-hover:opacity-100 transition-all focus-visible:opacity-100"
+                      title="Apagar notificação"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
