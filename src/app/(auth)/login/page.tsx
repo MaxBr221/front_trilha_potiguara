@@ -66,7 +66,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-dvh bg-stone-50 dark:bg-stone-900 flex flex-col justify-center pt-8 pb-32 sm:px-6 lg:px-8 relative">
+    <div className="min-h-dvh flex flex-col justify-center pt-8 pb-12 sm:px-6 lg:px-8 relative overflow-hidden bg-gradient-to-br from-stone-100 via-stone-50 to-stone-200 dark:from-stone-900 dark:via-stone-950 dark:to-stone-900">
+      
+      {/* Decorative Background Elements */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-primary/20 dark:bg-primary/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-70 animate-pulse pointer-events-none" />
+      <div className="absolute top-[20%] right-[-10%] w-[35rem] h-[35rem] bg-emerald-400/20 dark:bg-emerald-500/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-70 pointer-events-none" style={{ animationDelay: '2s' }} />
+      <div className="absolute bottom-[-20%] left-[20%] w-[40rem] h-[40rem] bg-amber-400/20 dark:bg-amber-500/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-70 animate-pulse pointer-events-none" style={{ animationDelay: '4s' }} />
       
       {/* Toast Notification (Canto superior direito) */}
       {toastErro && (
@@ -76,31 +81,36 @@ export default function LoginPage() {
         </div>
       )}
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
-        <Link href="/" className="flex items-center gap-2 text-primary font-bold text-3xl mb-6">
-          <Image 
-            src="/images/logo-potiguara.jpg" 
-            alt="Logo Tupi Digital" 
-            width={96} 
-            height={96} 
-            className="w-24 h-24 rounded-full shadow-md border-4 border-white object-cover"
-          />
-          <span>Tupi Digital</span>
-        </Link>
-        <h2 className="text-center text-3xl font-extrabold text-stone-900 dark:text-stone-50">
-          Acesse sua conta
-        </h2>
-        <p className="mt-2 text-center text-sm text-stone-600 dark:text-stone-400">
-          Ou{' '}
-          <Link href="/cadastro" className="font-medium text-primary hover:text-primary/80">
-            crie sua conta gratuitamente
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+        <div className="bg-white/80 dark:bg-stone-900/80 backdrop-blur-2xl py-10 px-4 shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white dark:border-stone-700/50 sm:rounded-[2rem] sm:px-10 transition-all flex flex-col items-center">
+          
+          <Link href="/" className="flex flex-col items-center gap-4 mb-8 group w-full">
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-colors" />
+              <Image 
+                src="/images/logo-potiguara.jpg" 
+                alt="Logo Tupi Digital" 
+                width={112} 
+                height={112} 
+                className="w-28 h-28 rounded-full shadow-lg border-4 border-white dark:border-stone-800 object-cover relative z-10 group-hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <span className="font-black text-3xl text-stone-800 dark:text-stone-100 tracking-tight">Tupi Digital</span>
           </Link>
-        </p>
-      </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white dark:bg-stone-800 py-8 px-4 shadow-sm border border-stone-200 dark:border-stone-700 sm:rounded-3xl sm:px-10">
-          <form className="space-y-6" onSubmit={lidarComEnvio}>
+          <div className="w-full text-center mb-8">
+            <h2 className="text-2xl font-extrabold text-stone-900 dark:text-stone-50 tracking-tight">
+              Acesse sua conta
+            </h2>
+            <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">
+              Não tem uma conta?{' '}
+              <Link href="/cadastro" className="font-bold text-primary hover:text-primary/80 transition-colors">
+                Crie gratuitamente
+              </Link>
+            </p>
+          </div>
+
+          <form className="space-y-5 w-full" onSubmit={lidarComEnvio}>
             <Input
               label="Endereço de E-mail"
               id="email"
@@ -126,7 +136,7 @@ export default function LoginPage() {
               <div className="flex justify-end mt-2">
                 <Link 
                   href="/esqueci-senha"
-                  className="text-sm font-medium text-primary hover:text-primary/80"
+                  className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
                 >
                   Esqueceu a senha?
                 </Link>
@@ -150,13 +160,13 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="mt-6">
+          <div className="mt-6 w-full">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-stone-300" />
+                <div className="w-full border-t border-stone-300 dark:border-stone-700" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white dark:bg-stone-800 text-stone-500 dark:text-stone-400">Ou continue com</span>
+                <span className="px-3 bg-white dark:bg-stone-900 text-stone-500 dark:text-stone-400 font-medium">Ou continue com</span>
               </div>
             </div>
 
@@ -167,10 +177,9 @@ export default function LoginPage() {
                   const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1').replace('/api/v1', '');
                   window.location.href = `${baseUrl}/oauth2/authorization/google`;
                 }}
-                className="w-full flex justify-center items-center py-3 px-4 border border-stone-300 dark:border-stone-600 rounded-xl shadow-sm bg-white dark:bg-stone-800 text-sm font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
-
+                className="w-full flex justify-center items-center py-3.5 px-4 border border-stone-300 dark:border-stone-600 rounded-xl shadow-sm bg-white dark:bg-stone-800 text-sm font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
               >
-                <svg className="h-5 w-5 mr-2" aria-hidden="true" viewBox="0 0 24 24">
+                <svg className="h-5 w-5 mr-3" aria-hidden="true" viewBox="0 0 24 24">
                   <path d="M12.0003 4.75C13.7703 4.75 15.3553 5.36 16.6053 6.54998L20.0303 3.125C17.9503 1.19 15.2353 0 12.0003 0C7.31028 0 3.25528 2.69 1.28027 6.60998L5.27028 9.70498C6.21528 6.86 8.87028 4.75 12.0003 4.75Z" fill="#EA4335" />
                   <path d="M23.49 12.275C23.49 11.49 23.415 10.73 23.3 10H12V14.51H18.47C18.18 15.99 17.34 17.25 16.08 18.1L19.945 21.1C22.2 19.01 23.49 15.92 23.49 12.275Z" fill="#4285F4" />
                   <path d="M5.26498 14.2949C5.02498 13.5699 4.88501 12.7999 4.88501 11.9999C4.88501 11.1999 5.01998 10.4299 5.26498 9.7049L1.275 6.60986C0.46 8.22986 0 10.0599 0 11.9999C0 13.9399 0.46 15.7699 1.28 17.3899L5.26498 14.2949Z" fill="#FBBC05" />
@@ -183,25 +192,25 @@ export default function LoginPage() {
         </div>
 
         {/* Developer Links */}
-        <div className="mt-6 flex flex-col items-center">
-          <p className="text-xs font-medium text-stone-500 dark:text-stone-400 mb-3 text-center">Desenvolvido por</p>
-          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 w-full">
+        <div className="mt-8 flex flex-col items-center">
+          <p className="text-xs font-bold text-stone-500/70 dark:text-stone-400/70 mb-4 uppercase tracking-wider">Desenvolvido por</p>
+          <div className="flex flex-wrap items-center justify-center gap-3 w-full">
             <a 
               href="https://www.instagram.com/_maxsueel?stkn=MW9vbHFkbWh5dWEzdw==" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#E1306C] transition-colors bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 px-3 py-1.5 rounded-full font-medium text-xs shadow-sm"
+              className="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#E1306C] dark:hover:text-[#E1306C] transition-all bg-white/50 dark:bg-stone-800/50 backdrop-blur-sm border border-white/50 dark:border-stone-700/50 px-4 py-2 rounded-xl font-bold text-xs shadow-sm hover:shadow-md hover:-translate-y-0.5"
             >
-              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
               @_maxsueel
             </a>
             <a 
               href="https://www.linkedin.com/in/maxsuel-lima-5a27a635b/" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#0a66c2] transition-colors bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 px-3 py-1.5 rounded-full font-medium text-xs shadow-sm"
+              className="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#0a66c2] dark:hover:text-[#60a5fa] transition-all bg-white/50 dark:bg-stone-800/50 backdrop-blur-sm border border-white/50 dark:border-stone-700/50 px-4 py-2 rounded-xl font-bold text-xs shadow-sm hover:shadow-md hover:-translate-y-0.5"
             >
-              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
               Maxsuel Lima
             </a>
           </div>
