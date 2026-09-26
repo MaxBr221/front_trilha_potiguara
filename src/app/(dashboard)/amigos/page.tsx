@@ -9,6 +9,7 @@ import { servicoUsuario } from '@/services/servicoUsuario';
 import { api } from '@/services/api';
 import { Amigo } from '@/types/autenticacao';
 import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
+import { sons } from '@/utils/audio';
 
 type Aba = 'ranking' | 'busca' | 'notificacoes';
 
@@ -359,6 +360,7 @@ export default function AmigosPage() {
                                     setSeguidos(prev => { const next = new Set(prev); next.delete(String(amigo.id)); return next; });
                                   } else {
                                     await servicoUsuario.seguirUsuario(String(amigo.id));
+                                    sons.notificacao();
                                     setSeguidos(prev => new Set(prev).add(String(amigo.id)));
                                   }
                                 } catch (err) {

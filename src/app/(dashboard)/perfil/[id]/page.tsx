@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Loader2, UserPlus, UserMinus, Flame, Trophy, Users, X } from 'lucide-react';
 import { servicoUsuario } from '@/services/servicoUsuario';
 import { PerfilPublico } from '@/types/autenticacao';
+import { sons } from '@/utils/audio';
 
 export default function PerfilPublicoPage() {
   const { id } = useParams<{ id: string }>();
@@ -47,6 +48,7 @@ export default function PerfilPublicoPage() {
         setPerfil({ ...perfil, isAmigo: false, totalAmigos: Math.max(0, perfil.totalAmigos - 1) });
       } else {
         await servicoUsuario.seguirUsuario(id);
+        sons.notificacao();
         setPerfil({ ...perfil, isAmigo: true, totalAmigos: perfil.totalAmigos + 1 });
       }
     } catch (err) {

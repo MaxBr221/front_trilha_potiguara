@@ -12,6 +12,7 @@ import { LigarColunasExercicio } from '@/components/features/LigarColunasExercic
 import { AquecimentoVocabulario } from '@/components/features/AquecimentoVocabulario';
 import { servicoExercicio, Exercicio } from '@/services/servicoExercicio';
 import { servicoDicionario, ConteudoLinguistico } from '@/services/servicoDicionario';
+import { sons } from '@/utils/audio';
 
 export default function LicaoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -91,7 +92,10 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
       setRespostaCertaBackend(validacao.respostaCorreta || '');
       setContextoCultural(validacao.contextoCultural || 'Os povos Tupi habitavam grande parte do litoral brasileiro e sua língua influenciou fortemente o português que falamos hoje!');
       
-      if (!validacao.correta) {
+      if (validacao.correta) {
+        sons.sucesso();
+      } else {
+        sons.erro();
         setErrosExercicio(prev => ({
           ...prev,
           [exercicioAtual.id]: (prev[exercicioAtual.id] || 0) + 1
@@ -125,6 +129,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
       
       // Checa a condição com o tamanho atualizado
       if (exercicios.length <= 1) {
+        sons.conclusao();
         setValidando(true);
         await servicoExercicio.concluirLicao(id);
         router.push('/dashboard');
