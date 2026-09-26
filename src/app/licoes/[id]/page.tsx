@@ -4,7 +4,7 @@
 import { use, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { X, Check, Flag, Loader2, Info } from 'lucide-react';
+import { X, Check, Flag, Loader2, Info, Lightbulb } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import { PalavrasEnsino } from '@/components/features/PalavrasEnsino';
@@ -31,6 +31,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
   const [isCorrect, setIsCorrect] = useState(false);
   const [respostaCertaBackend, setRespostaCertaBackend] = useState('');
   const [contextoCultural, setContextoCultural] = useState('');
+  const [mostrarDica, setMostrarDica] = useState(false);
   
 
   useEffect(() => {
@@ -157,10 +158,10 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
 
   return (
     <div className="min-h-dvh bg-white dark:bg-stone-950 flex flex-col">
-      <header className="h-16 flex items-center px-4 md:px-8 max-w-4xl w-full mx-auto gap-4">
+      <header className="h-16 flex items-center px-4 md:px-8 max-w-4xl w-full mx-auto gap-4 relative z-10">
         <button 
           onClick={() => router.push('/dashboard')}
-          className="p-2 text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-full"
+          className="p-2 text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-full shrink-0"
         >
           <X className="w-6 h-6" />
         </button>
@@ -171,6 +172,16 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
             style={{ width: `${progresso}%` }}
           ></div>
         </div>
+
+        {vocabulario && vocabulario.length > 0 && fase === 'EXERCICIOS' && (
+          <button 
+            onClick={() => setMostrarDica(true)}
+            className="p-2 text-amber-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-full shrink-0 animate-in fade-in zoom-in"
+            title="Ver Dica de Vocabulário"
+          >
+            <Lightbulb className="w-6 h-6" />
+          </button>
+        )}
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center p-4">
@@ -217,6 +228,53 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
           </div>
         )}
       </main>
+
+      <AnimatePresence>
+        {mostrarDica && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white dark:bg-stone-900 rounded-3xl shadow-xl border border-stone-200 dark:border-stone-800 w-full max-w-md overflow-hidden flex flex-col"
+            >
+              <div className="flex justify-between items-center p-6 border-b border-stone-200 dark:border-stone-800">
+                <div className="flex items-center gap-2 text-amber-500">
+                  <Lightbulb className="w-6 h-6" />
+                  <h3 className="text-xl font-bold text-stone-800 dark:text-stone-100">Dicas da Lição</h3>
+                </div>
+                <button 
+                  onClick={() => setMostrarDica(false)}
+                  className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <div className="p-6 overflow-y-auto max-h-[60vh]">
+                <p className="text-stone-600 dark:text-stone-400 text-sm mb-4">
+                  Relembre as palavras dessa lição para te ajudar com a questão:
+                </p>
+                <div className="flex flex-col gap-3">
+                  {vocabulario.map(v => (
+                    <div key={v.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-stone-50 dark:bg-stone-800/50 p-4 rounded-xl border border-stone-100 dark:border-stone-800 gap-1">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-lg text-primary">{v.palavraTupi}</span>
+                        {v.fonetica && <span className="text-xs text-stone-500 italic">/{v.fonetica}/</span>}
+                      </div>
+                      <span className="text-stone-600 dark:text-stone-300 font-medium">{v.traducaoPtBr}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="p-6 border-t border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900">
+                <Button className="w-full" onClick={() => setMostrarDica(false)}>
+                  Voltar para o Exercício
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <footer className={`border-t-2 transition-colors duration-300 ${isChecked ? (isCorrect ? 'border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-900/20' : 'border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-900/20') : 'border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950'}`}>
         <div className="max-w-4xl mx-auto p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
