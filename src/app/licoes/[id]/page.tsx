@@ -33,6 +33,10 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
   const [contextoCultural, setContextoCultural] = useState('');
   const [mostrarDica, setMostrarDica] = useState(false);
   
+  // Track errors per exercise to show hints
+  const [errosExercicio, setErrosExercicio] = useState<Record<string, number>>({});
+  const [respostasSalvas, setRespostasSalvas] = useState<Record<string, string>>({});
+  
 
   useEffect(() => {
     const carregarDados = async () => {
@@ -87,6 +91,17 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
       setRespostaCertaBackend(validacao.respostaCorreta || '');
       setContextoCultural(validacao.contextoCultural || 'Os povos Tupi habitavam grande parte do litoral brasileiro e sua língua influenciou fortemente o português que falamos hoje!');
       
+      if (!validacao.correta) {
+        setErrosExercicio(prev => ({
+          ...prev,
+          [exercicioAtual.id]: (prev[exercicioAtual.id] || 0) + 1
+        }));
+        setRespostasSalvas(prev => ({
+          ...prev,
+          [exercicioAtual.id]: validacao.respostaCorreta || ''
+        }));
+      }
+
       setIsChecked(true);
     } catch (error) {
       console.error('Erro ao validar resposta', error);
@@ -173,11 +188,15 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
           ></div>
         </div>
 
-        {vocabulario && vocabulario.length > 0 && fase === 'EXERCICIOS' && (
+        {fase === 'EXERCICIOS' && ((vocabulario && vocabulario.length > 0) || (exercicioAtual && errosExercicio[exercicioAtual.id] >= 2)) && (
           <button 
             onClick={() => setMostrarDica(true)}
-            className="p-2 text-amber-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-full shrink-0 animate-in fade-in zoom-in"
-            title="Ver Dica de Vocabulário"
+            className={`p-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-full shrink-0 animate-in fade-in zoom-in ${
+              exercicioAtual && errosExercicio[exercicioAtual.id] >= 2 
+                ? 'text-amber-600 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-300 animate-pulse ring-2 ring-amber-400' 
+                : 'text-amber-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20'
+            }`}
+            title="Ver Dica"
           >
             <Lightbulb className="w-6 h-6" />
           </button>
@@ -251,20 +270,31 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
                 </button>
               </div>
               <div className="p-6 overflow-y-auto max-h-[60vh]">
-                <p className="text-stone-600 dark:text-stone-400 text-sm mb-4">
-                  Relembre as palavras dessa lição para te ajudar com a questão:
-                </p>
-                <div className="flex flex-col gap-3">
-                  {vocabulario.map(v => (
-                    <div key={v.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-stone-50 dark:bg-stone-800/50 p-4 rounded-xl border border-stone-100 dark:border-stone-800 gap-1">
-                      <div className="flex flex-col">
-                        <span className="font-bold text-lg text-primary">{v.palavraTupi}</span>
-                        {v.fonetica && <span className="text-xs text-stone-500 italic">/{v.fonetica}/</span>}
-                      </div>
-                      <span className="text-stone-600 dark:text-stone-300 font-medium">{v.traducaoPtBr}</span>
+                {exercicioAtual && errosExercicio[exercicioAtual.id] >= 2 && respostasSalvas[exercicioAtual.id] && (
+                  <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-200 dark:border-amber-800/50 rounded-2xl">
+                    <p className="text-amber-800 dark:text-amber-300 font-bold mb-1">Dica Especial:</p>
+                    <p className="text-amber-700 dark:text-amber-400">A resposta para essa questão é: <strong>{respostasSalvas[exercicioAtual.id]}</strong></p>
+                  </div>
+                )}
+                
+                {vocabulario && vocabulario.length > 0 && (
+                  <>
+                    <p className="text-stone-600 dark:text-stone-400 text-sm mb-4">
+                      Relembre as palavras dessa lição para te ajudar com a questão:
+                    </p>
+                    <div className="flex flex-col gap-3">
+                      {vocabulario.map(v => (
+                        <div key={v.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-stone-50 dark:bg-stone-800/50 p-4 rounded-xl border border-stone-100 dark:border-stone-800 gap-1">
+                          <div className="flex flex-col">
+                            <span className="font-bold text-lg text-primary">{v.palavraTupi}</span>
+                            {v.fonetica && <span className="text-xs text-stone-500 italic">/{v.fonetica}/</span>}
+                          </div>
+                          <span className="text-stone-600 dark:text-stone-300 font-medium">{v.traducaoPtBr}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </>
+                )}
               </div>
               <div className="p-6 border-t border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900">
                 <Button className="w-full" onClick={() => setMostrarDica(false)}>
