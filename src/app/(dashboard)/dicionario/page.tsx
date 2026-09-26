@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, Loader2, Book, Copy, Check, Volume2 } from 'lucide-react';
+import Image from 'next/image';
+import { Search, Loader2, Copy, Check, Volume2 } from 'lucide-react';
 import { servicoDicionario, ConteudoLinguistico } from '@/services/servicoDicionario';
 
 export default function DicionarioPage() {
@@ -89,8 +90,14 @@ export default function DicionarioPage() {
       )}
 
       <div className="bg-primary/5 dark:bg-primary/10 rounded-3xl p-8 border border-primary/20 dark:border-primary/30 flex flex-col items-center text-center">
-        <div className="w-16 h-16 bg-primary/20 dark:bg-primary/30 text-primary rounded-2xl flex items-center justify-center mb-4">
-          <Book className="w-8 h-8" />
+        <div className="w-24 h-24 mb-6 rounded-3xl overflow-hidden shadow-lg border-4 border-white dark:border-stone-800 relative bg-stone-100 dark:bg-stone-900">
+          <Image 
+            src="/images/logo-potiguara.jpg" 
+            alt="Logo Dicionário Potiguara" 
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 96px, 96px"
+          />
         </div>
         <h1 className="text-3xl font-bold text-stone-800 dark:text-stone-100 mb-2">Dicionário Tupi-Português</h1>
         <p className="text-stone-600 dark:text-stone-300 max-w-lg mb-6">

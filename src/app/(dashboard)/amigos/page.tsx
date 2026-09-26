@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Users, Loader2, Trophy, Flame, Search, Bell, UserPlus } from 'lucide-react';
 import { servicoUsuario } from '@/services/servicoUsuario';
@@ -138,9 +139,15 @@ export default function AmigosPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 rounded-2xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary dark:text-primary-400">
-          <Trophy className="w-6 h-6" />
+      <div className="flex items-center gap-4 mb-6">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden shadow-md border-2 border-white dark:border-stone-800 relative bg-stone-100 dark:bg-stone-900 shrink-0">
+          <Image 
+            src="/images/logo-potiguara.jpg" 
+            alt="Logo Ranking Potiguara" 
+            fill
+            className="object-cover"
+            sizes="80px"
+          />
         </div>
         <div>
           <h1 className="text-3xl font-bold text-stone-800 dark:text-stone-100">Ranking de Amigos</h1>
