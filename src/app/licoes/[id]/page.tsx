@@ -9,14 +9,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import { PalavrasEnsino } from '@/components/features/PalavrasEnsino';
 import { LigarColunasExercicio } from '@/components/features/LigarColunasExercicio';
+import { AquecimentoVocabulario } from '@/components/features/AquecimentoVocabulario';
 import { servicoExercicio, Exercicio } from '@/services/servicoExercicio';
+import { servicoDicionario, ConteudoLinguistico } from '@/services/servicoDicionario';
 
 export default function LicaoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   
   const [exercicios, setExercicios] = useState<Exercicio[]>([]);
-  const [indiceAtual, setIndiceAtual] = useState(0);
+  const [vocabulario, setVocabulario] = useState<ConteudoLinguistico[]>([]);
+  const [fase, setFase] = useState<'AQUECIMENTO' | 'EXERCICIOS'>('AQUECIMENTO');
+  const [totalExercicios, setTotalExercicios] = useState(0);
+  const [exerciciosAcertados, setExerciciosAcertados] = useState(0);
+  
   const [carregando, setCarregando] = useState(true);
   const [validando, setValidando] = useState(false);
 
@@ -28,12 +34,15 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
   
 
   useEffect(() => {
-    const carregarExercicios = async () => {
+    const carregarDados = async () => {
       try {
-        const dados = await servicoExercicio.obterExerciciosPorLicao(id);
+        const [dadosExercicios, dadosVocabulario] = await Promise.all([
+          servicoExercicio.obterExerciciosPorLicao(id),
+          servicoDicionario.obterPorLicao(id)
+        ]);
         
         // Embaralha as opções de cada exercício para não ficarem sempre na mesma ordem
-        const dadosEmbaralhados = dados.map(ex => {
+        const dadosEmbaralhados = dadosExercicios.map(ex => {
           if (ex.opcoes && ex.opcoes.length > 0 && ex.tipo !== 'ENSINO') {
             const opcoes = [...ex.opcoes];
             for (let i = opcoes.length - 1; i > 0; i--) {
@@ -46,17 +55,25 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
         });
 
         setExercicios(dadosEmbaralhados);
+        setTotalExercicios(dadosEmbaralhados.length);
+        
+        if (dadosVocabulario && dadosVocabulario.length > 0) {
+          setVocabulario(dadosVocabulario);
+          setFase('AQUECIMENTO');
+        } else {
+          setFase('EXERCICIOS');
+        }
       } catch (error) {
-        console.error('Erro ao buscar exercícios', error);
+        console.error('Erro ao buscar dados da lição', error);
       } finally {
         setCarregando(false);
       }
     };
-    carregarExercicios();
+    carregarDados();
   }, [id]);
 
-  const exercicioAtual = exercicios[indiceAtual];
-  const progresso = exercicios.length > 0 ? (indiceAtual / exercicios.length) * 100 : 0;
+  const exercicioAtual = exercicios[0];
+  const progresso = totalExercicios > 0 ? (exerciciosAcertados / totalExercicios) * 100 : 0;
 
   const handleCheck = async () => {
     if (!selectedAnswer || !exercicioAtual) return;
@@ -79,17 +96,34 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
 
   const handleNext = async () => {
     if (isCorrect) {
-      if (indiceAtual + 1 < exercicios.length) {
-        setIndiceAtual(prev => prev + 1);
-        setIsChecked(false);
-        setSelectedAnswer(null);
-        setIsCorrect(false);
-      } else {
+      setExercicios(prev => {
+        const novaFila = [...prev];
+        novaFila.shift();
+        return novaFila;
+      });
+      setExerciciosAcertados(prev => prev + 1);
+
+      setIsChecked(false);
+      setSelectedAnswer(null);
+      setIsCorrect(false);
+      
+      // Checa a condição com o tamanho atualizado
+      if (exercicios.length <= 1) {
         setValidando(true);
         await servicoExercicio.concluirLicao(id);
         router.push('/dashboard');
       }
     } else {
+      // Errou: remove do início e coloca no final da fila (Queue)
+      setExercicios(prev => {
+        const novaFila = [...prev];
+        const exercicioErrado = novaFila.shift();
+        if (exercicioErrado) {
+          novaFila.push(exercicioErrado);
+        }
+        return novaFila;
+      });
+      
       setIsChecked(false);
       setSelectedAnswer(null);
     }
@@ -103,7 +137,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
     );
   }
 
-  if (!exercicioAtual) {
+  if (!exercicioAtual && fase === 'EXERCICIOS') {
     return (
       <div className="min-h-dvh bg-stone-50 dark:bg-stone-950 flex items-center justify-center flex-col">
         <h2 className="text-xl font-bold text-stone-700 dark:text-stone-300 mb-4">Nenhum exercício encontrado.</h2>
@@ -131,7 +165,9 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center p-4">
-        {exercicioAtual.tipo === 'ENSINO' ? (
+        {fase === 'AQUECIMENTO' ? (
+          <AquecimentoVocabulario vocabulario={vocabulario} />
+        ) : exercicioAtual.tipo === 'ENSINO' ? (
           <PalavrasEnsino exercicio={exercicioAtual} />
         ) : exercicioAtual.tipo === 'LIGAR_COLUNAS' ? (
           <LigarColunasExercicio exercicio={exercicioAtual} onComplete={() => { setIsChecked(true); setIsCorrect(true); }} />
@@ -211,12 +247,18 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
           
           <Button
             size="lg"
-            disabled={(exercicioAtual.tipo !== 'ENSINO' && exercicioAtual.tipo !== 'LIGAR_COLUNAS' && !selectedAnswer) || validando || (exercicioAtual.tipo === 'LIGAR_COLUNAS' && !isChecked)}
+            disabled={
+              fase === 'AQUECIMENTO' ? false :
+              (exercicioAtual?.tipo !== 'ENSINO' && exercicioAtual?.tipo !== 'LIGAR_COLUNAS' && !selectedAnswer) || validando || (exercicioAtual?.tipo === 'LIGAR_COLUNAS' && !isChecked)
+            }
             isLoading={validando}
-            onClick={exercicioAtual.tipo === 'ENSINO' ? () => { setIsCorrect(true); handleNext(); } : (isChecked ? handleNext : handleCheck)}
+            onClick={
+              fase === 'AQUECIMENTO' ? () => setFase('EXERCICIOS') :
+              exercicioAtual?.tipo === 'ENSINO' ? () => { setIsCorrect(true); handleNext(); } : (isChecked ? handleNext : handleCheck)
+            }
             className="w-full md:w-auto min-w-[150px] font-bold"
           >
-            {isChecked || exercicioAtual.tipo === 'ENSINO' ? 'Continuar' : 'Verificar'}
+            {fase === 'AQUECIMENTO' ? 'Começar Exercícios' : (isChecked || exercicioAtual?.tipo === 'ENSINO' ? 'Continuar' : 'Verificar')}
           </Button>
         </div>
       </footer>

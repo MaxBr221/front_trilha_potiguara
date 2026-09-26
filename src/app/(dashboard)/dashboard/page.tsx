@@ -82,13 +82,17 @@ export default function DashboardPage() {
       {primeiraTrilha && (
         <section className="bg-primary/5 dark:bg-primary/10 border-2 border-b-[6px] border-primary/20 dark:border-primary/30 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 transition-all duration-200 hover:-translate-y-1 hover:border-b-[8px] active:translate-y-1 active:border-b-2">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-stone-800 dark:text-stone-100 mb-2">Continue aprendendo!</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-stone-800 dark:text-stone-100 mb-2">
+              {primeiraTrilha.progresso === 0 ? 'Comece sua jornada!' : 'Continue aprendendo!'}
+            </h1>
             <p className="text-stone-600 dark:text-stone-300 mb-4 max-w-lg">
-              Você está indo muito bem. Sua próxima lição na trilha <strong>{primeiraTrilha.title}</strong> está te esperando.
+              {primeiraTrilha.progresso === 0 
+                ? <>Dê o seu primeiro passo! Sua primeira lição na trilha <strong>{primeiraTrilha.title}</strong> está te esperando.</>
+                : <>Você está indo muito bem. Sua próxima lição na trilha <strong>{primeiraTrilha.title}</strong> está te esperando.</>}
             </p>
             <div className="space-y-2 max-w-md">
               <div className="flex justify-between text-sm font-medium text-stone-700 dark:text-stone-300">
-                <span>Continuar jornada</span>
+                <span>{primeiraTrilha.progresso === 0 ? 'Iniciar jornada' : 'Continuar jornada'}</span>
                 <span>{primeiraTrilha.progresso}%</span>
               </div>
               <div className="w-full bg-stone-200 dark:bg-stone-800 rounded-full h-3 overflow-hidden">
@@ -106,7 +110,7 @@ export default function DashboardPage() {
             <Link href={`/trilhas/${primeiraTrilha.id}`}>
               <Button size="lg" className="w-full md:w-auto bg-primary text-white border-b-4 border-emerald-800 hover:bg-emerald-600 hover:-translate-y-0.5 hover:border-b-[6px] active:translate-y-1 active:border-b-0 transition-all duration-200">
                 <Play className="w-5 h-5 mr-2" />
-                Continuar Trilha
+                {primeiraTrilha.progresso === 0 ? 'Começar Trilha' : 'Continuar Trilha'}
               </Button>
             </Link>
           </div>
