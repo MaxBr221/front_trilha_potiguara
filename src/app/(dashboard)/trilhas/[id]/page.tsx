@@ -132,7 +132,7 @@ export default function TrilhaDetailsPage({ params }: { params: Promise<{ id: st
                     
                     <div className="space-y-2 text-left">
                       {mod.lessons.map(licao => (
-                        <div key={licao.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/60 dark:bg-stone-800/60 border border-stone-100 dark:border-stone-800 hover:scale-[1.02] hover:shadow-sm transition-all duration-300">
+                        <Link href={`/licoes/${licao.id}`} key={licao.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/60 dark:bg-stone-800/60 border border-stone-100 dark:border-stone-800 hover:scale-[1.02] hover:shadow-sm hover:border-primary/40 transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
                           {licao.estaConcluida ? (
                             <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
                           ) : (
@@ -148,16 +148,16 @@ export default function TrilhaDetailsPage({ params }: { params: Promise<{ id: st
                           ) : (
                             <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded">Teoria</span>
                           )}
-                        </div>
+                        </Link>
                       ))}
                     </div>
 
                     {!mod.estaBloqueada && (
                       <div className={`mt-6 flex ${isEven ? 'md:justify-end' : 'md:justify-start'}`}>
-                        <Link href={`/licoes/${(mod.lessons.find(l => !l.estaConcluida) || mod.lessons[0]).id}`}>
+                        <Link href={`/licoes/${(mod.lessons.find(l => !l.estaConcluida) || mod.lessons[mod.lessons.length - 1]).id}`}>
                           <Button size="sm" className="bg-primary text-white border-b-4 border-emerald-800 hover:bg-emerald-600 hover:-translate-y-0.5 hover:border-b-[6px] active:translate-y-1 active:border-b-0 transition-all duration-200">
                             <Play className="w-4 h-4 mr-2" />
-                            Começar
+                            {mod.lessons.every(l => l.estaConcluida) ? 'Refazer Última' : (mod.lessons.some(l => l.estaConcluida) ? 'Continuar' : 'Começar')}
                           </Button>
                         </Link>
                       </div>

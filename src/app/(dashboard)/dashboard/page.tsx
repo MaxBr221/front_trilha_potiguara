@@ -107,12 +107,38 @@ export default function DashboardPage() {
           </div>
 
           <div className="w-full md:w-auto">
-            <Link href={`/trilhas/${primeiraTrilha.id}`}>
-              <Button size="lg" className="w-full md:w-auto bg-primary text-white border-b-4 border-emerald-800 hover:bg-emerald-600 hover:-translate-y-0.5 hover:border-b-[6px] active:translate-y-1 active:border-b-0 transition-all duration-200">
-                <Play className="w-5 h-5 mr-2" />
-                {primeiraTrilha.progresso === 0 ? 'Começar Trilha' : 'Continuar Trilha'}
-              </Button>
-            </Link>
+            <Button 
+              size="lg" 
+              onClick={async (e) => {
+                e.preventDefault();
+                try {
+                  const modulos = await servicoTrilha.obterModulosPorIdTrilha(primeiraTrilha.id);
+                  let proximaLicaoId = null;
+                  
+                  for (const mod of modulos) {
+                    if (!mod.estaBloqueada) {
+                      const licao = mod.lessons.find(l => !l.estaConcluida);
+                      if (licao) {
+                        proximaLicaoId = licao.id;
+                        break;
+                      }
+                    }
+                  }
+                  
+                  if (proximaLicaoId) {
+                    window.location.href = `/licoes/${proximaLicaoId}`;
+                  } else {
+                    window.location.href = `/trilhas/${primeiraTrilha.id}`;
+                  }
+                } catch (err) {
+                  window.location.href = `/trilhas/${primeiraTrilha.id}`;
+                }
+              }}
+              className="w-full md:w-auto bg-primary text-white border-b-4 border-emerald-800 hover:bg-emerald-600 hover:-translate-y-0.5 hover:border-b-[6px] active:translate-y-1 active:border-b-0 transition-all duration-200"
+            >
+              <Play className="w-5 h-5 mr-2" />
+              {primeiraTrilha.progresso === 0 ? 'Começar Trilha' : 'Continuar Trilha'}
+            </Button>
           </div>
         </section>
       )}
