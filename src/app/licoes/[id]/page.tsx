@@ -134,36 +134,28 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
         await servicoExercicio.concluirLicao(id);
         
         try {
-          // Import servicoTrilha if not present (we will add the import at the top of the file)
           const { servicoTrilha } = await import('@/services/servicoTrilha');
           const trilhas = await servicoTrilha.obterTrilhas();
-          let proximaLicaoId = null;
-          let encontrouAtual = false;
+          let trilhaDaLicaoId = null;
 
           for (const t of trilhas) {
             const modulos = await servicoTrilha.obterModulosPorIdTrilha(t.id);
             for (const m of modulos) {
-              for (const l of m.lessons) {
-                if (encontrouAtual && String(l.id) !== String(id) && !l.estaConcluida) {
-                  proximaLicaoId = l.id;
-                  break;
-                }
-                if (String(l.id) === String(id)) {
-                  encontrouAtual = true;
-                }
+              const temLicao = m.lessons.some(l => String(l.id) === String(id));
+              if (temLicao) {
+                trilhaDaLicaoId = t.id;
+                break;
               }
-              if (proximaLicaoId) break;
             }
-            if (proximaLicaoId) break;
-            if (encontrouAtual) break; // Sai se encontrou a licao atual e nao tem proxima na mesma trilha
+            if (trilhaDaLicaoId) break;
           }
 
-          if (proximaLicaoId) {
-            window.location.href = `/licoes/${proximaLicaoId}`;
+          if (trilhaDaLicaoId) {
+            window.location.href = `/trilhas/${trilhaDaLicaoId}`;
             return;
           }
         } catch (e) {
-          console.error('Erro ao buscar proxima licao', e);
+          console.error('Erro ao buscar trilha da licao', e);
         }
 
         window.location.href = '/dashboard';
