@@ -37,6 +37,36 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
   // Track errors per exercise to show hints
   const [errosExercicio, setErrosExercicio] = useState<Record<string, number>>({});
   const [respostasSalvas, setRespostasSalvas] = useState<Record<string, string>>({});
+  const [saindo, setSaindo] = useState(false);
+
+  const handleExit = async () => {
+    setSaindo(true);
+    try {
+      const { servicoTrilha } = await import('@/services/servicoTrilha');
+      const trilhas = await servicoTrilha.obterTrilhas();
+      let trilhaDaLicaoId = null;
+
+      for (const t of trilhas) {
+        const modulos = await servicoTrilha.obterModulosPorIdTrilha(t.id);
+        for (const m of modulos) {
+          const temLicao = m.lessons.some(l => String(l.id) === String(id));
+          if (temLicao) {
+            trilhaDaLicaoId = t.id;
+            break;
+          }
+        }
+        if (trilhaDaLicaoId) break;
+      }
+
+      if (trilhaDaLicaoId) {
+        window.location.href = `/trilhas/${trilhaDaLicaoId}`;
+        return;
+      }
+    } catch (e) {
+      console.error('Erro ao buscar trilha da licao', e);
+    }
+    window.location.href = '/dashboard';
+  };
   
 
   useEffect(() => {
@@ -132,33 +162,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
         sons.conclusao();
         setValidando(true);
         await servicoExercicio.concluirLicao(id);
-        
-        try {
-          const { servicoTrilha } = await import('@/services/servicoTrilha');
-          const trilhas = await servicoTrilha.obterTrilhas();
-          let trilhaDaLicaoId = null;
-
-          for (const t of trilhas) {
-            const modulos = await servicoTrilha.obterModulosPorIdTrilha(t.id);
-            for (const m of modulos) {
-              const temLicao = m.lessons.some(l => String(l.id) === String(id));
-              if (temLicao) {
-                trilhaDaLicaoId = t.id;
-                break;
-              }
-            }
-            if (trilhaDaLicaoId) break;
-          }
-
-          if (trilhaDaLicaoId) {
-            window.location.href = `/trilhas/${trilhaDaLicaoId}`;
-            return;
-          }
-        } catch (e) {
-          console.error('Erro ao buscar trilha da licao', e);
-        }
-
-        window.location.href = '/dashboard';
+        await handleExit();
       }
     } else {
       // Errou: remove do início e coloca no final da fila (Queue)
@@ -206,10 +210,11 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
     <div className="min-h-dvh bg-white dark:bg-stone-950 flex flex-col">
       <header className="h-16 flex items-center px-4 md:px-8 max-w-4xl w-full mx-auto gap-4 relative z-10">
         <button 
-          onClick={() => router.push('/dashboard')}
-          className="p-2 text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-full shrink-0"
+          onClick={handleExit}
+          disabled={saindo}
+          className="p-2 text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-full shrink-0 disabled:opacity-50"
         >
-          <X className="w-6 h-6" />
+          {saindo ? <Loader2 className="w-6 h-6 animate-spin" /> : <X className="w-6 h-6" />}
         </button>
         
         <div className="flex-1 bg-stone-200 dark:bg-stone-800 rounded-full h-4 overflow-hidden border border-stone-300/50 dark:border-stone-700">
