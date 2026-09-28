@@ -43,7 +43,10 @@ api.interceptors.response.use(
       // TODO: Lógica para deslogar usuário caso o token expire
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
-        window.location.href = '/login';
+        const publicPaths = ['/login', '/cadastro', '/esqueci-senha', '/redefinir-senha'];
+        if (!publicPaths.includes(window.location.pathname)) {
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(error);
