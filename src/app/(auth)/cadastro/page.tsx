@@ -118,9 +118,12 @@ export default function RegisterPage() {
                 />
 
                 {erro && (
-                  <div className="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/30 p-3 rounded-lg border border-red-100 dark:border-red-900/50 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
-                    {erro}
+                  <div className="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/30 p-4 rounded-xl border border-red-200 dark:border-red-900/50 flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                    <div className="flex flex-col">
+                      <span className="font-bold">{erro}</span>
+                      <span className="text-red-500 dark:text-red-300 text-xs mt-1">Por favor, verifique os dados informados e tente novamente.</span>
+                    </div>
                   </div>
                 )}
 
