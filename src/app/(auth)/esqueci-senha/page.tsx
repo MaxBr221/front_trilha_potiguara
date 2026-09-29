@@ -24,10 +24,27 @@ export default function EsqueciSenhaPage() {
     e.preventDefault();
     setErro('');
     setToastErro('');
+    const emailLimpo = email.trim();
+
+    if (!emailLimpo) {
+      const msg = 'O campo de e-mail é obrigatório.';
+      setErro(msg);
+      mostrarToast(msg);
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailLimpo)) {
+      const msg = 'Por favor, insira um endereço de e-mail válido.';
+      setErro(msg);
+      mostrarToast(msg);
+      return;
+    }
+
     setCarregando(true);
 
     try {
-      await servicoAutenticacao.esqueciSenha(email);
+      await servicoAutenticacao.esqueciSenha(emailLimpo);
       setSucesso(true);
     } catch (err) {
       const msg = 'Ocorreu um erro ao processar sua solicitação. Verifique o e-mail ou tente novamente.';

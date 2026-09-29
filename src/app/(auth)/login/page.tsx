@@ -28,10 +28,43 @@ export default function LoginPage() {
     e.preventDefault();
     setErro('');
     setToastErro('');
+
+    const emailLimpo = email.trim();
+    
+    // Validações de segurança nos campos para evitar infiltrações
+    if (!emailLimpo) {
+      const msg = 'O campo de e-mail é obrigatório.';
+      setErro(msg);
+      mostrarToast(msg);
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailLimpo)) {
+      const msg = 'Por favor, insira um endereço de e-mail válido.';
+      setErro(msg);
+      mostrarToast(msg);
+      return;
+    }
+
+    if (!senha) {
+      const msg = 'O campo de senha é obrigatório.';
+      setErro(msg);
+      mostrarToast(msg);
+      return;
+    }
+
+    if (senha.length < 6) {
+      const msg = 'A senha informada é muito curta. Verifique se digitou corretamente.';
+      setErro(msg);
+      mostrarToast(msg);
+      return;
+    }
+
     setCarregando(true);
 
     try {
-      const response = await servicoAutenticacao.login(email, senha);
+      const response = await servicoAutenticacao.login(emailLimpo, senha);
       if (response.usuario) {
         login(response.token, response.usuario);
         router.push('/dashboard');
@@ -40,19 +73,18 @@ export default function LoginPage() {
       const error = err as { response?: { status: number; data?: { message?: string } }; message?: string };
       let mensagem = 'Ocorreu um erro inesperado. Tente novamente.';
       
-      // Tratamento de erros comuns da API
+      // Tratamento de erros com mensagens claras
       if (error.response) {
         if (error.response.status === 401 || error.response.status === 403) {
-          mensagem = 'E-mail ou senha incorretos.';
+          mensagem = 'A senha informada está incorreta ou o e-mail não existe.';
         } else if (error.response.status === 404) {
-          mensagem = 'Usuário não encontrado. Crie uma conta.';
+          mensagem = 'Usuário não encontrado. Verifique o e-mail ou crie uma conta.';
         } else if (error.response.data && error.response.data.message) {
           mensagem = error.response.data.message;
         }
       } else if (error.message) {
         if (error.message === 'Network Error') {
-          // Quando o backend bloqueia o CORS em respostas 401/403, o Axios lança 'Network Error'
-          mensagem = 'E-mail ou senha incorretos.';
+          mensagem = 'A senha informada está incorreta ou o e-mail não existe.';
         } else {
           mensagem = error.message;
         }

@@ -21,13 +21,50 @@ export default function RegisterPage() {
   const lidarComEnvio = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro('');
+
+    const nomeLimpo = nome.trim();
+    const emailLimpo = email.trim();
+
+    // Validações de segurança e consistência de dados
+    if (!nomeLimpo || nomeLimpo.length < 3) {
+      setErro('O nome deve ter pelo menos 3 caracteres.');
+      return;
+    }
+
+    const nomeRegex = /^[a-zA-ZÀ-ÿ\s]+$/;
+    if (!nomeRegex.test(nomeLimpo)) {
+      setErro('O nome deve conter apenas letras e espaços, sem caracteres especiais.');
+      return;
+    }
+
+    if (!emailLimpo) {
+      setErro('O campo de e-mail é obrigatório.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailLimpo)) {
+      setErro('Por favor, insira um endereço de e-mail válido.');
+      return;
+    }
+
+    if (!senha) {
+      setErro('O campo de senha é obrigatório.');
+      return;
+    }
+
+    if (senha.length < 6) {
+      setErro('A senha deve ter pelo menos 6 caracteres para sua segurança.');
+      return;
+    }
+
     setCarregando(true);
 
     try {
       const pendingLessonId = localStorage.getItem('pendingLessonCompletion') || undefined;
       const pendingLessonXP = localStorage.getItem('pendingLessonXP') ? Number(localStorage.getItem('pendingLessonXP')) : undefined;
 
-      await servicoAutenticacao.register(nome, email, senha, pendingLessonXP, pendingLessonId);
+      await servicoAutenticacao.register(nomeLimpo, emailLimpo, senha, pendingLessonXP, pendingLessonId);
       
       // Limpa os dados temporários após o cadastro
       if (pendingLessonId) {
@@ -40,7 +77,20 @@ export default function RegisterPage() {
         router.push('/login');
       }, 2000);
     } catch (err) {
-      setErro((err as Error).message || 'Erro ao realizar cadastro.');
+      const error = err as any;
+      let mensagem = 'Erro ao realizar cadastro. Tente novamente.';
+      
+      if (error.response) {
+        if (error.response.status === 409 || error.response.status === 400) {
+          mensagem = error.response.data?.message || 'O e-mail informado já está em uso ou os dados são inválidos.';
+        } else if (error.response.data && error.response.data.message) {
+          mensagem = error.response.data.message;
+        }
+      } else if (error.message) {
+        mensagem = error.message;
+      }
+
+      setErro(mensagem);
     } finally {
       setCarregando(false);
     }

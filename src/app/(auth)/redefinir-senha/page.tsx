@@ -18,10 +18,27 @@ export default function RedefinirSenhaPage() {
   const lidarComEnvio = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro('');
+    const tokenLimpo = token.trim();
+
+    if (!tokenLimpo) {
+      setErro('O código de verificação (token) é obrigatório.');
+      return;
+    }
+
+    if (!novaSenha) {
+      setErro('O campo de nova senha é obrigatório.');
+      return;
+    }
+
+    if (novaSenha.length < 6) {
+      setErro('A nova senha deve ter pelo menos 6 caracteres.');
+      return;
+    }
+
     setCarregando(true);
 
     try {
-      await servicoAutenticacao.redefinirSenha(token, novaSenha);
+      await servicoAutenticacao.redefinirSenha(tokenLimpo, novaSenha);
       setSucesso(true);
     } catch (err) {
       const erroAxios = err as { response?: { status: number } };
