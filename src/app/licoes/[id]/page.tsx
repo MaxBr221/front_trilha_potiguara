@@ -207,7 +207,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
       );
     }
 
-    if (totalExerciciosOriginal > 0 && mostrarModalCadastro) {
+    if (totalExercicios > 0 && mostrarModalCadastro) {
       return (
         <div className="h-dvh w-screen flex items-center justify-center p-4 bg-stone-50 dark:bg-stone-950">
           <div className="bg-white dark:bg-stone-900 rounded-3xl shadow-xl border border-stone-200 dark:border-stone-800 w-full max-w-md overflow-hidden flex flex-col text-center">
