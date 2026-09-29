@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, Leaf, Map, Trophy, BookOpen } from 'lucide-react';
 import { Navbar } from '@/components/layout/Navbar';
+import { ComecarButton } from '@/components/features/ComecarButton';
 import Image from 'next/image';
 
 export default function Home() {
@@ -30,13 +31,7 @@ export default function Home() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link
-              href="/licoes/1"
-              className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full text-lg font-bold hover:bg-primary/90 hover:scale-105 transition-all shadow-lg hover:shadow-primary/25"
-            >
-              Começar a aprender
-              <ArrowRight className="w-5 h-5" />
-            </Link>
+            <ComecarButton />
           </div>
         </section>
 
@@ -116,3 +111,5 @@ export default function Home() {
     </div>
   );
 }
+
+
