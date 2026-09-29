@@ -24,7 +24,17 @@ export default function RegisterPage() {
     setCarregando(true);
 
     try {
-      await servicoAutenticacao.register(nome, email, senha);
+      const pendingLessonId = localStorage.getItem('pendingLessonCompletion') || undefined;
+      const pendingLessonXP = localStorage.getItem('pendingLessonXP') ? Number(localStorage.getItem('pendingLessonXP')) : undefined;
+
+      await servicoAutenticacao.register(nome, email, senha, pendingLessonXP, pendingLessonId);
+      
+      // Limpa os dados temporários após o cadastro
+      if (pendingLessonId) {
+        localStorage.removeItem('pendingLessonCompletion');
+        localStorage.removeItem('pendingLessonXP');
+      }
+
       setSucesso(true);
       setTimeout(() => {
         router.push('/login');

@@ -7,8 +7,11 @@ export const servicoAutenticacao = {
     return response.data;
   },
 
-  async register(nome: string, email: string, senha: string): Promise<void> {
-    await api.post('/auth/register', { nome, email, senha, perfil: 'USER' });
+  async register(nome: string, email: string, senha: string, xpInicial?: number, licaoConcluidaId?: string | number): Promise<void> {
+    const payload: any = { nome, email, senha, perfil: 'USER' };
+    if (xpInicial !== undefined) payload.xpInicial = xpInicial;
+    if (licaoConcluidaId !== undefined) payload.licaoConcluidaId = licaoConcluidaId;
+    await api.post('/auth/register', payload);
   },
 
   async esqueciSenha(email: string): Promise<void> {

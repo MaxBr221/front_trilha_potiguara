@@ -429,6 +429,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
                     className="w-full font-bold text-lg"
                     onClick={() => {
                       localStorage.setItem('pendingLessonCompletion', String(id));
+                      localStorage.setItem('pendingLessonXP', String(xpGanhoTotal));
                       router.push('/cadastro');
                     }}
                   >
@@ -440,6 +441,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
                     className="w-full font-bold"
                     onClick={() => {
                       localStorage.setItem('pendingLessonCompletion', String(id));
+                      localStorage.setItem('pendingLessonXP', String(xpGanhoTotal));
                       router.push('/login');
                     }}
                   >

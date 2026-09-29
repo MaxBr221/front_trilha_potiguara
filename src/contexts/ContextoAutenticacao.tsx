@@ -63,6 +63,7 @@ export const ProvedorAutenticacao = ({ children }: { children: React.ReactNode }
         const { servicoExercicio } = await import('@/services/servicoExercicio');
         await servicoExercicio.concluirLicao(pendingLessonId);
         localStorage.removeItem('pendingLessonCompletion');
+        localStorage.removeItem('pendingLessonXP');
       } catch (e) {
         console.error('Erro ao concluir licao pendente', e);
       }
