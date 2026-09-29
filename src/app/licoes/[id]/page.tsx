@@ -198,11 +198,60 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
   }
 
   if (!exercicioAtual && fase === 'EXERCICIOS') {
-    if (validando) {
+    if (validando || saindo) {
       return (
         <div className="h-dvh w-screen flex flex-col items-center justify-center gap-4 bg-stone-50 dark:bg-stone-950">
           <Loader2 className="w-10 h-10 animate-spin text-primary" />
           <p className="text-stone-600 dark:text-stone-300 font-medium">Salvando seu progresso...</p>
+        </div>
+      );
+    }
+
+    if (totalExerciciosOriginal > 0 && mostrarModalCadastro) {
+      return (
+        <div className="h-dvh w-screen flex items-center justify-center p-4 bg-stone-50 dark:bg-stone-950">
+          <div className="bg-white dark:bg-stone-900 rounded-3xl shadow-xl border border-stone-200 dark:border-stone-800 w-full max-w-md overflow-hidden flex flex-col text-center">
+            <div className="p-8">
+              <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Trophy className="w-10 h-10" />
+              </div>
+              <h2 className="text-2xl font-bold text-stone-800 dark:text-stone-100 mb-2">Excelente trabalho!</h2>
+              <p className="text-stone-600 dark:text-stone-300 mb-6">
+                Você mandou muito bem. Crie um perfil agora mesmo para salvar seu progresso e não perder esses pontos!
+              </p>
+              
+              <div className="bg-amber-50 dark:bg-amber-900/20 rounded-2xl p-4 mb-8 inline-block w-full">
+                <p className="text-sm text-amber-700 dark:text-amber-400 font-bold mb-1">Recompensas Ganhas</p>
+                <p className="text-3xl font-extrabold text-amber-600 dark:text-amber-500">+{xpGanhoTotal} XP</p>
+              </div>
+              
+              <div className="flex flex-col gap-3">
+                <Button 
+                  size="lg" 
+                  className="w-full font-bold text-lg"
+                  onClick={() => {
+                    localStorage.setItem('pendingLessonCompletion', String(id));
+                    localStorage.setItem('pendingLessonXP', String(xpGanhoTotal));
+                    router.push('/cadastro');
+                  }}
+                >
+                  Criar Conta
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="w-full font-bold"
+                  onClick={() => {
+                    localStorage.setItem('pendingLessonCompletion', String(id));
+                    localStorage.setItem('pendingLessonXP', String(xpGanhoTotal));
+                    router.push('/login');
+                  }}
+                >
+                  Entrar
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       );
     }
