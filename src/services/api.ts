@@ -43,8 +43,9 @@ api.interceptors.response.use(
       // TODO: Lógica para deslogar usuário caso o token expire
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
-        const publicPaths = ['/login', '/cadastro', '/esqueci-senha', '/redefinir-senha'];
-        if (!publicPaths.includes(window.location.pathname)) {
+        const publicPaths = ['/login', '/cadastro', '/esqueci-senha', '/redefinir-senha', '/'];
+        const isLicaoRoute = window.location.pathname.startsWith('/licoes/');
+        if (!publicPaths.includes(window.location.pathname) && !isLicaoRoute) {
           window.location.href = '/login';
         }
       }
