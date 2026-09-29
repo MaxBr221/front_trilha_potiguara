@@ -4,8 +4,9 @@
 import { use, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { X, Check, Flag, Loader2, Info, Lightbulb } from 'lucide-react';
+import { X, Check, Flag, Loader2, Info, Lightbulb, Trophy } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
 import { Button } from '@/components/ui/Button';
 import { PalavrasEnsino } from '@/components/features/PalavrasEnsino';
 import { LigarColunasExercicio } from '@/components/features/LigarColunasExercicio';
@@ -17,12 +18,15 @@ import { sons } from '@/utils/audio';
 export default function LicaoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
+  const { isAuthenticated } = useAutenticacao();
   
   const [exercicios, setExercicios] = useState<Exercicio[]>([]);
   const [vocabulario, setVocabulario] = useState<ConteudoLinguistico[]>([]);
   const [fase, setFase] = useState<'AQUECIMENTO' | 'EXERCICIOS'>('AQUECIMENTO');
   const [totalExercicios, setTotalExercicios] = useState(0);
   const [exerciciosAcertados, setExerciciosAcertados] = useState(0);
+  const [xpGanhoTotal, setXpGanhoTotal] = useState(0);
+  const [mostrarModalCadastro, setMostrarModalCadastro] = useState(false);
   
   const [carregando, setCarregando] = useState(true);
   const [validando, setValidando] = useState(false);
@@ -124,6 +128,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
       
       if (validacao.correta) {
         sons.sucesso();
+        setXpGanhoTotal(prev => prev + (validacao.xpGanho || 0));
       } else {
         sons.erro();
         setErrosExercicio(prev => ({
@@ -160,9 +165,13 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
       // Checa a condição com o tamanho atualizado
       if (exercicios.length <= 1) {
         sons.conclusao();
-        setValidando(true);
-        await servicoExercicio.concluirLicao(id);
-        await handleExit();
+        if (isAuthenticated) {
+          setValidando(true);
+          await servicoExercicio.concluirLicao(id);
+          await handleExit();
+        } else {
+          setMostrarModalCadastro(true);
+        }
       }
     } else {
       // Errou: remove do início e coloca no final da fila (Queue)
@@ -391,6 +400,57 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
           </Button>
         </div>
       </footer>
+
+      <AnimatePresence>
+        {mostrarModalCadastro && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/80 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white dark:bg-stone-900 rounded-3xl shadow-xl border border-stone-200 dark:border-stone-800 w-full max-w-md overflow-hidden flex flex-col text-center"
+            >
+              <div className="p-8">
+                <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Trophy className="w-10 h-10" />
+                </div>
+                <h2 className="text-2xl font-bold text-stone-800 dark:text-stone-100 mb-2">Excelente trabalho!</h2>
+                <p className="text-stone-600 dark:text-stone-300 mb-6">
+                  Você mandou muito bem. Crie um perfil agora mesmo para salvar seu progresso e não perder esses pontos!
+                </p>
+                
+                <div className="bg-amber-50 dark:bg-amber-900/20 rounded-2xl p-4 mb-8 inline-block w-full">
+                  <p className="text-sm text-amber-700 dark:text-amber-400 font-bold mb-1">Recompensas Ganhas</p>
+                  <p className="text-3xl font-extrabold text-amber-600 dark:text-amber-500">+{xpGanhoTotal} XP</p>
+                </div>
+                
+                <div className="flex flex-col gap-3">
+                  <Button 
+                    size="lg" 
+                    className="w-full font-bold text-lg"
+                    onClick={() => {
+                      localStorage.setItem('pendingLessonCompletion', String(id));
+                      router.push('/cadastro');
+                    }}
+                  >
+                    Criar Conta
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="lg" 
+                    className="w-full font-bold"
+                    onClick={() => {
+                      localStorage.setItem('pendingLessonCompletion', String(id));
+                      router.push('/login');
+                    }}
+                  >
+                    Entrar
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

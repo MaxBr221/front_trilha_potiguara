@@ -31,7 +31,7 @@ export default function Home() {
           
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
-              href="/cadastro"
+              href="/licoes/1"
               className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full text-lg font-bold hover:bg-primary/90 hover:scale-105 transition-all shadow-lg hover:shadow-primary/25"
             >
               Começar a aprender

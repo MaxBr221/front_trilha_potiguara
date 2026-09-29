@@ -56,6 +56,17 @@ export const ProvedorAutenticacao = ({ children }: { children: React.ReactNode }
     } catch (error) {
       console.error("Erro ao atualizar perfil após login:", error);
     }
+
+    const pendingLessonId = localStorage.getItem('pendingLessonCompletion');
+    if (pendingLessonId) {
+      try {
+        const { servicoExercicio } = await import('@/services/servicoExercicio');
+        await servicoExercicio.concluirLicao(pendingLessonId);
+        localStorage.removeItem('pendingLessonCompletion');
+      } catch (e) {
+        console.error('Erro ao concluir licao pendente', e);
+      }
+    }
   }, []);
 
   const logout = useCallback(() => {
