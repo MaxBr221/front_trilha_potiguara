@@ -5,6 +5,7 @@ import * as LucideIcons from 'lucide-react';
 import { Lock, Loader2, Target, CheckCircle2, Award } from 'lucide-react';
 import { servicoDashboard, DashboardData } from '@/services/servicoDashboard';
 import Confetti from 'react-confetti';
+import { FogueiraIcon, MachadoIcon, PenaIcon, CocarIcon, OcaIcon, ArcoFlechaIcon } from '@/components/icons/IndigenousIcons';
 
 type TabType = 'todas' | 'desbloqueadas' | 'bloqueadas';
 
@@ -83,7 +84,7 @@ export default function ConquistasPage() {
       {/* Cabeçalho */}
       <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-3xl p-8 md:p-10 text-white shadow-lg flex flex-col md:flex-row items-center gap-8">
         <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center shrink-0">
-          <LucideIcons.Trophy className="w-12 h-12 text-white" />
+          <CocarIcon className="w-12 h-12 text-white" />
         </div>
         <div className="text-center md:text-left flex-1">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">Suas Conquistas</h1>

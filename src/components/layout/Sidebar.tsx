@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Leaf, LayoutDashboard, Map, Trophy, User, LogOut, Book, Users } from 'lucide-react';
+import { LogOut } from 'lucide-react';
+import { OcaIcon, ArcoFlechaIcon, CocarIcon, GuerreiroIcon, MaracaIcon, TriboIcon } from '@/components/icons/IndigenousIcons';
 import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
 import Image from 'next/image';
 
@@ -11,12 +12,12 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () =>
   const { logout } = useAutenticacao();
 
   const links = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Trilhas', href: '/trilhas', icon: Map },
-    { name: 'Conquistas', href: '/conquistas', icon: Trophy },
-    { name: 'Amigos', href: '/amigos', icon: Users },
-    { name: 'Perfil', href: '/perfil', icon: User },
-    { name: 'Dicionário', href: '/dicionario', icon: Book },
+    { name: 'Dashboard', href: '/dashboard', icon: OcaIcon },
+    { name: 'Trilhas', href: '/trilhas', icon: ArcoFlechaIcon },
+    { name: 'Conquistas', href: '/conquistas', icon: CocarIcon },
+    { name: 'Amigos', href: '/amigos', icon: TriboIcon },
+    { name: 'Perfil', href: '/perfil', icon: GuerreiroIcon },
+    { name: 'Dicionário', href: '/dicionario', icon: MaracaIcon },
   ];
 
   return (
