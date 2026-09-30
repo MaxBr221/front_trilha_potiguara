@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { servicoDashboard, DashboardData } from '@/services/servicoDashboard';
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/ThemeToggle';
-
+import { CocarIcon } from '@/components/icons/IndigenousIcons';
 export function InternalNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const { usuario } = useAutenticacao();
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
@@ -49,7 +49,7 @@ export function InternalNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
         
         {/* XP Indicator */}
         <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-2xl font-bold text-sm shadow-sm transition-all duration-300 hover:shadow-md">
-          <Star className="w-4 h-4 fill-amber-500" />
+          <CocarIcon className="w-4 h-4 text-amber-500" />
           <span>{displayXp} XP</span>
         </div>
 

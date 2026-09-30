@@ -13,7 +13,7 @@ export function Navbar() {
         </Link>
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <Link href="/login" className="text-sm font-medium bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-full transition-colors">
+          <Link href="/login" className="text-sm font-medium bg-primary hover:bg-primary/90 text-primary-foreground px-5 py-2 rounded-full transition-colors shadow-sm">
             Entrar
           </Link>
 
