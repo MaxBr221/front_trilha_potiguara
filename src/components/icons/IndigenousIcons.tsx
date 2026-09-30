@@ -23,13 +23,19 @@ export const ArcoFlechaIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export const CocarIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    {/* Headdress / Cocar */}
-    <path d="M4 15s4-4 8-4 8 4 8 4" />
-    <path d="M12 11v-8" />
-    <path d="M8 12L5 5" />
-    <path d="M16 12l3-7" />
-    <path d="M4 15a4 4 0 1 0 16 0" />
-    <path d="M12 15v6" />
+    {/* Base circular do cocar (aro/testeira redonda) */}
+    <circle cx="12" cy="12" r="4" />
+    {/* Penas preenchendo o halo (estilo radial/roseta) */}
+    <path d="M12 8V3" />
+    <path d="M14.8 9.2L18.3 5.7" />
+    <path d="M16 12h5" />
+    <path d="M14.8 14.8l3.5 3.5" />
+    <path d="M12 16v5" />
+    <path d="M9.2 14.8l-3.5 3.5" />
+    <path d="M8 12H3" />
+    <path d="M9.2 9.2L5.7 5.7" />
+    {/* Detalhe interno */}
+    <circle cx="12" cy="12" r="1.5" fill="currentColor" />
   </svg>
 );
 
