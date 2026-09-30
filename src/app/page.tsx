@@ -15,7 +15,7 @@ export default function Home() {
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background"></div>
           
           <div className="inline-flex items-center gap-2 px-3 py-1 mb-8 rounded-full bg-primary/10 text-primary text-sm font-medium">
-            <Image src="/images/logo-potiguara.jpg" alt="Logo" width={16} height={16} className="w-4 h-4 rounded-full object-cover" />
+            <Image src="/images/logo-potiguara.jpg" alt="Logo" width={32} height={32} className="w-8 h-8 rounded-full object-cover" />
             <span>Redescubra nossas raízes</span>
           </div>
           
