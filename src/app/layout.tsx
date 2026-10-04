@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 
 import { ProvedorAutenticacao } from "@/contexts/ContextoAutenticacao";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { QueryProvider } from "@/contexts/QueryProvider";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -27,9 +28,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <ProvedorAutenticacao>{children}</ProvedorAutenticacao>
-        </ThemeProvider>
+        <QueryProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <ProvedorAutenticacao>{children}</ProvedorAutenticacao>
+          </ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   );

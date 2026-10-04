@@ -16,32 +16,23 @@ const imgMap: Record<string, string> = {
   'Vocabulário do Dia a Dia': '/images/trilhas/vocabulario.jpg',
   'Mitos e Lendas Tupi': '/images/trilhas/mitos.jpg'
 };
+import { useQuery } from '@tanstack/react-query';
 
 export default function DashboardPage() {
-  const [trilhas, setTrilhas] = useState<TrilhaResponseDTO[]>([]);
-  const [dadosDashboard, setDadosDashboard] = useState<DashboardData | null>(null);
-  const [carregando, setCarregando] = useState(true);
-  const [erro, setErro] = useState('');
+  const { data, isLoading: carregando, isError, refetch } = useQuery({
+    queryKey: ['dashboard-data'],
+    queryFn: async () => {
+      const [trailsData, dashboardData] = await Promise.all([
+        servicoTrilha.obterTrilhas(),
+        servicoDashboard.obterDadosDashboard()
+      ]);
+      return { trilhas: trailsData, dadosDashboard: dashboardData };
+    }
+  });
 
-  useEffect(() => {
-    const fetchDados = async () => {
-      try {
-        const [trailsData, dashboardData] = await Promise.all([
-          servicoTrilha.obterTrilhas(),
-          servicoDashboard.obterDadosDashboard()
-        ]);
-        setTrilhas(trailsData);
-        setDadosDashboard(dashboardData);
-      } catch (error) {
-        console.error('Erro ao buscar dados do dashboard:', error);
-        setErro('Não foi possível carregar os dados. Tente novamente mais tarde.');
-        setTimeout(() => setErro(''), 5000);
-      } finally {
-        setCarregando(false);
-      }
-    };
-    fetchDados();
-  }, []);
+  const trilhas = data?.trilhas || [];
+  const dadosDashboard = data?.dadosDashboard || null;
+  const erro = isError ? 'Não foi possível carregar os dados. Tente novamente mais tarde.' : '';
 
   if (carregando || (!dadosDashboard && !erro)) {
     return (
