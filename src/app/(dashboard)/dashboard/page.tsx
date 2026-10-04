@@ -19,22 +19,20 @@ const imgMap: Record<string, string> = {
 import { useQuery } from '@tanstack/react-query';
 
 export default function DashboardPage() {
-  const { data, isLoading: carregando, isError, refetch } = useQuery({
-    queryKey: ['dashboard-data'],
-    queryFn: async () => {
-      const [trailsData, dashboardData] = await Promise.all([
-        servicoTrilha.obterTrilhas(),
-        servicoDashboard.obterDadosDashboard()
-      ]);
-      return { trilhas: trailsData, dadosDashboard: dashboardData };
-    }
+  const { data: trilhas = [], isLoading: carregandoTrilhas } = useQuery({
+    queryKey: ['trails'],
+    queryFn: servicoTrilha.obterTrilhas
   });
 
-  const trilhas = data?.trilhas || [];
-  const dadosDashboard = data?.dadosDashboard || null;
+  const { data: dadosDashboard, isLoading: carregandoDashboard, isError } = useQuery({
+    queryKey: ['dashboard-data'],
+    queryFn: servicoDashboard.obterDadosDashboard
+  });
+
+  const carregando = carregandoTrilhas || carregandoDashboard;
   const erro = isError ? 'Não foi possível carregar os dados. Tente novamente mais tarde.' : '';
 
-  if (carregando || (!dadosDashboard && !erro)) {
+  if (carregando) {
     return (
       <div className="flex justify-center py-20">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />

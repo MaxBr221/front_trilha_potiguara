@@ -102,10 +102,22 @@ export default function PerfilPage() {
   };
   const dataEntrada = formatarData(usuario?.createdAt);
 
-  if (carregando || !dados) {
+  if (carregando) {
     return (
       <div className="flex justify-center py-20">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!dados) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <h2 className="text-xl font-bold text-stone-800">Ops! Algo deu errado.</h2>
+        <p className="text-stone-600 mb-4">Não foi possível carregar os dados do perfil.</p>
+        <button onClick={() => window.location.reload()} className="bg-primary text-white px-4 py-2 rounded">
+          Tentar Novamente
+        </button>
       </div>
     );
   }
