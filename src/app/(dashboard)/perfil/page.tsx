@@ -7,10 +7,15 @@ import { servicoDashboard, DashboardData } from '@/services/servicoDashboard';
 import { servicoUsuario } from '@/services/servicoUsuario';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 
+import { useQuery } from '@tanstack/react-query';
+
 export default function PerfilPage() {
   const { usuario, logout, atualizarUsuario } = useAutenticacao();
-  const [dados, setDados] = useState<DashboardData | null>(null);
-  const [carregando, setCarregando] = useState(true);
+  
+  const { data: dados, isLoading: carregando } = useQuery({
+    queryKey: ['dashboard-data'],
+    queryFn: servicoDashboard.obterDadosDashboard
+  });
 
   // Estados dos Modais
   const [modalEdicaoAberto, setModalEdicaoAberto] = useState(false);
@@ -21,20 +26,6 @@ export default function PerfilPage() {
   const [fotoPerfilPosicaoForm, setFotoPerfilPosicaoForm] = useState('center');
   const [mensagemSucesso, setMensagemSucesso] = useState('');
   const [carregandoSave, setCarregandoSave] = useState(false);
-
-  useEffect(() => {
-    const fetchDados = async () => {
-      try {
-        const data = await servicoDashboard.obterDadosDashboard();
-        setDados(data);
-      } catch (error) {
-        console.error('Erro ao buscar dados do perfil', error);
-      } finally {
-        setCarregando(false);
-      }
-    };
-    fetchDados();
-  }, []);
 
   useEffect(() => {
     if (usuario) {

@@ -12,24 +12,13 @@ const imgMap: Record<string, string> = {
   'Mitos e Lendas Tupi': '/images/trilhas/mitos.jpg'
 };
 
+import { useQuery } from '@tanstack/react-query';
+
 export default function TrilhasPage() {
-  const [trails, setTrilhas] = useState<TrilhaResponseDTO[]>([]);
-  const [carregando, setCarregando] = useState(true);
-
-  useEffect(() => {
-    const fetchTrilhas = async () => {
-      try {
-        const data = await servicoTrilha.obterTrilhas();
-        setTrilhas(data);
-      } catch (error) {
-        console.error('Erro ao buscar trilhas:', error);
-      } finally {
-        setCarregando(false);
-      }
-    };
-
-    fetchTrilhas();
-  }, []);
+  const { data: trails = [], isLoading: carregando } = useQuery({
+    queryKey: ['trails'],
+    queryFn: servicoTrilha.obterTrilhas
+  });
 
   if (carregando) {
     return (
