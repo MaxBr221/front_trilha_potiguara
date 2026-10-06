@@ -33,11 +33,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex h-dvh bg-background overflow-hidden relative">
       <div 
-        className="absolute inset-0 z-0 opacity-15 dark:opacity-[0.08] pointer-events-none"
-        style={{ backgroundImage: "url('/images/pintura_potiguara.jpg')", backgroundSize: "600px", backgroundRepeat: "repeat", backgroundPosition: "center" }}
+        className="absolute inset-0 z-0 opacity-30 dark:opacity-20 pointer-events-none"
+        style={{ backgroundImage: "url('/images/pintura_potiguara.jpg')", backgroundSize: "800px", backgroundRepeat: "repeat", backgroundPosition: "center" }}
       />
       <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
-      <div className="flex-1 flex flex-col h-dvh overflow-hidden relative z-10 bg-[#f0ead6]/85 dark:bg-[#1f1a14]/90 backdrop-blur-sm">
+      <div className="flex-1 flex flex-col h-dvh overflow-hidden relative z-10 bg-[#f0ead6]/80 dark:bg-[#1f1a14]/85">
         <InternalNavbar onMenuClick={() => setIsMobileMenuOpen(true)} />
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
           <div className="max-w-5xl mx-auto">
