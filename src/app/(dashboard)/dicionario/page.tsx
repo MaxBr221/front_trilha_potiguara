@@ -30,8 +30,24 @@ export default function DicionarioPage() {
 
     const fala = new SpeechSynthesisUtterance(palavraSanitizada);
     fala.lang = 'pt-BR';
+    
+    const vozes = window.speechSynthesis.getVoices();
+    const vozesPtBr = vozes.filter(v => v.lang.includes('pt-BR') || v.lang.includes('pt_BR'));
+    
+    // Tenta encontrar uma voz com nome tipicamente masculino ou alternativo ao padrão
+    const vozMasculina = vozesPtBr.find(v => /daniel|thiago|julio|antonio|macedo|male/i.test(v.name));
+    
+    if (vozMasculina) {
+      fala.voice = vozMasculina;
+    } else if (vozesPtBr.length > 1) {
+      // Se não achar pelo nome, mas tiver mais de uma voz, tenta pegar a segunda (costuma ser a masculina em alguns sistemas)
+      fala.voice = vozesPtBr[vozesPtBr.length - 1]; 
+    }
+
     fala.rate = 0.9;
-    fala.pitch = 1.0;
+    // Diminui o pitch (tom) para deixar a voz mais grave/masculina, especialmente se cair no fallback da voz padrão
+    fala.pitch = 0.7; 
+    
     window.speechSynthesis.speak(fala);
   };
 
