@@ -28,11 +28,11 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () =>
           onClick={onClose}
         />
       )}
-      <aside className={`w-64 bg-[#e6ddcf] dark:bg-[#2c241b] border-r border-stone-200 dark:border-stone-800 h-dvh flex flex-col fixed md:sticky top-0 left-0 z-50 transition-transform duration-300 ${
+      <aside className={`w-64 bg-[#b04a32] dark:bg-[#7a2e16] border-r border-[#963c26] dark:border-[#5c210f] h-dvh flex flex-col fixed md:sticky top-0 left-0 z-50 transition-transform duration-300 ${
         isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}>
       <div className="p-6">
-        <Link href="/dashboard" onClick={() => onClose && onClose()} className="flex items-center gap-2 text-primary font-bold text-2xl">
+        <Link href="/dashboard" onClick={() => onClose && onClose()} className="flex items-center gap-2 text-white font-bold text-2xl">
           <Image src="/images/logo-potiguara.jpg" alt="Logo" width={32} height={32} className="w-8 h-8 rounded-full shadow-sm object-cover" />
           <span>Tupi Digital</span>
         </Link>
@@ -50,8 +50,8 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () =>
               onClick={() => onClose && onClose()}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
                 isActive
-                  ? 'bg-primary/10 text-primary'
-                  : 'text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-900 dark:hover:text-white'
+                  ? 'bg-white/20 text-white font-bold'
+                  : 'text-white/80 hover:bg-white/10 hover:text-white'
               }`}
             >
               <Icon className="w-5 h-5" />
@@ -64,7 +64,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () =>
       <div className="p-4 border-t border-stone-200 dark:border-stone-800">
         <button
           onClick={logout}
-          className="flex items-center gap-3 px-4 py-3 w-full rounded-xl font-medium text-stone-600 dark:text-stone-300 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+          className="flex items-center gap-3 px-4 py-3 w-full rounded-xl font-medium text-white/80 hover:bg-red-900/40 hover:text-white transition-colors"
         >
           <LogOut className="w-5 h-5" />
           Sair
