@@ -34,7 +34,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="flex h-dvh bg-background overflow-hidden relative">
       <div 
         className="absolute inset-0 z-0 opacity-40 dark:opacity-20 pointer-events-none"
-        style={{ backgroundImage: "url('/images/grafismo.jpg')", backgroundSize: "400px", backgroundRepeat: "repeat", backgroundPosition: "center" }}
+        style={{ backgroundImage: "url('/images/pintura_potiguara.jpg')", backgroundSize: "300px", backgroundRepeat: "repeat", backgroundPosition: "center" }}
       />
       <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
       <div className="flex-1 flex flex-col h-dvh overflow-hidden relative z-10 bg-[#f0ead6]/60 dark:bg-[#1f1a14]/75">
