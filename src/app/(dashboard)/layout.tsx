@@ -37,7 +37,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         style={{ backgroundImage: "url('/images/bg-indigeno.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}
       />
       <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
-      <div className="flex-1 flex flex-col h-dvh overflow-hidden relative z-10 bg-[#e0f0e3]/85 dark:bg-[#14291c]/85 backdrop-blur-[2px]">
+      <div className="flex-1 flex flex-col h-dvh overflow-hidden relative z-10 bg-[#f0ead6]/85 dark:bg-[#1f1a14]/85 backdrop-blur-[2px]">
         <InternalNavbar onMenuClick={() => setIsMobileMenuOpen(true)} />
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
           <div className="max-w-5xl mx-auto">
