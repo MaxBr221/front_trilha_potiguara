@@ -28,12 +28,12 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () =>
           onClick={onClose}
         />
       )}
-      <aside className={`w-64 bg-white dark:bg-stone-900 border-r border-stone-200 dark:border-stone-800 h-dvh flex flex-col fixed md:sticky top-0 left-0 z-50 transition-transform duration-300 ${
+      <aside className={`w-64 bg-[#f8f5f2]/90 dark:bg-[#1f1d1a]/90 backdrop-blur-md border-r border-stone-200 dark:border-stone-800 h-dvh flex flex-col fixed md:sticky top-0 left-0 z-50 transition-transform duration-300 ${
         isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}>
       <div className="p-6">
         <Link href="/dashboard" onClick={() => onClose && onClose()} className="flex items-center gap-2 text-primary font-bold text-2xl">
-          <Image src="/images/logo-potiguara.jpg" alt="Logo" width={32} height={32} className="w-8 h-8 rounded-full shadow-sm object-cover" />
+          <Image src="/images/logo-camarao.jpg" alt="Logo Camarão" width={32} height={32} className="w-8 h-8 rounded-full shadow-sm object-cover" />
           <span>Tupi Digital</span>
         </Link>
       </div>
