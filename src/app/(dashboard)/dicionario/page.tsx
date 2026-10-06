@@ -15,18 +15,19 @@ export default function DicionarioPage() {
     e.stopPropagation(); // Evita copiar a palavra ao clicar no som
     window.speechSynthesis.cancel();
     
-    // Remove o apóstrofo (e outros caracteres que pausam a voz) para que o motor leia a palavra inteira
-    let palavraSanitizada = palavraTupi.replace(/['´`]/g, '');
+    // Remove o apóstrofo, hífen (e outros caracteres que pausam a voz) para que o motor leia a palavra fluida
+    let palavraSanitizada = palavraTupi.toLowerCase().replace(/['´`\-]/g, '');
 
     // Mapeamento fonético para a voz em pt-BR pronunciar corretamente os sons nasais e vogais do Tupi
     palavraSanitizada = palavraSanitizada
-      .replace(/ĩ/g, 'im')
-      .replace(/ẽ/g, 'em')
-      .replace(/ũ/g, 'um')
-      .replace(/ỹ/g, 'im')
+      .replace(/ĩ/g, 'in')
+      .replace(/ẽ/g, 'en')
+      .replace(/ũ/g, 'un')
+      .replace(/ỹ/g, 'in')
       .replace(/y/g, 'i')
       .replace(/î/g, 'i')
-      .replace(/û/g, 'u');
+      .replace(/û/g, 'u')
+      .replace(/x/g, 'ch');
 
     const fala = new SpeechSynthesisUtterance(palavraSanitizada);
     fala.lang = 'pt-BR';
@@ -44,9 +45,9 @@ export default function DicionarioPage() {
       fala.voice = vozesPtBr[vozesPtBr.length - 1]; 
     }
 
-    fala.rate = 0.9;
-    // Diminui o pitch (tom) para deixar a voz mais grave/masculina, especialmente se cair no fallback da voz padrão
-    fala.pitch = 0.7; 
+    // Velocidade e tom normais para evitar som artificial ou pausas estranhas
+    fala.rate = 1;
+    fala.pitch = 1; 
     
     window.speechSynthesis.speak(fala);
   };
