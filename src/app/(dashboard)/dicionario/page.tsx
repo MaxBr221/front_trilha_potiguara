@@ -89,7 +89,7 @@ export default function DicionarioPage() {
         </div>
       )}
 
-      <div className="bg-primary/5 dark:bg-primary/10 rounded-3xl p-8 border border-primary/20 dark:border-primary/30 flex flex-col items-center text-center">
+      <div className="bg-white dark:bg-stone-900 rounded-3xl p-8 border border-stone-200 dark:border-stone-800 flex flex-col items-center text-center shadow-sm">
         <div className="w-24 h-24 mb-6 rounded-3xl overflow-hidden shadow-lg border-4 border-white dark:border-stone-800 relative bg-stone-100 dark:bg-stone-900">
           <Image 
             src="/images/logo-potiguara.jpg" 

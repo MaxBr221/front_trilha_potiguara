@@ -95,7 +95,7 @@ export default function ConquistasPage() {
       </div>
 
       {/* Navegação por abas */}
-      <div className="flex gap-2 border-b border-stone-200 dark:border-stone-800 pb-2 overflow-x-auto hide-scrollbar">
+      <div className="flex gap-2 bg-white dark:bg-stone-900 p-2 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-sm overflow-x-auto hide-scrollbar mb-4">
         <button 
           onClick={() => setAbaAtiva('todas')}
           className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold whitespace-nowrap transition-colors ${abaAtiva === 'todas' ? 'bg-primary text-white' : 'bg-transparent text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'}`}

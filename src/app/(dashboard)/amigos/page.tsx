@@ -151,7 +151,7 @@ export default function AmigosPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4 mb-6 bg-white dark:bg-stone-900 p-6 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm">
         <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden shadow-md border-2 border-white dark:border-stone-800 relative bg-stone-100 dark:bg-stone-900 shrink-0">
           <Image 
             src="/images/logo-potiguara.jpg" 
@@ -162,13 +162,13 @@ export default function AmigosPage() {
           />
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-stone-800 dark:text-stone-100">Ranking de Amigos</h1>
-          <p className="text-stone-500 dark:text-stone-400">Veja quem está dominando o Tupi Digital</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-stone-800 dark:text-stone-100">Ranking de Amigos</h1>
+          <p className="text-stone-500 dark:text-stone-400 text-sm sm:text-base">Veja quem está dominando o Tupi Digital</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex p-1 bg-stone-200/50 dark:bg-stone-800/50 rounded-2xl w-full mb-6">
+      <div className="flex p-1 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl w-full mb-6 shadow-sm">
         <button
           onClick={() => setAbaAtual('ranking')}
           className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${
