@@ -69,7 +69,7 @@ export default function DashboardPage() {
       )}
 
       {primeiraTrilha && (
-        <section className="bg-primary/5 dark:bg-primary/10 border-2 border-b-[6px] border-primary/20 dark:border-primary/30 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 transition-all duration-200 hover:-translate-y-1 hover:border-b-[8px] active:translate-y-1 active:border-b-2">
+        <section className="bg-white dark:bg-stone-900 border-2 border-b-[6px] border-stone-200 dark:border-stone-800 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 transition-all duration-200 hover:-translate-y-1 hover:border-b-[8px] active:translate-y-1 active:border-b-2">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-stone-800 dark:text-stone-100 mb-2">
               {primeiraTrilha.progresso === 0 ? 'Comece sua jornada!' : 'Continue aprendendo!'}

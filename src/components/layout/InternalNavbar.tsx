@@ -21,7 +21,7 @@ export function InternalNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const displayOfensiva = dashboard?.diasOfensiva ?? usuario?.sequenciaAtual ?? 0;
 
   return (
-    <header className="h-16 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 flex items-center justify-between px-4 sticky top-0 z-40">
+    <header className="h-16 bg-white/40 dark:bg-stone-950/40 backdrop-blur-md border-b border-stone-200/50 dark:border-stone-800/50 flex items-center justify-between px-4 sticky top-0 z-40">
       <div className="flex items-center md:hidden">
         <button onClick={onMenuClick} className="p-2 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg">
           <Menu className="w-6 h-6" />
