@@ -153,7 +153,10 @@ export default function DicionarioPage() {
                 
                 <div className="flex justify-between items-start mb-2 pr-8">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-xl font-bold text-primary group-hover:text-primary-600 transition-colors">
+                    <h3 
+                      lang="yrl" 
+                      className="text-xl font-bold text-primary group-hover:text-primary-600 transition-colors"
+                    >
                       {palavra.palavraTupi}
                     </h3>
                     <button 
