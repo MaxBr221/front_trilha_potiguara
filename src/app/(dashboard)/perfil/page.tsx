@@ -124,7 +124,7 @@ export default function PerfilPage() {
     if (file) {
       try {
         const novaFoto = await compressImage(file, 500, 500, 0.8);
-        await servicoUsuario.atualizarPerfil({ fotoPerfil: novaFoto, fotoPerfilPosicao: 'center' });
+        await servicoUsuario.atualizarPerfil({ nome: usuario?.nome || '', fotoPerfil: novaFoto, fotoPerfilPosicao: 'center' });
         setFotoPerfilForm(novaFoto);
         setFotoPerfilPosicaoForm('center');
         atualizarUsuario({ fotoPerfil: novaFoto, fotoPerfilPosicao: 'center' });
