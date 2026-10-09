@@ -38,6 +38,15 @@ export default function PerfilPage() {
     }
   }, [usuario]);
 
+  // Sincronizar contexto global quando o React Query receber os dados do Dashboard
+  useEffect(() => {
+    if (dados && usuario) {
+      if (usuario.sequenciaAtual !== dados.diasOfensiva || usuario.xp !== dados.xp) {
+        atualizarUsuario({ sequenciaAtual: dados.diasOfensiva, xp: dados.xp });
+      }
+    }
+  }, [dados, usuario, atualizarUsuario]);
+
   const handleSalvarPerfil = async (e: React.FormEvent) => {
     e.preventDefault();
     if (nomeForm.trim()) {

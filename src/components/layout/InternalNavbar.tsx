@@ -8,14 +8,19 @@ import Link from 'next/link';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { CocarIcon } from '@/components/icons/IndigenousIcons';
 export function InternalNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
-  const { usuario } = useAutenticacao();
+  const { usuario, atualizarUsuario } = useAutenticacao();
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
 
   useEffect(() => {
-    if (usuario) {
-      servicoDashboard.obterDadosDashboard().then(setDashboard).catch(console.error);
+    if (usuario?.id) {
+      servicoDashboard.obterDadosDashboard().then(data => {
+        setDashboard(data);
+        if (usuario.sequenciaAtual !== data.diasOfensiva || usuario.xp !== data.xp) {
+          atualizarUsuario({ sequenciaAtual: data.diasOfensiva, xp: data.xp });
+        }
+      }).catch(console.error);
     }
-  }, [usuario]);
+  }, [usuario?.id, atualizarUsuario]);
   
   const displayXp = dashboard?.xp ?? usuario?.xp ?? 0;
   const displayOfensiva = dashboard?.diasOfensiva ?? usuario?.sequenciaAtual ?? 0;
