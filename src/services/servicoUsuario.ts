@@ -7,7 +7,13 @@ export const servicoUsuario = {
     return response.data;
   },
   async obterPerfil(): Promise<Usuario> {
-    const response = await api.get<Usuario>('/usuarios/me');
+    const response = await api.get<Usuario>(`/usuarios/me?t=${new Date().getTime()}`, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
     return response.data;
   },
   async listarAmigos(): Promise<Amigo[]> {
