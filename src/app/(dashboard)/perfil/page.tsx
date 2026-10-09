@@ -28,7 +28,7 @@ export default function PerfilPage() {
   const [carregandoSave, setCarregandoSave] = useState(false);
 
   useEffect(() => {
-    if (usuario) {
+    if (usuario?.id) {
       const timeout = setTimeout(() => {
         setNomeForm(usuario.nome);
         setFotoPerfilForm(usuario.fotoPerfil || '');
@@ -36,7 +36,7 @@ export default function PerfilPage() {
       }, 0);
       return () => clearTimeout(timeout);
     }
-  }, [usuario]);
+  }, [usuario?.id]);
 
   // Sincronizar contexto global quando o React Query receber os dados do Dashboard
   useEffect(() => {
