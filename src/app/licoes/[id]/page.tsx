@@ -565,7 +565,9 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
                         {isCorrect ? 'Excelente!' : 'Resposta incorreta'}
                       </h3>
                       {!isCorrect && (
-                        <p className="text-rose-600 dark:text-rose-400 font-medium mt-1">Resposta correta: {respostaCertaBackend}</p>
+                        <p className="text-rose-600/90 dark:text-rose-400/90 text-sm font-medium mt-0.5">
+                          Não se preocupe, essa questão voltará para você tentar de novo!
+                        </p>
                       )}
                     </div>
                   </div>
