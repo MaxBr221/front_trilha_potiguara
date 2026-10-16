@@ -19,9 +19,33 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// O back-end está escapando HTML nas strings (ex.: "+" vira "&#43;", "=" vira "&#61;"),
+// o que corrompe imagens Base64. Restauramos os caracteres em qualquer "data:image..." recebido.
+const decodificarEntidades = (valor: string) =>
+  valor
+    .replace(/&#43;|&#x2B;|&plus;/gi, '+')
+    .replace(/&#61;|&#x3D;|&equals;/gi, '=')
+    .replace(/&#47;|&#x2F;/gi, '/');
+
+const corrigirImagensBase64 = (dado: unknown): unknown => {
+  if (typeof dado === 'string') {
+    return dado.startsWith('data:image') && dado.includes('&') ? decodificarEntidades(dado) : dado;
+  }
+  if (Array.isArray(dado)) return dado.map(corrigirImagensBase64);
+  if (dado && typeof dado === 'object') {
+    for (const chave of Object.keys(dado)) {
+      (dado as Record<string, unknown>)[chave] = corrigirImagensBase64((dado as Record<string, unknown>)[chave]);
+    }
+  }
+  return dado;
+};
+
 // Interceptor de Response para tratamento de erros genéricos e retentativas
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    response.data = corrigirImagensBase64(response.data);
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
     

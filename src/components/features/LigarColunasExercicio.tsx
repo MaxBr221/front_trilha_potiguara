@@ -20,7 +20,7 @@ export function LigarColunasExercicio({ exercicio, onComplete }: Props) {
   
   useEffect(() => {
     // exercicio.opcoes format: ["Tupi:Português", "Tupi2:Português2"]
-    const pares = exercicio.opcoes.map((opcao, index) => {
+    const pares = (exercicio.opcoes || []).map((opcao, index) => {
       const [tupi, ptbr] = opcao.split(':');
       return { id: `par-${index}`, tupi: tupi?.trim() || '', ptbr: ptbr?.trim() || '' };
     });

@@ -4,7 +4,7 @@
 import { use, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { X, Check, Flag, Loader2, Info, Lightbulb, Trophy } from 'lucide-react';
+import { X, Check, Flag, Loader2, Info, Lightbulb, Trophy, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
 import { Button } from '@/components/ui/Button';
@@ -35,12 +35,16 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
   const [isChecked, setIsChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [respostaCertaBackend, setRespostaCertaBackend] = useState('');
+  const [feedbackPedagogico, setFeedbackPedagogico] = useState<string | null>(null);
   const [contextoCultural, setContextoCultural] = useState('');
   const [mostrarDica, setMostrarDica] = useState(false);
   
   // Track errors per exercise to show hints
   const [errosExercicio, setErrosExercicio] = useState<Record<string, number>>({});
   const [respostasSalvas, setRespostasSalvas] = useState<Record<string, string>>({});
+  const [dicasExercicio, setDicasExercicio] = useState<Record<string, string>>({});
+  const [carregandoDica, setCarregandoDica] = useState<boolean>(false);
+  const [dicaEstaticaExibida, setDicaEstaticaExibida] = useState<Record<string, number>>({});
   const [saindo, setSaindo] = useState(false);
 
   const handleExit = async () => {
@@ -115,15 +119,46 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
   const exercicioAtual = exercicios[0];
   const progresso = totalExercicios > 0 ? (exerciciosAcertados / totalExercicios) * 100 : 0;
 
+  // Scaffolding progressivo de erros:
+  // - 1º Erro: Busca e exibe dica gerada por IA (GET /exercicios/{id}/dica) no topo do exercício
+  // - 2º Erro: Exibe a Dica Estática / Conteúdo Teórico da Lição quando a questão retorna
+  useEffect(() => {
+    if (!exercicioAtual || fase !== 'EXERCICIOS' || isChecked) return;
+
+    const idAtual = String(exercicioAtual.id);
+    const erros = errosExercicio[idAtual] || 0;
+
+    if (erros === 1) {
+      if (!dicasExercicio[idAtual] && !carregandoDica) {
+        setCarregandoDica(true);
+        servicoExercicio.obterDicaExercicio(exercicioAtual.id)
+          .then((dica) => {
+            if (dica) {
+              setDicasExercicio((prev) => ({ ...prev, [idAtual]: dica }));
+            }
+          })
+          .catch((err) => console.error('Erro ao buscar dica do tutor:', err))
+          .finally(() => setCarregandoDica(false));
+      }
+    } else if (erros >= 2) {
+      // Quando a questão volta após o 2º erro, abre o modal de Dica Estática / Revisão Teórica
+      if (dicaEstaticaExibida[idAtual] !== erros) {
+        setMostrarDica(true);
+        setDicaEstaticaExibida((prev) => ({ ...prev, [idAtual]: erros }));
+      }
+    }
+  }, [exercicioAtual?.id, isChecked, fase, errosExercicio, dicasExercicio, dicaEstaticaExibida, carregandoDica]);
+
   const handleCheck = async () => {
     if (!selectedAnswer || !exercicioAtual) return;
     setValidando(true);
     
     try {
-      const validacao = await servicoExercicio.validarExercicio(exercicioAtual.id, selectedAnswer);
+      const validacao = await servicoExercicio.validarExercicio(exercicioAtual.id, selectedAnswer.trim());
       
       setIsCorrect(validacao.correta);
       setRespostaCertaBackend(validacao.respostaCorreta || '');
+      setFeedbackPedagogico(validacao.feedbackPedagogico || null);
       setContextoCultural(validacao.contextoCultural || 'Os povos Tupi habitavam grande parte do litoral brasileiro e sua língua influenciou fortemente o português que falamos hoje!');
       
       if (validacao.correta) {
@@ -161,6 +196,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
       setIsChecked(false);
       setSelectedAnswer(null);
       setIsCorrect(false);
+      setFeedbackPedagogico(null);
       
       // Checa a condição com o tamanho atualizado
       if (exercicios.length <= 1) {
@@ -186,6 +222,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
       
       setIsChecked(false);
       setSelectedAnswer(null);
+      setFeedbackPedagogico(null);
     }
   };
 
@@ -282,11 +319,11 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
           ></div>
         </div>
 
-        {fase === 'EXERCICIOS' && exercicioAtual && errosExercicio[exercicioAtual.id] > 1 && !isChecked && (
+        {fase === 'EXERCICIOS' && exercicioAtual && (errosExercicio[exercicioAtual.id] || 0) >= 2 && !isChecked && (
           <button 
             onClick={() => setMostrarDica(true)}
             className="p-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-full shrink-0 animate-in fade-in zoom-in text-amber-600 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-300 animate-pulse ring-2 ring-amber-400"
-            title="Ver Dica"
+            title="Ver Conteúdo Teórico"
           >
             <Lightbulb className="w-6 h-6" />
           </button>
@@ -298,42 +335,142 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
           <AquecimentoVocabulario vocabulario={vocabulario} />
         ) : exercicioAtual.tipo === 'ENSINO' ? (
           <PalavrasEnsino exercicio={exercicioAtual} />
-        ) : exercicioAtual.tipo === 'LIGAR_COLUNAS' ? (
-          <LigarColunasExercicio exercicio={exercicioAtual} onComplete={() => { setIsChecked(true); setIsCorrect(true); }} />
         ) : (
           <div className="max-w-xl w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h1 className="text-2xl md:text-3xl font-bold text-stone-800 dark:text-stone-100 mb-8">
-              {exercicioAtual.enunciado}
-            </h1>
-            
-            <div className="grid gap-3">
-              {exercicioAtual.opcoes.map((option) => {
-                const isSelected = selectedAnswer === option;
-                let btnClass = 'border-stone-200 dark:border-stone-800 border-b-[6px] bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800/50 hover:border-stone-300 dark:hover:border-stone-700 hover:-translate-y-1 hover:border-b-[8px] active:translate-y-1 active:border-b-2';
-                
-                if (isSelected) {
-                  btnClass = 'border-primary dark:border-primary-600 border-b-[6px] bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-400 active:translate-y-1 active:border-b-2';
-                }
-                
-                if (isChecked && selectedAnswer === option) {
-                  btnClass = isCorrect 
-                    ? 'border-emerald-500 dark:border-emerald-600 border-b-[6px] bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400'
-                    : 'border-rose-500 dark:border-rose-600 border-b-[6px] bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-400 animate-shake';
-                }
+            {/* Balão / Card amigável com a Dica retornada da IA (Pista do Tutor) */}
+            {errosExercicio[exercicioAtual.id] >= 1 && (
+              <motion.div
+                initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                className="mb-6 p-4 md:p-5 rounded-2xl border-2 border-amber-300 dark:border-amber-700/70 bg-gradient-to-r from-amber-50 via-amber-50/80 to-orange-50/60 dark:from-amber-950/40 dark:via-stone-900 dark:to-orange-950/20 shadow-md flex flex-col gap-2 relative overflow-hidden"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-amber-200/90 dark:bg-amber-800/70 text-amber-900 dark:text-amber-200 text-base shadow-xs shrink-0">
+                      💡
+                    </span>
+                    <div>
+                      <h2 className="font-bold text-amber-950 dark:text-amber-200 text-sm md:text-base leading-tight">
+                        Pista do Tutor
+                      </h2>
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-800/80 dark:text-amber-400/80">
+                        Auxílio Pedagógico
+                      </p>
+                    </div>
+                  </div>
 
-                return (
-                  <button
-                    key={option}
-                    disabled={isChecked || validando}
-                    onClick={() => setSelectedAnswer(option)}
-                    aria-pressed={isSelected}
-                    className={`px-4 py-4 rounded-2xl border-2 text-left font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${btnClass} disabled:opacity-80 disabled:cursor-not-allowed`}
-                  >
-                    {option}
-                  </button>
-                );
-              })}
-            </div>
+                  {errosExercicio[exercicioAtual.id] >= 2 && (
+                    <button
+                      type="button"
+                      onClick={() => setMostrarDica(true)}
+                      className="text-xs font-bold px-3 py-1.5 rounded-xl bg-amber-200/90 hover:bg-amber-300 dark:bg-amber-800/80 dark:hover:bg-amber-700 text-amber-950 dark:text-amber-100 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                    >
+                      <Lightbulb className="w-3.5 h-3.5" />
+                      <span>Revisar Teoria</span>
+                    </button>
+                  )}
+                </div>
+
+                {carregandoDica && !dicasExercicio[exercicioAtual.id] ? (
+                  <div className="flex items-center gap-2 text-stone-500 dark:text-stone-400 text-sm italic py-1 animate-pulse">
+                    <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
+                    <span>Consultando o tutor para uma pista...</span>
+                  </div>
+                ) : dicasExercicio[exercicioAtual.id] ? (
+                  <p className="text-stone-800 dark:text-stone-200 text-sm md:text-base font-medium leading-relaxed pl-3 border-l-2 border-amber-400 dark:border-amber-600 italic">
+                    &ldquo;{dicasExercicio[exercicioAtual.id]}&rdquo;
+                  </p>
+                ) : (
+                  <p className="text-stone-600 dark:text-stone-400 text-sm italic pl-3 border-l-2 border-amber-400/60">
+                    Preste atenção nas raízes e terminações das palavras para encontrar a resposta certa!
+                  </p>
+                )}
+              </motion.div>
+            )}
+
+            {exercicioAtual.tipo === 'LIGAR_COLUNAS' ? (
+              <LigarColunasExercicio exercicio={exercicioAtual} onComplete={() => { setIsChecked(true); setIsCorrect(true); }} />
+            ) : (
+              <>
+                <h1 className="text-2xl md:text-3xl font-bold text-stone-800 dark:text-stone-100 mb-8">
+                  {exercicioAtual.enunciado}
+                </h1>
+                
+                {exercicioAtual.opcoes && exercicioAtual.opcoes.length > 0 ? (
+                  <div className="grid gap-3">
+                    {exercicioAtual.opcoes.map((option) => {
+                      const isSelected = selectedAnswer === option;
+                      let btnClass = 'border-stone-200 dark:border-stone-800 border-b-[6px] bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800/50 hover:border-stone-300 dark:hover:border-stone-700 hover:-translate-y-1 hover:border-b-[8px] active:translate-y-1 active:border-b-2';
+                      
+                      if (isSelected) {
+                        btnClass = 'border-primary dark:border-primary-600 border-b-[6px] bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-400 active:translate-y-1 active:border-b-2';
+                      }
+                      
+                      if (isChecked && selectedAnswer === option) {
+                        btnClass = isCorrect 
+                          ? 'border-emerald-500 dark:border-emerald-600 border-b-[6px] bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400'
+                          : 'border-rose-500 dark:border-rose-600 border-b-[6px] bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-400 animate-shake';
+                      }
+
+                      return (
+                        <button
+                          key={option}
+                          disabled={isChecked || validando}
+                          onClick={() => setSelectedAnswer(option)}
+                          aria-pressed={isSelected}
+                          className={`px-4 py-4 rounded-2xl border-2 text-left font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${btnClass} disabled:opacity-80 disabled:cursor-not-allowed`}
+                        >
+                          {option}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-4">
+                    <input
+                      type="text"
+                      disabled={isChecked || validando}
+                      value={selectedAnswer || ''}
+                      onChange={(e) => setSelectedAnswer(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && selectedAnswer && !validando) {
+                          if (!isChecked) {
+                            handleCheck();
+                          } else {
+                            handleNext();
+                          }
+                        }
+                      }}
+                      placeholder="Digite sua resposta em Tupi..."
+                      className={`w-full px-5 py-4 text-lg rounded-2xl border-2 bg-white dark:bg-stone-900 font-medium transition-all outline-none focus:ring-2 focus:ring-primary ${
+                        isChecked 
+                          ? isCorrect
+                            ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-900 dark:text-emerald-200'
+                            : 'border-rose-500 bg-rose-50 dark:bg-rose-900/20 text-rose-900 dark:text-rose-200'
+                          : 'border-stone-200 dark:border-stone-800 focus:border-primary'
+                      }`}
+                      autoFocus
+                    />
+                    
+                    {!isChecked && (
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs text-stone-400 font-medium">Caracteres especiais:</span>
+                        {['î', 'û', 'ã', 'ẽ', 'ĩ', 'õ', 'ũ', 'ỹ', "'"].map((char) => (
+                          <button
+                            key={char}
+                            type="button"
+                            onClick={() => setSelectedAnswer((prev) => (prev || '') + char)}
+                            className="px-2.5 py-1 text-sm font-semibold rounded-lg bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 transition-colors"
+                          >
+                            {char}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
           </div>
         )}
       </main>
@@ -364,6 +501,13 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
                   <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-200 dark:border-amber-800/50 rounded-2xl">
                     <p className="text-amber-800 dark:text-amber-300 font-bold mb-1">Dica Especial:</p>
                     <p className="text-amber-700 dark:text-amber-400">A resposta para essa questão é: <strong>{respostasSalvas[exercicioAtual.id]}</strong></p>
+                  </div>
+                )}
+
+                {exercicioAtual && dicasExercicio[exercicioAtual.id] && (
+                  <div className="mb-6 p-4 bg-orange-50 dark:bg-orange-900/20 border-2 border-orange-200 dark:border-orange-800/40 rounded-2xl">
+                    <p className="text-orange-800 dark:text-orange-300 font-bold mb-1">Pista do Tutor:</p>
+                    <p className="text-orange-700 dark:text-orange-400 italic">&ldquo;{dicasExercicio[exercicioAtual.id]}&rdquo;</p>
                   </div>
                 )}
                 
@@ -426,7 +570,28 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
                     </div>
                   </div>
                   
-
+                  {/* Feedback Pedagógico retornado pela IA Gemini */}
+                  {feedbackPedagogico && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`flex items-start gap-2.5 p-3.5 rounded-2xl border text-sm max-w-xl shadow-xs ${
+                        isCorrect
+                          ? 'bg-emerald-100/80 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800/80 text-emerald-950 dark:text-emerald-200'
+                          : 'bg-amber-100/80 dark:bg-amber-950/50 border-amber-300 dark:border-amber-800/80 text-amber-950 dark:text-amber-200'
+                      }`}
+                    >
+                      <Sparkles className="w-5 h-5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-bold text-xs uppercase tracking-wider opacity-75">
+                          Feedback Pedagógico
+                        </span>
+                        <p className="font-medium leading-relaxed">
+                          {feedbackPedagogico}
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

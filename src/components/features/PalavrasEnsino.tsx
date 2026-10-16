@@ -7,7 +7,7 @@ interface PalavrasEnsinoProps {
 }
 
 export function PalavrasEnsino({ exercicio }: PalavrasEnsinoProps) {
-  const pairs = exercicio.opcoes.map(op => {
+  const pairs = (exercicio.opcoes || []).map(op => {
     const parts = op.split(':');
     return { left: parts[0] || '', right: parts[1] || '' };
   });
