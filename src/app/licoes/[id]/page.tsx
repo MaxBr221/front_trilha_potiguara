@@ -1,7 +1,7 @@
 
 'use client';
 
-import { use, useState, useEffect } from 'react';
+import { use, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { X, Check, Flag, Loader2, Info, Lightbulb, Trophy, Sparkles } from 'lucide-react';
@@ -47,6 +47,27 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
   const [dicaEstaticaExibida, setDicaEstaticaExibida] = useState<Record<string, number>>({});
   const [saindo, setSaindo] = useState(false);
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const inserirCaractere = (caractere: string) => {
+    if (inputRef.current) {
+      const input = inputRef.current;
+      const start = input.selectionStart ?? (selectedAnswer || '').length;
+      const end = input.selectionEnd ?? (selectedAnswer || '').length;
+      const atual = selectedAnswer || '';
+      const novoValor = atual.substring(0, start) + caractere + atual.substring(end);
+      setSelectedAnswer(novoValor);
+      
+      setTimeout(() => {
+        input.focus();
+        const novoCursor = start + caractere.length;
+        input.setSelectionRange(novoCursor, novoCursor);
+      }, 0);
+    } else {
+      setSelectedAnswer((prev) => (prev || '') + caractere);
+    }
+  };
+
   const handleExit = async () => {
     setSaindo(true);
     try {
@@ -87,7 +108,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
         
         // Embaralha as opções de cada exercício para não ficarem sempre na mesma ordem
         const dadosEmbaralhados = dadosExercicios.map(ex => {
-          if (ex.opcoes && ex.opcoes.length > 0 && ex.tipo !== 'ENSINO') {
+          if (ex.opcoes && ex.opcoes.length > 0 && ex.tipo !== 'ENSINO' && ex.tipo !== 'DIGITACAO') {
             const opcoes = [...ex.opcoes];
             for (let i = opcoes.length - 1; i > 0; i--) {
               const j = Math.floor(Math.random() * (i + 1));
@@ -396,7 +417,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
                   {exercicioAtual.enunciado}
                 </h1>
                 
-                {exercicioAtual.opcoes && exercicioAtual.opcoes.length > 0 ? (
+                {exercicioAtual.tipo !== 'DIGITACAO' && exercicioAtual.opcoes && exercicioAtual.opcoes.length > 0 ? (
                   <div className="grid gap-3">
                     {exercicioAtual.opcoes.map((option) => {
                       const isSelected = selectedAnswer === option;
@@ -427,44 +448,57 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
                   </div>
                 ) : (
                   <div className="flex flex-col gap-4">
-                    <input
-                      type="text"
-                      disabled={isChecked || validando}
-                      value={selectedAnswer || ''}
-                      onChange={(e) => setSelectedAnswer(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && selectedAnswer && !validando) {
-                          if (!isChecked) {
-                            handleCheck();
-                          } else {
-                            handleNext();
+                    <div className="relative w-full">
+                      <input
+                        ref={inputRef}
+                        type="text"
+                        disabled={isChecked || validando}
+                        value={selectedAnswer || ''}
+                        onChange={(e) => setSelectedAnswer(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && selectedAnswer?.trim() && !validando) {
+                            if (!isChecked) {
+                              handleCheck();
+                            } else {
+                              handleNext();
+                            }
                           }
-                        }
-                      }}
-                      placeholder="Digite sua resposta em Tupi..."
-                      className={`w-full px-5 py-4 text-lg rounded-2xl border-2 bg-white dark:bg-stone-900 font-medium transition-all outline-none focus:ring-2 focus:ring-primary ${
-                        isChecked 
-                          ? isCorrect
-                            ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-900 dark:text-emerald-200'
-                            : 'border-rose-500 bg-rose-50 dark:bg-rose-900/20 text-rose-900 dark:text-rose-200'
-                          : 'border-stone-200 dark:border-stone-800 focus:border-primary'
-                      }`}
-                      autoFocus
-                    />
+                        }}
+                        placeholder="Digite a palavra em Tupi..."
+                        className={`w-full px-5 py-4 text-lg md:text-xl rounded-2xl border-2 bg-white dark:bg-stone-900 font-medium transition-all outline-none shadow-sm focus:ring-2 focus:ring-primary ${
+                          isChecked 
+                            ? isCorrect
+                              ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-900 dark:text-emerald-200'
+                              : 'border-rose-500 bg-rose-50 dark:bg-rose-900/20 text-rose-900 dark:text-rose-200'
+                            : 'border-stone-200 dark:border-stone-800 focus:border-primary text-stone-800 dark:text-stone-100 placeholder:text-stone-400'
+                        }`}
+                        autoFocus
+                        autoComplete="off"
+                        autoCorrect="off"
+                        autoCapitalize="off"
+                        spellCheck="false"
+                      />
+                    </div>
                     
                     {!isChecked && (
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs text-stone-400 font-medium">Caracteres especiais:</span>
-                        {['î', 'û', 'ã', 'ẽ', 'ĩ', 'õ', 'ũ', 'ỹ', "'"].map((char) => (
-                          <button
-                            key={char}
-                            type="button"
-                            onClick={() => setSelectedAnswer((prev) => (prev || '') + char)}
-                            className="px-2.5 py-1 text-sm font-semibold rounded-lg bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 transition-colors"
-                          >
-                            {char}
-                          </button>
-                        ))}
+                      <div className="flex flex-col gap-2">
+                        <span className="text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                          Caracteres especiais:
+                        </span>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {['î', 'û', 'ã', 'õ', "'", 'ẽ', 'ĩ', 'ũ', 'ỹ'].map((char) => (
+                            <button
+                              key={char}
+                              type="button"
+                              disabled={validando}
+                              onClick={() => inserirCaractere(char)}
+                              className="w-10 h-10 md:w-11 md:h-11 flex items-center justify-center text-base md:text-lg font-bold rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700 shadow-xs hover:-translate-y-0.5 active:translate-y-0.5 active:scale-95 transition-all cursor-pointer"
+                              title={`Inserir "${char}"`}
+                            >
+                              {char}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -603,7 +637,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
             size="lg"
             disabled={
               fase === 'AQUECIMENTO' ? false :
-              (exercicioAtual?.tipo !== 'ENSINO' && exercicioAtual?.tipo !== 'LIGAR_COLUNAS' && !selectedAnswer) || validando || (exercicioAtual?.tipo === 'LIGAR_COLUNAS' && !isChecked)
+              (exercicioAtual?.tipo !== 'ENSINO' && exercicioAtual?.tipo !== 'LIGAR_COLUNAS' && !selectedAnswer?.trim()) || validando || (exercicioAtual?.tipo === 'LIGAR_COLUNAS' && !isChecked)
             }
             isLoading={validando}
             onClick={
