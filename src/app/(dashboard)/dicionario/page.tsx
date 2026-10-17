@@ -11,43 +11,77 @@ export default function DicionarioPage() {
   const [carregando, setCarregando] = useState(true);
   const [toast, setToast] = useState('');
 
+  const [vozesDisponiveis, setVozesDisponiveis] = useState<SpeechSynthesisVoice[]>([]);
+
+  useEffect(() => {
+    const carregarVozes = () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        const v = window.speechSynthesis.getVoices();
+        if (v && v.length > 0) {
+          setVozesDisponiveis(v);
+        }
+      }
+    };
+
+    carregarVozes();
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = carregarVozes;
+    }
+  }, []);
+
   const tocarAudioTupi = (palavraTupi: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Evita copiar a palavra ao clicar no som
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+
     window.speechSynthesis.cancel();
     
-    // Remove o apóstrofo, hífen (e outros caracteres que pausam a voz) para que o motor leia a palavra fluida
-    let palavraSanitizada = palavraTupi.toLowerCase().replace(/['´`\-]/g, '');
+    // Normaliza caracteres Unicode compostos e minúsculas
+    let palavraSanitizada = palavraTupi.normalize('NFC').toLowerCase();
 
-    // Mapeamento fonético para a voz em pt-BR pronunciar corretamente os sons nasais e vogais do Tupi
+    // Remove o apóstrofo, hífen e pontuações que forçam pausas no motor de voz
+    palavraSanitizada = palavraSanitizada.replace(/['´`\-]/g, '');
+
+    // Mapeamento fonético para a voz em pt-BR pronunciar corretamente os sons e vogais do Tupi
     palavraSanitizada = palavraSanitizada
-      .replace(/ĩ/g, 'in')
-      .replace(/ẽ/g, 'en')
-      .replace(/ũ/g, 'un')
-      .replace(/ỹ/g, 'in')
+      .replace(/ï|i\u0308/g, 'i') // Trata trema (ï) para evitar que o mobile soletre letra por letra
+      .replace(/ĩ|i\u0303/g, 'in')
+      .replace(/ẽ|e\u0303/g, 'en')
+      .replace(/ũ|u\u0303/g, 'un')
+      .replace(/ỹ|y\u0303/g, 'in')
       .replace(/y/g, 'i')
       .replace(/î/g, 'i')
       .replace(/û/g, 'u')
-      .replace(/x/g, 'ch');
+      .replace(/x/g, 'ch')
+      // Palavras curtas do Tupi que motores de TTS móveis (ex.: Google TTS) confundem com siglas (ex: "N-D-E")
+      .replace(/\bnde\b/g, 'ndé');
 
     const fala = new SpeechSynthesisUtterance(palavraSanitizada);
     fala.lang = 'pt-BR';
     
-    const vozes = window.speechSynthesis.getVoices();
-    const vozesPtBr = vozes.filter(v => v.lang.includes('pt-BR') || v.lang.includes('pt_BR'));
+    const vozes = vozesDisponiveis.length > 0 ? vozesDisponiveis : window.speechSynthesis.getVoices();
+    const vozesPtBr = vozes.filter(v => v.lang.includes('pt-BR') || v.lang.includes('pt_BR') || v.lang.startsWith('pt'));
     
-    // Tenta encontrar uma voz com nome tipicamente masculino ou alternativo ao padrão
-    const vozMasculina = vozesPtBr.find(v => /daniel|thiago|julio|antonio|macedo|male/i.test(v.name));
+    // Tenta encontrar uma voz masculina (Windows: Daniel/Thiago, iOS/Mac: Felipe, Android/Chrome: male)
+    const vozMasculina = vozesPtBr.find(v => 
+      /daniel|thiago|julio|antonio|macedo|felipe|male|homem/i.test(v.name) ||
+      /male/i.test(v.voiceURI)
+    );
     
     if (vozMasculina) {
       fala.voice = vozMasculina;
+      fala.pitch = 0.95;
     } else if (vozesPtBr.length > 1) {
-      // Se não achar pelo nome, mas tiver mais de uma voz, tenta pegar a segunda (costuma ser a masculina em alguns sistemas)
       fala.voice = vozesPtBr[vozesPtBr.length - 1]; 
+      fala.pitch = 0.9; // Tom mais grave para aproximar do notebook
+    } else if (vozesPtBr.length === 1) {
+      fala.voice = vozesPtBr[0];
+      fala.pitch = 0.9; // Tom mais grave para aproximar do notebook
+    } else {
+      fala.pitch = 0.9;
     }
 
-    // Velocidade e tom normais para evitar som artificial ou pausas estranhas
-    fala.rate = 1;
-    fala.pitch = 1; 
+    // Velocidade ligeiramente cadenciada para boa dicção das palavras
+    fala.rate = 0.95;
     
     window.speechSynthesis.speak(fala);
   };
