@@ -38,6 +38,9 @@ export default function DicionarioPage() {
     // Normaliza caracteres Unicode compostos e minúsculas
     let palavraSanitizada = palavraTupi.normalize('NFC').toLowerCase();
 
+    // Remove pontuações indesejadas e símbolos que fariam o leitor falar os nomes deles
+    palavraSanitizada = palavraSanitizada.replace(/[/\\;:=(?)²!.]/g, ' ');
+
     // Remove o apóstrofo, hífen e pontuações que forçam pausas no motor de voz
     palavraSanitizada = palavraSanitizada.replace(/['´`\-]/g, '');
 
@@ -48,12 +51,20 @@ export default function DicionarioPage() {
       .replace(/ẽ|e\u0303/g, 'en')
       .replace(/ũ|u\u0303/g, 'un')
       .replace(/ỹ|y\u0303/g, 'in')
-      .replace(/y/g, 'i')
+      .replace(/ŷ|ý|y/g, 'i')
       .replace(/î/g, 'i')
       .replace(/û/g, 'u')
+      .replace(/ô/g, 'o')
+      .replace(/ñ/g, 'nh')
       .replace(/x/g, 'ch')
-      // Palavras curtas do Tupi que motores de TTS móveis (ex.: Google TTS) confundem com siglas (ex: "N-D-E")
-      .replace(/\bnde\b/g, 'ndé');
+      // Consoantes pré-nasalizadas no início de palavras que não existem na fonotática do pt-BR:
+      // O motor do celular entra em modo de soletração com 'nd' ou 'mb'.
+      // Em Tupi, 'nde' soa e varia naturalmente com 'ne' (2ª pessoa), que o sintetizador lê com total fluidez.
+      .replace(/\bnde\b/g, 'ne')
+      .replace(/\bnd([aeiou])/g, 'n$1')
+      .replace(/\bmb/g, 'b');
+
+    palavraSanitizada = palavraSanitizada.replace(/\s+/g, ' ').trim();
 
     const fala = new SpeechSynthesisUtterance(palavraSanitizada);
     fala.lang = 'pt-BR';
