@@ -104,6 +104,18 @@ export default function DicionarioPage() {
         const vistas = new Set<string>();
 
         dados.forEach(item => {
+          // Ignora cabeçalhos ou registros espúrios importados indevidamente
+          const tupiNorm = (item.palavraTupi || '').toLowerCase();
+          const ptNorm = (item.traducaoPtBr || '').toLowerCase();
+          if (
+            tupiNorm.includes('ordem alfabética') ||
+            tupiNorm.includes('ordem alfabetica') ||
+            ptNorm.includes('dicionário tupi') ||
+            ptNorm.includes('dicionario tupi')
+          ) {
+            return;
+          }
+
           const palavras = item.palavraTupi.split(',').map(p => p.trim()).filter(Boolean);
           
           palavras.forEach(p => {
