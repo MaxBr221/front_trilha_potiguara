@@ -3,11 +3,13 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Usuario } from '@/types/autenticacao';
 import { servicoUsuario } from '@/services/servicoUsuario';
+import { api } from '@/services/api';
+import { definirCookieAuth, limparCookieAuth, obterCookieAuth, limparSessaoCompleta } from '@/utils/cookies';
 
 interface ContextoAutenticacaoType {
   usuario: Usuario | null;
   isAuthenticated: boolean;
-  login: (token: string, userData: Usuario) => void;
+  login: (token: string, userData: Usuario) => Promise<void>;
   logout: () => void;
   atualizarUsuario: (userData: Partial<Usuario>) => void;
   carregando: boolean;
@@ -20,43 +22,73 @@ export const ProvedorAutenticacao = ({ children }: { children: React.ReactNode }
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
-    // Inicialização da sessão
-    const token = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    
-    const timeoutId = setTimeout(async () => {
-      if (token) {
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-        }
+    // 1. Se estiver na tela de login/rotas públicas, limpa resquícios antigos para evitar chamadas fantasmas
+    if (typeof window !== 'undefined') {
+      const publicPaths = ['/login', '/cadastro', '/esqueci-senha', '/redefinir-senha'];
+      if (publicPaths.includes(window.location.pathname)) {
+        limparSessaoCompleta();
+        delete api.defaults.headers.common['Authorization'];
+        setUser(null);
+        setCarregando(false);
+        return;
+      }
+    }
+
+    // 2. Inicialização segura da sessão em rotas protegidas
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') || obterCookieAuth() : null;
+    const storedUser = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+
+    if (token) {
+      // Sincroniza header do axios imediatamente
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      if (storedUser) {
         try {
-          const freshUser = await servicoUsuario.obterPerfil();
-          setUser(freshUser);
-          localStorage.setItem('user', JSON.stringify(freshUser));
-        } catch (error) {
-          console.error("Erro ao obter perfil atualizado:", error);
+          setUser(JSON.parse(storedUser));
+        } catch {
+          setUser(null);
         }
       }
-      setCarregando(false);
-    }, 0);
 
-    return () => clearTimeout(timeoutId);
+      // Validação do perfil no backend em segundo plano
+      servicoUsuario.obterPerfil()
+        .then((freshUser) => {
+          if (freshUser) {
+            setUser(freshUser);
+            localStorage.setItem('user', JSON.stringify(freshUser));
+          }
+        })
+        .catch((err) => {
+          console.warn('Sessão inicial não pôde ser revalidada no backend:', err);
+        })
+        .finally(() => {
+          setCarregando(false);
+        });
+    } else {
+      setCarregando(false);
+    }
   }, []);
 
   const login = useCallback(async (token: string, userData: Usuario) => {
+    // 1. Atualização imediata e síncrona de cabeçalhos e storage
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(userData));
+    definirCookieAuth(token);
     setUser(userData);
-    
-    // Busca os dados atualizados (foto, xp, etc) assim que logar
+
+    // 2. Busca dados complementares em segundo plano sem quebrar o login
     try {
       const freshUser = await servicoUsuario.obterPerfil();
-      setUser(freshUser);
-      localStorage.setItem('user', JSON.stringify(freshUser));
-    } catch (error) {
-      console.error("Erro ao atualizar perfil após login:", error);
+      if (freshUser) {
+        setUser(freshUser);
+        localStorage.setItem('user', JSON.stringify(freshUser));
+      }
+    } catch (e) {
+      console.warn('Perfil mantido com os dados retornados no login:', e);
     }
 
+    // 3. Processamento de lições pendentes se houver
     const pendingLessonId = localStorage.getItem('pendingLessonCompletion');
     if (pendingLessonId) {
       try {
@@ -65,20 +97,20 @@ export const ProvedorAutenticacao = ({ children }: { children: React.ReactNode }
         localStorage.removeItem('pendingLessonCompletion');
         localStorage.removeItem('pendingLessonXP');
       } catch (e) {
-        console.error('Erro ao concluir licao pendente', e);
+        console.error('Erro ao concluir lição pendente após login:', e);
       }
     }
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    limparSessaoCompleta();
+    delete api.defaults.headers.common['Authorization'];
     setUser(null);
     window.location.href = '/login';
   }, []);
 
   const atualizarUsuario = useCallback((novosDados: Partial<Usuario>) => {
-    setUser(prevUsuario => {
+    setUser((prevUsuario) => {
       if (!prevUsuario) return null;
       const usuarioAtualizado = { ...prevUsuario, ...novosDados };
       localStorage.setItem('user', JSON.stringify(usuarioAtualizado));
@@ -87,7 +119,16 @@ export const ProvedorAutenticacao = ({ children }: { children: React.ReactNode }
   }, []);
 
   return (
-    <ContextoAutenticacao.Provider value={{ usuario, isAuthenticated: !!usuario, login, logout, atualizarUsuario, carregando }}>
+    <ContextoAutenticacao.Provider
+      value={{
+        usuario,
+        isAuthenticated: !!usuario,
+        login,
+        logout,
+        atualizarUsuario,
+        carregando
+      }}
+    >
       {children}
     </ContextoAutenticacao.Provider>
   );

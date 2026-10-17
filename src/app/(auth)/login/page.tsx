@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Leaf, LogIn, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { servicoAutenticacao } from '@/services/servicoAutenticacao';
 import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
+import { api } from '@/services/api';
+import { definirCookieAuth, limparSessaoCompleta } from '@/utils/cookies';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import Image from 'next/image';
@@ -18,6 +20,12 @@ export default function LoginPage() {
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
   const [toastErro, setToastErro] = useState('');
+
+  // Limpeza prévia obrigatória ao montar a tela de login
+  useEffect(() => {
+    limparSessaoCompleta();
+    delete api.defaults.headers.common['Authorization'];
+  }, []);
 
   const mostrarToast = (msg: string) => {
     setToastErro(msg);
@@ -61,13 +69,29 @@ export default function LoginPage() {
       return;
     }
 
+    // Limpeza prévia obrigatória antes de disparar a requisição de login
+    limparSessaoCompleta();
+    delete api.defaults.headers.common['Authorization'];
+
     setCarregando(true);
 
     try {
       const response = await servicoAutenticacao.login(emailLimpo, senha);
-      if (response.usuario) {
-        login(response.token, response.usuario);
+      if (response.token && response.usuario) {
+        // 1. Atualização imediata e síncrona do header padrão do Axios
+        api.defaults.headers.common['Authorization'] = `Bearer ${response.token}`;
+
+        // 2. Gravação imediata e síncrona no localStorage e Cookies com path '/'
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response.usuario));
+        definirCookieAuth(response.token);
+
+        // 3. Atualização do contexto (await para garantir propagação)
+        await login(response.token, response.usuario);
+
+        // 4. Somente após gravação confirmada, executa o redirecionamento
         router.push('/dashboard');
+        router.refresh();
       }
     } catch (err) {
       const error = err as { response?: { status: number; data?: { message?: string } }; message?: string };

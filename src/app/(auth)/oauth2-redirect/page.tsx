@@ -3,9 +3,9 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
-import { Leaf } from 'lucide-react';
-import { Usuario } from '@/types/autenticacao';
 import { servicoUsuario } from '@/services/servicoUsuario';
+import { api } from '@/services/api';
+import { definirCookieAuth } from '@/utils/cookies';
 import Image from 'next/image';
 
 function OAuth2RedirectContent() {
@@ -29,13 +29,16 @@ function OAuth2RedirectContent() {
     if (token) {
       const initOAuth2 = async () => {
         try {
-          // Salva o token temporariamente para o api.ts interceptor conseguir enviá-lo
+          // Salva o token imediatamente e injeta o header no Axios
+          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           localStorage.setItem('token', token);
+          definirCookieAuth(token);
           
           const freshUser = await servicoUsuario.obterPerfil();
           
-          login(token, freshUser);
+          await login(token, freshUser);
           router.push('/dashboard');
+          router.refresh();
         } catch (err) {
           console.error('Falha ao obter perfil do OAuth2', err);
           setErro('Falha ao processar a autenticação. Tente novamente.');
