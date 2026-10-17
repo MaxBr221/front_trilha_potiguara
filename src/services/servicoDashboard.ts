@@ -21,7 +21,18 @@ export interface DashboardData {
 
 export const servicoDashboard = {
   async obterDadosDashboard(): Promise<DashboardData> {
-    const response = await api.get<DashboardData>('/usuarios/me/dashboard');
-    return response.data;
+    try {
+      const response = await api.get<DashboardData>('/usuarios/me/dashboard');
+      return response.data;
+    } catch (error) {
+      console.warn('Não foi possível obter dados do dashboard da API, gerando fallback seguro:', error);
+      return {
+        xp: 0,
+        diasOfensiva: 0,
+        licoesConcluidas: 0,
+        taxaAcerto: 0,
+        conquistas: []
+      };
+    }
   }
 };

@@ -17,6 +17,41 @@ const imgMap: Record<string, string> = {
   'Mitos e Lendas Tupi': '/images/trilhas/mitos.jpg'
 };
 import { useQuery } from '@tanstack/react-query';
+import {
+  FogueiraIcon,
+  MachadoIcon,
+  PenaIcon,
+  CocarIcon,
+  OcaIcon,
+  ArcoFlechaIcon,
+  TriboIcon,
+  GuerreiroIcon,
+  MaracaIcon
+} from '@/components/icons/IndigenousIcons';
+
+const indigenousIconsMap: Record<string, React.ElementType> = {
+  FogueiraIcon,
+  MachadoIcon,
+  PenaIcon,
+  CocarIcon,
+  OcaIcon,
+  ArcoFlechaIcon,
+  TriboIcon,
+  GuerreiroIcon,
+  MaracaIcon
+};
+
+const renderConquistaIcon = (iconeName: string) => {
+  if (indigenousIconsMap[iconeName]) {
+    const IndigComp = indigenousIconsMap[iconeName];
+    return <IndigComp className="w-6 h-6" />;
+  }
+  if (iconeName && (iconeName.startsWith('http') || iconeName.startsWith('/'))) {
+    return <img src={iconeName} alt="Conquista" className="w-6 h-6 object-contain" />;
+  }
+  const Icon = ((LucideIcons as Record<string, unknown>)[iconeName] as React.ElementType) || LucideIcons.Trophy;
+  return <Icon className="w-6 h-6" />;
+};
 
 export default function DashboardPage() {
   const { data: trilhas = [], isLoading: carregandoTrilhas } = useQuery({
@@ -219,19 +254,21 @@ export default function DashboardPage() {
 
             {ultimaConquista && (
               <div className="pt-4 border-t border-stone-100 dark:border-stone-800">
-                <h3 className="text-sm font-bold text-stone-700 dark:text-stone-300 mb-3 flex items-center gap-2">
-                  <Trophy className="w-4 h-4 text-amber-500" />
-                  Última conquista
-                </h3>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-bold text-stone-700 dark:text-stone-300 flex items-center gap-2">
+                    <Trophy className="w-4 h-4 text-amber-500" />
+                    Última conquista
+                  </h3>
+                  <Link href="/conquistas" className="text-xs font-bold text-primary hover:underline">
+                    Ver todas
+                  </Link>
+                </div>
                 <div className="flex items-center gap-3">
-                  <div className={`w-12 h-12 bg-${ultimaConquista.corBase}-100 dark:bg-${ultimaConquista.corBase}-900/30 rounded-xl flex items-center justify-center text-2xl border border-${ultimaConquista.corBase}-200 dark:border-${ultimaConquista.corBase}-800 shadow-sm shadow-${ultimaConquista.corBase}-200 dark:shadow-none text-${ultimaConquista.corBase}-600 dark:text-${ultimaConquista.corBase}-400`} aria-hidden="true">
-                    {(() => {
-                      const Icon = ((LucideIcons as Record<string, unknown>)[ultimaConquista.icone] as React.ElementType) || LucideIcons.Trophy;
-                      return <Icon className="w-6 h-6" />;
-                    })()}
+                  <div className="w-12 h-12 bg-amber-100 dark:bg-amber-950/60 rounded-xl flex items-center justify-center text-2xl border border-amber-200 dark:border-amber-800/80 shadow-sm text-amber-600 dark:text-amber-400 shrink-0" aria-hidden="true">
+                    {renderConquistaIcon(ultimaConquista.icone)}
                   </div>
-                  <div>
-                    <p className="font-bold text-sm text-stone-800 dark:text-stone-100">{ultimaConquista.titulo}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-sm text-stone-800 dark:text-stone-100 truncate">{ultimaConquista.titulo}</p>
                     <p className="text-xs text-stone-500 dark:text-stone-400 line-clamp-1">{ultimaConquista.descricao}</p>
                   </div>
                 </div>
