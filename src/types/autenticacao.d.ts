@@ -8,6 +8,7 @@ export interface Usuario {
   fotoPerfil?: string;
   fotoPerfilPosicao?: string;
   createdAt?: string;
+  criadoEm?: string;
 }
 
 export interface RespostaAutenticacao {

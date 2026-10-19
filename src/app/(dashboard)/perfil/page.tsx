@@ -8,6 +8,7 @@ import { servicoUsuario } from '@/services/servicoUsuario';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 
 import { useQuery } from '@tanstack/react-query';
+import { formatarMembroDesde } from '@/utils/data';
 
 const compressImage = (file: File, maxWidth = 500, maxHeight = 500, quality = 0.8): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -143,13 +144,7 @@ export default function PerfilPage() {
   const nomeUsuario = usuario?.nome || 'Convidado';
   const emailUsuario = usuario?.email || 'N/A';
   
-  const formatarData = (dataString?: string) => {
-    if (!dataString) return 'Recentemente';
-    const data = new Date(dataString);
-    if (isNaN(data.getTime())) return 'Recentemente';
-    return new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(data);
-  };
-  const dataEntrada = formatarData(usuario?.createdAt);
+  const dataEntrada = formatarMembroDesde(usuario?.criadoEm || usuario?.createdAt);
 
   if (carregando) {
     return (

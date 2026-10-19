@@ -35,6 +35,38 @@ describe('servicoExercicio', () => {
     });
   });
 
+  describe('validarAudio', () => {
+    it('deve enviar o blob de áudio via FormData e retornar a resposta do backend', async () => {
+      const mockResponse = {
+        data: {
+          correta: true,
+          precisao: 85,
+          xpGanho: 15,
+          respostaCorreta: "Tîa nde Ko'ema",
+          transcricaoAproximada: "Tia nde Ko'ema",
+          feedbackPedagogico: "Muito bem! Sua pronúncia foi reconhecida com sucesso."
+        }
+      };
+
+      vi.mocked(api.post).mockResolvedValueOnce(mockResponse);
+
+      const audioBlob = new Blob(['dummy audio content'], { type: 'audio/webm' });
+      const resultado = await servicoExercicio.validarAudio('ex-audio-1', audioBlob);
+
+      expect(api.post).toHaveBeenCalledWith(
+        '/exercicios/ex-audio-1/validar-audio',
+        expect.any(FormData),
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
+      expect(resultado.correta).toBe(true);
+      expect(resultado.precisao).toBe(85);
+      expect(resultado.xpGanho).toBe(15);
+      expect(resultado.respostaCorreta).toBe("Tîa nde Ko'ema");
+      expect(resultado.transcricaoAproximada).toBe("Tia nde Ko'ema");
+      expect(resultado.feedbackPedagogico).toContain("Muito bem!");
+    });
+  });
+
   describe('obterDicaExercicio', () => {
     it('deve chamar o endpoint GET /exercicios/{id}/dica e retornar dica quando formato for objeto com dica', async () => {
       vi.mocked(api.get).mockResolvedValueOnce({

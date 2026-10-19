@@ -10,8 +10,9 @@ import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
 import { Button } from '@/components/ui/Button';
 import { PalavrasEnsino } from '@/components/features/PalavrasEnsino';
 import { LigarColunasExercicio } from '@/components/features/LigarColunasExercicio';
+import { PronunciaExercicio } from '@/components/features/PronunciaExercicio';
 import { AquecimentoVocabulario } from '@/components/features/AquecimentoVocabulario';
-import { servicoExercicio, Exercicio } from '@/services/servicoExercicio';
+import { servicoExercicio, Exercicio, ValidacaoAudioResponse } from '@/services/servicoExercicio';
 import { servicoDicionario, ConteudoLinguistico } from '@/services/servicoDicionario';
 import { sons } from '@/utils/audio';
 
@@ -36,6 +37,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
   const [isCorrect, setIsCorrect] = useState(false);
   const [respostaCertaBackend, setRespostaCertaBackend] = useState('');
   const [feedbackPedagogico, setFeedbackPedagogico] = useState<string | null>(null);
+  const [resultadoAudio, setResultadoAudio] = useState<ValidacaoAudioResponse | null>(null);
   const [contextoCultural, setContextoCultural] = useState('');
   const [mostrarDica, setMostrarDica] = useState(false);
   
@@ -108,7 +110,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
         
         // Embaralha as opções de cada exercício para não ficarem sempre na mesma ordem
         const dadosEmbaralhados = dadosExercicios.map(ex => {
-          if (ex.opcoes && ex.opcoes.length > 0 && ex.tipo !== 'ENSINO' && ex.tipo !== 'DIGITACAO') {
+          if (ex.opcoes && ex.opcoes.length > 0 && ex.tipo !== 'ENSINO' && ex.tipo !== 'DIGITACAO' && ex.tipo !== 'PRONUNCIA') {
             const opcoes = [...ex.opcoes];
             for (let i = opcoes.length - 1; i > 0; i--) {
               const j = Math.floor(Math.random() * (i + 1));
@@ -205,6 +207,50 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
     }
   };
 
+  const handleValidatedAudio = (validacao: ValidacaoAudioResponse) => {
+    setResultadoAudio(validacao);
+    setIsCorrect(validacao.correta);
+    setFeedbackPedagogico(validacao.feedbackPedagogico || null);
+    setRespostaCertaBackend(validacao.respostaCorreta || exercicioAtual?.respostaCorreta || '');
+    setContextoCultural(validacao.contextoCultural || 'A oralidade é parte viva da tradição e memória dos povos indígenas!');
+
+    if (validacao.correta) {
+      sons.sucesso();
+      const xp = validacao.xpGanho ?? (exercicioAtual?.pontuacaoXp || 15);
+      setXpGanhoTotal(prev => prev + xp);
+    } else {
+      sons.erro();
+      if (exercicioAtual) {
+        setErrosExercicio(prev => ({
+          ...prev,
+          [exercicioAtual.id]: (prev[exercicioAtual.id] || 0) + 1
+        }));
+        setRespostasSalvas(prev => ({
+          ...prev,
+          [exercicioAtual.id]: validacao.respostaCorreta || exercicioAtual.respostaCorreta || ''
+        }));
+      }
+    }
+
+    setIsChecked(true);
+  };
+
+  const handleSkipPronuncia = () => {
+    setExercicios(prev => {
+      const novaFila = [...prev];
+      const exercicioPulado = novaFila.shift();
+      if (exercicioPulado) {
+        novaFila.push(exercicioPulado);
+      }
+      return novaFila;
+    });
+    setIsChecked(false);
+    setSelectedAnswer(null);
+    setIsCorrect(false);
+    setResultadoAudio(null);
+    setFeedbackPedagogico(null);
+  };
+
   const handleNext = async () => {
     if (isCorrect) {
       setExercicios(prev => {
@@ -218,6 +264,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
       setSelectedAnswer(null);
       setIsCorrect(false);
       setFeedbackPedagogico(null);
+      setResultadoAudio(null);
       
       // Checa a condição com o tamanho atualizado
       if (exercicios.length <= 1) {
@@ -244,6 +291,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
       setIsChecked(false);
       setSelectedAnswer(null);
       setFeedbackPedagogico(null);
+      setResultadoAudio(null);
     }
   };
 
@@ -411,6 +459,15 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
 
             {exercicioAtual.tipo === 'LIGAR_COLUNAS' ? (
               <LigarColunasExercicio exercicio={exercicioAtual} onComplete={() => { setIsChecked(true); setIsCorrect(true); }} />
+            ) : exercicioAtual.tipo === 'PRONUNCIA' ? (
+              <PronunciaExercicio
+                exercicio={exercicioAtual}
+                onValidated={handleValidatedAudio}
+                onSkip={handleSkipPronuncia}
+                isValidating={validando}
+                isAnswered={isChecked}
+                validationResult={resultadoAudio}
+              />
             ) : (
               <>
                 <h1 className="text-2xl md:text-3xl font-bold text-stone-800 dark:text-stone-100 mb-8">
@@ -605,6 +662,33 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
                       )}
                     </div>
                   </div>
+
+                  {/* Detalhes de validação da pronúncia */}
+                  {exercicioAtual?.tipo === 'PRONUNCIA' && resultadoAudio && (
+                    <div className="flex flex-wrap items-center gap-2 mt-1">
+                      {resultadoAudio.precisao !== undefined && (
+                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
+                          resultadoAudio.precisao >= 75
+                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                            : resultadoAudio.precisao >= 50
+                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800'
+                            : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 dark:border-rose-800'
+                        }`}>
+                          Precisão: {resultadoAudio.precisao}%
+                        </span>
+                      )}
+                      {resultadoAudio.xpGanho && isCorrect && (
+                        <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                          +{resultadoAudio.xpGanho} XP
+                        </span>
+                      )}
+                      {resultadoAudio.transcricaoAproximada && (
+                        <span className="text-xs text-stone-600 dark:text-stone-300 italic">
+                          Ouvimos: &ldquo;{resultadoAudio.transcricaoAproximada}&rdquo;
+                        </span>
+                      )}
+                    </div>
+                  )}
                   
                   {/* Feedback Pedagógico retornado pela IA Gemini */}
                   {feedbackPedagogico && (
@@ -637,7 +721,10 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
             size="lg"
             disabled={
               fase === 'AQUECIMENTO' ? false :
-              (exercicioAtual?.tipo !== 'ENSINO' && exercicioAtual?.tipo !== 'LIGAR_COLUNAS' && !selectedAnswer?.trim()) || validando || (exercicioAtual?.tipo === 'LIGAR_COLUNAS' && !isChecked)
+              (exercicioAtual?.tipo !== 'ENSINO' && exercicioAtual?.tipo !== 'LIGAR_COLUNAS' && exercicioAtual?.tipo !== 'PRONUNCIA' && !selectedAnswer?.trim()) ||
+              validando ||
+              (exercicioAtual?.tipo === 'LIGAR_COLUNAS' && !isChecked) ||
+              (exercicioAtual?.tipo === 'PRONUNCIA' && !isChecked)
             }
             isLoading={validando}
             onClick={

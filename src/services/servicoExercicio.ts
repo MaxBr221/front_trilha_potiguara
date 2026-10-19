@@ -7,6 +7,7 @@ export interface Exercicio {
   opcoes?: string[];
   pontuacaoXp: number;
   ordemIndex: number;
+  respostaCorreta?: string;
 }
 
 export interface ValidacaoRespostaRequest {
@@ -19,6 +20,16 @@ export interface ValidacaoRespostaResponse {
   respostaCorreta: string;
   contextoCultural?: string;
   feedbackPedagogico?: string;
+}
+
+export interface ValidacaoAudioResponse {
+  correta: boolean;
+  precisao?: number;
+  xpGanho?: number;
+  respostaCorreta?: string;
+  transcricaoAproximada?: string;
+  feedbackPedagogico?: string;
+  contextoCultural?: string;
 }
 
 export interface DicaExercicioResponse {
@@ -36,6 +47,19 @@ export const servicoExercicio = {
 
   async validarExercicio(exercicioId: string | number, respostaUsuario: string): Promise<ValidacaoRespostaResponse> {
     const response = await api.post<ValidacaoRespostaResponse>(`/exercicios/${exercicioId}/validar`, { respostaUsuario });
+    return response.data;
+  },
+
+  async validarAudio(exercicioId: string | number, audioBlob: Blob): Promise<ValidacaoAudioResponse> {
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'gravacao.webm');
+    const response = await api.post<ValidacaoAudioResponse>(
+      `/exercicios/${exercicioId}/validar-audio`,
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      }
+    );
     return response.data;
   },
 
