@@ -1,5 +1,19 @@
 import { api } from './api';
 
+export function decodificarEntidadesHtml(texto?: string | null): string {
+  if (!texto) return '';
+  return texto
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(Number(dec)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+}
+
+
 export interface Exercicio {
   id: string | number;
   enunciado: string;
@@ -47,6 +61,9 @@ export const servicoExercicio = {
 
   async validarExercicio(exercicioId: string | number, respostaUsuario: string): Promise<ValidacaoRespostaResponse> {
     const response = await api.post<ValidacaoRespostaResponse>(`/exercicios/${exercicioId}/validar`, { respostaUsuario });
+    if (response.data && response.data.feedbackPedagogico) {
+      response.data.feedbackPedagogico = decodificarEntidadesHtml(response.data.feedbackPedagogico);
+    }
     return response.data;
   },
 
@@ -60,6 +77,14 @@ export const servicoExercicio = {
         headers: { 'Content-Type': 'multipart/form-data' }
       }
     );
+    if (response.data) {
+      if (response.data.feedbackPedagogico) {
+        response.data.feedbackPedagogico = decodificarEntidadesHtml(response.data.feedbackPedagogico);
+      }
+      if (response.data.transcricaoAproximada) {
+        response.data.transcricaoAproximada = decodificarEntidadesHtml(response.data.transcricaoAproximada);
+      }
+    }
     return response.data;
   },
 

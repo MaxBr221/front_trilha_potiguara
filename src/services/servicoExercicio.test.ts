@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { servicoExercicio } from './servicoExercicio';
+import { servicoExercicio, decodificarEntidadesHtml } from './servicoExercicio';
 import { api } from './api';
 
 vi.mock('./api', () => ({
@@ -10,6 +10,20 @@ vi.mock('./api', () => ({
 }));
 
 describe('servicoExercicio', () => {
+  describe('decodificarEntidadesHtml', () => {
+    it('deve converter entidades HTML como &#39; e &quot; para caracteres legíveis', () => {
+      const entrada = "Você pronunciou a palavra &#39;Pirá&#39; perfeitamente &quot;Tupi&quot; &amp; cia";
+      const saida = decodificarEntidadesHtml(entrada);
+      expect(saida).toBe("Você pronunciou a palavra 'Pirá' perfeitamente \"Tupi\" & cia");
+    });
+
+    it('deve retornar string vazia para valores nulos ou indefinidos', () => {
+      expect(decodificarEntidadesHtml(null)).toBe('');
+      expect(decodificarEntidadesHtml(undefined)).toBe('');
+      expect(decodificarEntidadesHtml('')).toBe('');
+    });
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
   });

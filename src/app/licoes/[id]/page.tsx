@@ -12,7 +12,7 @@ import { PalavrasEnsino } from '@/components/features/PalavrasEnsino';
 import { LigarColunasExercicio } from '@/components/features/LigarColunasExercicio';
 import { PronunciaExercicio } from '@/components/features/PronunciaExercicio';
 import { AquecimentoVocabulario } from '@/components/features/AquecimentoVocabulario';
-import { servicoExercicio, Exercicio, ValidacaoAudioResponse } from '@/services/servicoExercicio';
+import { servicoExercicio, Exercicio, ValidacaoAudioResponse, decodificarEntidadesHtml } from '@/services/servicoExercicio';
 import { servicoDicionario, ConteudoLinguistico } from '@/services/servicoDicionario';
 import { sons } from '@/utils/audio';
 
@@ -467,6 +467,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
                 isValidating={validando}
                 isAnswered={isChecked}
                 validationResult={resultadoAudio}
+                exibirDetalhesCard={false}
               />
             ) : (
               <>
@@ -684,7 +685,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
                       )}
                       {resultadoAudio.transcricaoAproximada && (
                         <span className="text-xs text-stone-600 dark:text-stone-300 italic">
-                          Ouvimos: &ldquo;{resultadoAudio.transcricaoAproximada}&rdquo;
+                          Ouvimos: &ldquo;{decodificarEntidadesHtml(resultadoAudio.transcricaoAproximada)}&rdquo;
                         </span>
                       )}
                     </div>
@@ -707,7 +708,7 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
                           Feedback Pedagógico
                         </span>
                         <p className="font-medium leading-relaxed">
-                          {feedbackPedagogico}
+                          {decodificarEntidadesHtml(feedbackPedagogico)}
                         </p>
                       </div>
                     </motion.div>

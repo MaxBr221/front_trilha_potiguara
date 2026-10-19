@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Mic, Square, Loader2, Sparkles, Volume2, AlertCircle, RotateCcw, VolumeX } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Exercicio, ValidacaoAudioResponse, servicoExercicio } from '@/services/servicoExercicio';
+import { Exercicio, ValidacaoAudioResponse, servicoExercicio, decodificarEntidadesHtml } from '@/services/servicoExercicio';
 
 interface PronunciaExercicioProps {
   exercicio: Exercicio;
@@ -12,6 +12,7 @@ interface PronunciaExercicioProps {
   isValidating?: boolean;
   isAnswered?: boolean;
   validationResult?: ValidacaoAudioResponse | null;
+  exibirDetalhesCard?: boolean;
 }
 
 export function PronunciaExercicio({
@@ -21,6 +22,7 @@ export function PronunciaExercicio({
   isValidating = false,
   isAnswered = false,
   validationResult = null,
+  exibirDetalhesCard = true,
 }: PronunciaExercicioProps) {
   const [gravando, setGravando] = useState(false);
   const [segundos, setSegundos] = useState(0);
@@ -398,8 +400,8 @@ export function PronunciaExercicio({
           </motion.div>
         )}
 
-        {/* Detalhes da Avaliação (Precisão e Transcrição Aproximada) */}
-        {validationResult && (
+        {/* Detalhes da Avaliação (Ocultável se o rodapé já exibir para evitar duplicação) */}
+        {exibirDetalhesCard && validationResult && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
