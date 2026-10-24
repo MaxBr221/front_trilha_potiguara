@@ -4,8 +4,9 @@
 import { use, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { X, Check, Flag, Loader2, Info, Lightbulb, Trophy, Sparkles } from 'lucide-react';
+import { X, Check, Flag, Loader2, Info, Lightbulb, Trophy, Sparkles, Zap, Target, Clock, CheckCircle2, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Confetti from 'react-confetti';
 import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
 import { Button } from '@/components/ui/Button';
 import { PalavrasEnsino } from '@/components/features/PalavrasEnsino';
@@ -28,6 +29,27 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
   const [exerciciosAcertados, setExerciciosAcertados] = useState(0);
   const [xpGanhoTotal, setXpGanhoTotal] = useState(0);
   const [mostrarModalCadastro, setMostrarModalCadastro] = useState(false);
+  const [licaoConcluida, setLicaoConcluida] = useState(false);
+  const [salvandoProgresso, setSalvandoProgresso] = useState(false);
+  const [progressoSalvo, setProgressoSalvo] = useState(false);
+  const [tempoGastoSegundos, setTempoGastoSegundos] = useState(0);
+  const tempoInicioRef = useRef<number>(Date.now());
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (fase === 'EXERCICIOS') {
+      tempoInicioRef.current = Date.now();
+    }
+  }, [fase]);
   
   const [carregando, setCarregando] = useState(true);
   const [validando, setValidando] = useState(false);
@@ -97,6 +119,18 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
       console.error('Erro ao buscar trilha da licao', e);
     }
     window.location.href = '/dashboard';
+  };
+
+  const handleContinuar = async () => {
+    setSaindo(true);
+    if (salvandoProgresso) {
+      try {
+        await servicoExercicio.concluirLicao(id);
+      } catch (e) {
+        console.error('Erro ao sincronizar lição antes de sair', e);
+      }
+    }
+    await handleExit();
   };
   
 
@@ -269,10 +303,22 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
       // Checa a condição com o tamanho atualizado
       if (exercicios.length <= 1) {
         sons.conclusao();
+        const tempoTotal = Math.max(1, Math.floor((Date.now() - tempoInicioRef.current) / 1000));
+        setTempoGastoSegundos(tempoTotal);
+        setLicaoConcluida(true);
+
         if (isAuthenticated) {
-          setValidando(true);
-          await servicoExercicio.concluirLicao(id);
-          await handleExit();
+          setSalvandoProgresso(true);
+          servicoExercicio.concluirLicao(id)
+            .then(() => {
+              setProgressoSalvo(true);
+            })
+            .catch(err => {
+              console.error('Erro ao registrar conclusão da lição:', err);
+            })
+            .finally(() => {
+              setSalvandoProgresso(false);
+            });
         } else {
           setMostrarModalCadastro(true);
         }
@@ -303,60 +349,213 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
     );
   }
 
-  if (!exercicioAtual && fase === 'EXERCICIOS') {
-    if (validando || saindo) {
+  if ((!exercicioAtual && fase === 'EXERCICIOS') || licaoConcluida) {
+    if (!licaoConcluida && saindo) {
       return (
         <div className="h-dvh w-screen flex flex-col items-center justify-center gap-4 bg-stone-50 dark:bg-stone-950">
           <Loader2 className="w-10 h-10 animate-spin text-primary" />
-          <p className="text-stone-600 dark:text-stone-300 font-medium">Salvando seu progresso...</p>
+          <p className="text-stone-600 dark:text-stone-300 font-medium">Voltando para a trilha...</p>
         </div>
       );
     }
 
-    if (totalExercicios > 0 && mostrarModalCadastro) {
+    if (licaoConcluida || (!exercicioAtual && totalExercicios > 0)) {
+      const totalErros = Object.values(errosExercicio).reduce((acc, curr) => acc + curr, 0);
+      const precisao = totalExercicios > 0
+        ? Math.max(10, Math.round((totalExercicios / (totalExercicios + totalErros)) * 100))
+        : 100;
+      const minutos = Math.floor(tempoGastoSegundos / 60);
+      const segundos = tempoGastoSegundos % 60;
+      const tempoFormatado = minutos > 0 
+        ? `${minutos}m ${segundos < 10 ? '0' : ''}${segundos}s` 
+        : `${segundos}s`;
+      const xpFinal = xpGanhoTotal > 0 ? xpGanhoTotal : (totalExercicios * 15);
+
       return (
-        <div className="h-dvh w-screen flex items-center justify-center p-4 bg-stone-50 dark:bg-stone-950">
-          <div className="bg-white dark:bg-stone-900 rounded-3xl shadow-xl border border-stone-200 dark:border-stone-800 w-full max-w-md overflow-hidden flex flex-col text-center">
-            <div className="p-8">
-              <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Trophy className="w-10 h-10" />
+        <div className="relative min-h-dvh w-screen flex flex-col items-center justify-between p-4 md:p-8 bg-stone-50 dark:bg-stone-950 overflow-x-hidden selection:bg-none">
+          {windowSize.width > 0 && (
+            <Confetti
+              width={windowSize.width}
+              height={windowSize.height}
+              recycle={false}
+              numberOfPieces={350}
+              gravity={0.2}
+            />
+          )}
+
+          {/* Header com status de sincronização */}
+          <div className="w-full max-w-lg flex justify-end pt-2">
+            {isAuthenticated && (
+              <div className="inline-flex items-center gap-2 text-xs font-semibold px-3.5 py-1.5 rounded-full border border-stone-200 dark:border-stone-800 bg-white/70 dark:bg-stone-900/70 backdrop-blur-sm shadow-xs transition-all">
+                {salvandoProgresso ? (
+                  <span className="flex items-center gap-1.5 text-stone-500 dark:text-stone-400">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-500" />
+                    Salvando progresso...
+                  </span>
+                ) : progressoSalvo ? (
+                  <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    Progresso sincronizado!
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5 text-stone-500 dark:text-stone-400">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-stone-400" />
+                    Pronto para continuar
+                  </span>
+                )}
               </div>
-              <h2 className="text-2xl font-bold text-stone-800 dark:text-stone-100 mb-2">Excelente trabalho!</h2>
-              <p className="text-stone-600 dark:text-stone-300 mb-6">
-                Você mandou muito bem. Crie um perfil agora mesmo para salvar seu progresso e não perder esses pontos!
+            )}
+          </div>
+
+          {/* Conteúdo Central Comemorativo Estilo Duolingo */}
+          <div className="flex-1 flex flex-col items-center justify-center w-full max-w-lg text-center py-4">
+            <motion.div
+              initial={{ scale: 0, rotate: -25 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: 'spring', stiffness: 220, damping: 14 }}
+              className="relative mb-6"
+            >
+              <div className="absolute inset-0 bg-amber-400/25 blur-3xl rounded-full scale-150 animate-pulse" />
+              <div className="relative w-28 h-28 md:w-32 md:h-32 bg-gradient-to-tr from-amber-400 to-amber-200 dark:from-amber-500 dark:to-yellow-300 rounded-full flex items-center justify-center shadow-xl shadow-amber-500/20 border-4 border-white dark:border-stone-900">
+                <Trophy className="w-14 h-14 md:w-16 md:h-16 text-amber-900 dark:text-amber-950 fill-amber-900/10" />
+              </div>
+              <motion.div 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.3 }}
+                className="absolute -top-1 -right-1 bg-yellow-400 text-yellow-950 p-2 rounded-full shadow-md"
+              >
+                <Sparkles className="w-5 h-5 fill-yellow-950" />
+              </motion.div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <span className="inline-block px-3.5 py-1 mb-2 text-xs font-black tracking-widest uppercase bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 rounded-full">
+                Katueté! 🎉
+              </span>
+              <h1 className="text-3xl md:text-4xl font-extrabold text-stone-800 dark:text-stone-100 tracking-tight mb-2">
+                Lição Concluída!
+              </h1>
+              <p className="text-sm md:text-base text-stone-600 dark:text-stone-300 max-w-md mx-auto mb-6">
+                Você mandou muito bem e fortaleceu seu domínio da língua Tupi Potiguara!
               </p>
-              
-              <div className="bg-amber-50 dark:bg-amber-900/20 rounded-2xl p-4 mb-8 inline-block w-full">
-                <p className="text-sm text-amber-700 dark:text-amber-400 font-bold mb-1">Recompensas Ganhas</p>
-                <p className="text-3xl font-extrabold text-amber-600 dark:text-amber-500">+{xpGanhoTotal} XP</p>
+            </motion.div>
+
+            {/* Grid com os 3 cards estatísticos clássicos do Duolingo */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35 }}
+              className="grid grid-cols-3 gap-3 md:gap-4 w-full mb-6"
+            >
+              {/* Card XP */}
+              <div className="bg-amber-500/10 dark:bg-amber-950/30 border-2 border-amber-500/20 dark:border-amber-700/40 rounded-2xl p-3 md:p-4 flex flex-col items-center justify-center">
+                <div className="flex items-center gap-1 text-[11px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-1">
+                  <Zap className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                  <span>Total XP</span>
+                </div>
+                <span className="text-2xl md:text-3xl font-black text-amber-600 dark:text-amber-400">
+                  +{xpFinal}
+                </span>
+                <span className="text-[10px] text-amber-600/80 dark:text-amber-400/80 font-medium mt-0.5">
+                  Pontos ganhos
+                </span>
               </div>
-              
-              <div className="flex flex-col gap-3">
+
+              {/* Card Precisão */}
+              <div className="bg-emerald-500/10 dark:bg-emerald-950/30 border-2 border-emerald-500/20 dark:border-emerald-700/40 rounded-2xl p-3 md:p-4 flex flex-col items-center justify-center">
+                <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">
+                  <Target className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>Precisão</span>
+                </div>
+                <span className="text-2xl md:text-3xl font-black text-emerald-600 dark:text-emerald-400">
+                  {precisao}%
+                </span>
+                <span className="text-[10px] text-emerald-600/80 dark:text-emerald-400/80 font-medium mt-0.5">
+                  {precisao >= 90 ? 'Incrível!' : precisao >= 70 ? 'Muito bom!' : 'Praticando!'}
+                </span>
+              </div>
+
+              {/* Card Tempo */}
+              <div className="bg-sky-500/10 dark:bg-sky-950/30 border-2 border-sky-500/20 dark:border-sky-700/40 rounded-2xl p-3 md:p-4 flex flex-col items-center justify-center">
+                <div className="flex items-center gap-1 text-[11px] font-bold text-sky-700 dark:text-sky-400 uppercase tracking-wider mb-1">
+                  <Clock className="w-3.5 h-3.5 text-sky-500" />
+                  <span>Tempo</span>
+                </div>
+                <span className="text-xl md:text-2xl font-black text-sky-600 dark:text-sky-400">
+                  {tempoFormatado}
+                </span>
+                <span className="text-[10px] text-sky-600/80 dark:text-sky-400/80 font-medium mt-0.5">
+                  {tempoGastoSegundos < 120 ? 'Rápido!' : 'Foco total!'}
+                </span>
+              </div>
+            </motion.div>
+
+            {/* Mensagem de incentivo se não estiver logado */}
+            {!isAuthenticated && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.45 }}
+                className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-2xl p-4 text-xs md:text-sm text-stone-700 dark:text-stone-300 w-full mb-4"
+              >
+                Crie um perfil para <strong>salvar esses pontos</strong>, manter sua ofensiva diária e acompanhar sua evolução na trilha!
+              </motion.div>
+            )}
+          </div>
+
+          {/* Footer com Botões de Ação */}
+          <div className="w-full max-w-lg pb-4 pt-2">
+            {isAuthenticated ? (
+              <Button
+                size="lg"
+                disabled={saindo}
+                onClick={handleContinuar}
+                className="w-full h-14 text-lg font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl shadow-lg shadow-emerald-600/25 transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
+              >
+                {saindo ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                    <span>Carregando trilha...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Continuar</span>
+                    <ArrowRight className="w-5 h-5 ml-1" />
+                  </>
+                )}
+              </Button>
+            ) : (
+              <div className="flex flex-col gap-3 w-full">
                 <Button 
                   size="lg" 
-                  className="w-full font-bold text-lg"
+                  className="w-full h-14 text-base font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl shadow-lg shadow-emerald-600/25"
                   onClick={() => {
                     localStorage.setItem('pendingLessonCompletion', String(id));
-                    localStorage.setItem('pendingLessonXP', String(xpGanhoTotal));
+                    localStorage.setItem('pendingLessonXP', String(xpFinal));
                     router.push('/cadastro');
                   }}
                 >
-                  Criar Conta
+                  Criar Conta e Salvar Progresso
                 </Button>
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="w-full font-bold"
+                  className="w-full h-12 text-base font-bold rounded-2xl border-stone-300 dark:border-stone-700"
                   onClick={() => {
                     localStorage.setItem('pendingLessonCompletion', String(id));
-                    localStorage.setItem('pendingLessonXP', String(xpGanhoTotal));
+                    localStorage.setItem('pendingLessonXP', String(xpFinal));
                     router.push('/login');
                   }}
                 >
-                  Entrar
+                  Já tenho conta (Entrar)
                 </Button>
               </div>
-            </div>
+            )}
           </div>
         </div>
       );
