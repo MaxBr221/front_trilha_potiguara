@@ -4,7 +4,7 @@
 import { use, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { X, Check, Flag, Loader2, Info, Lightbulb, Trophy, Sparkles, Zap, Target, Clock, CheckCircle2, ArrowRight } from 'lucide-react';
+import { X, Check, Flag, Loader2, Info, Lightbulb, Trophy, Sparkles, Zap, Target, Clock, CheckCircle2, ArrowRight, VolumeX } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Confetti from 'react-confetti';
 import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
@@ -35,6 +35,9 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
   const [tempoGastoSegundos, setTempoGastoSegundos] = useState(0);
   const tempoInicioRef = useRef<number>(Date.now());
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+  const [avisoFalaDesativada, setAvisoFalaDesativada] = useState(false);
+  const trilhaIdRef = useRef<string | null>(null);
+  const salvarPromiseRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -50,6 +53,27 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
       tempoInicioRef.current = Date.now();
     }
   }, [fase]);
+
+  useEffect(() => {
+    let cancelado = false;
+    (async () => {
+      try {
+        const { servicoTrilha } = await import('@/services/servicoTrilha');
+        const trilhas = await servicoTrilha.obterTrilhas();
+        for (const t of trilhas) {
+          if (cancelado) break;
+          const modulos = await servicoTrilha.obterModulosPorIdTrilha(t.id);
+          if (modulos.some(m => m.lessons.some(l => String(l.id) === String(id)))) {
+            trilhaIdRef.current = String(t.id);
+            break;
+          }
+        }
+      } catch (e) {
+        console.warn('Erro ao pré-carregar trilhaId', e);
+      }
+    })();
+    return () => { cancelado = true; };
+  }, [id]);
   
   const [carregando, setCarregando] = useState(true);
   const [validando, setValidando] = useState(false);
@@ -94,40 +118,40 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
 
   const handleExit = async () => {
     setSaindo(true);
+    if (trilhaIdRef.current) {
+      router.push(`/trilhas/${trilhaIdRef.current}`);
+      return;
+    }
     try {
       const { servicoTrilha } = await import('@/services/servicoTrilha');
       const trilhas = await servicoTrilha.obterTrilhas();
-      let trilhaDaLicaoId = null;
-
       for (const t of trilhas) {
         const modulos = await servicoTrilha.obterModulosPorIdTrilha(t.id);
-        for (const m of modulos) {
-          const temLicao = m.lessons.some(l => String(l.id) === String(id));
-          if (temLicao) {
-            trilhaDaLicaoId = t.id;
-            break;
-          }
+        if (modulos.some(m => m.lessons.some(l => String(l.id) === String(id)))) {
+          trilhaIdRef.current = String(t.id);
+          router.push(`/trilhas/${t.id}`);
+          return;
         }
-        if (trilhaDaLicaoId) break;
-      }
-
-      if (trilhaDaLicaoId) {
-        window.location.href = `/trilhas/${trilhaDaLicaoId}`;
-        return;
       }
     } catch (e) {
       console.error('Erro ao buscar trilha da licao', e);
     }
-    window.location.href = '/dashboard';
+    router.push('/dashboard');
   };
 
   const handleContinuar = async () => {
     setSaindo(true);
-    if (salvandoProgresso) {
+    if (salvarPromiseRef.current) {
+      try {
+        await salvarPromiseRef.current;
+      } catch (e) {
+        console.warn('Erro ao aguardar salvamento da lição:', e);
+      }
+    } else if (salvandoProgresso) {
       try {
         await servicoExercicio.concluirLicao(id);
       } catch (e) {
-        console.error('Erro ao sincronizar lição antes de sair', e);
+        console.warn('Erro ao concluir lição:', e);
       }
     }
     await handleExit();
@@ -269,20 +293,44 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
     setIsChecked(true);
   };
 
-  const handleSkipPronuncia = () => {
-    setExercicios(prev => {
-      const novaFila = [...prev];
-      const exercicioPulado = novaFila.shift();
-      if (exercicioPulado) {
-        novaFila.push(exercicioPulado);
-      }
-      return novaFila;
-    });
+  const handleSkipPronuncia = (desativarTodos = false) => {
+    const filaAtual = [...exercicios];
+    const exercicioPulado = filaAtual.shift();
+
+    const novaFila = desativarTodos
+      ? filaAtual.filter(ex => ex.tipo !== 'PRONUNCIA')
+      : (exercicioPulado ? [...filaAtual, exercicioPulado] : filaAtual);
+
+    setExercicios(novaFila);
     setIsChecked(false);
     setSelectedAnswer(null);
     setIsCorrect(false);
     setResultadoAudio(null);
     setFeedbackPedagogico(null);
+
+    if (desativarTodos) {
+      setAvisoFalaDesativada(true);
+      setTimeout(() => setAvisoFalaDesativada(false), 4500);
+
+      // Se a fila esvaziou após desativar todos os de fala, conclui comemorativamente
+      if (novaFila.length === 0) {
+        sons.conclusao();
+        const tempoTotal = Math.max(1, Math.floor((Date.now() - tempoInicioRef.current) / 1000));
+        setTempoGastoSegundos(tempoTotal);
+        setLicaoConcluida(true);
+
+        if (isAuthenticated) {
+          setSalvandoProgresso(true);
+          const p = servicoExercicio.concluirLicao(id);
+          salvarPromiseRef.current = p;
+          p.then(() => setProgressoSalvo(true))
+           .catch(err => console.error('Erro ao registrar conclusão da lição:', err))
+           .finally(() => setSalvandoProgresso(false));
+        } else {
+          setMostrarModalCadastro(true);
+        }
+      }
+    }
   };
 
   const handleNext = async () => {
@@ -309,16 +357,17 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
 
         if (isAuthenticated) {
           setSalvandoProgresso(true);
-          servicoExercicio.concluirLicao(id)
-            .then(() => {
-              setProgressoSalvo(true);
-            })
-            .catch(err => {
-              console.error('Erro ao registrar conclusão da lição:', err);
-            })
-            .finally(() => {
-              setSalvandoProgresso(false);
-            });
+          const p = servicoExercicio.concluirLicao(id);
+          salvarPromiseRef.current = p;
+          p.then(() => {
+            setProgressoSalvo(true);
+          })
+          .catch(err => {
+            console.error('Erro ao registrar conclusão da lição:', err);
+          })
+          .finally(() => {
+            setSalvandoProgresso(false);
+          });
         } else {
           setMostrarModalCadastro(true);
         }
@@ -570,7 +619,20 @@ export default function LicaoPage({ params }: { params: Promise<{ id: string }> 
   }
 
   return (
-    <div className="min-h-dvh bg-white dark:bg-stone-950 flex flex-col">
+    <div className="min-h-dvh bg-white dark:bg-stone-950 flex flex-col relative">
+      <AnimatePresence>
+        {avisoFalaDesativada && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-stone-900/90 text-white dark:bg-stone-100 dark:text-stone-900 px-4 py-2.5 rounded-2xl shadow-xl flex items-center gap-2.5 text-xs md:text-sm font-semibold border border-stone-700/50 backdrop-blur-md pointer-events-none"
+          >
+            <VolumeX className="w-4 h-4 text-amber-400 shrink-0" />
+            <span>Exercícios de pronúncia desativados nesta lição!</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <header className="h-16 flex items-center px-4 md:px-8 max-w-4xl w-full mx-auto gap-4 relative z-10">
         <button 
           onClick={handleExit}

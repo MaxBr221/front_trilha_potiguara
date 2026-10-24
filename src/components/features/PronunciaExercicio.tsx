@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Mic, Square, Loader2, Sparkles, Volume2, AlertCircle, RotateCcw, VolumeX } from 'lucide-react';
+import { Mic, Square, Loader2, Sparkles, Volume2, AlertCircle, RotateCcw, VolumeX, Keyboard } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Exercicio, ValidacaoAudioResponse, servicoExercicio, decodificarEntidadesHtml } from '@/services/servicoExercicio';
 
 interface PronunciaExercicioProps {
   exercicio: Exercicio;
   onValidated: (resultado: ValidacaoAudioResponse) => void;
-  onSkip?: () => void;
+  onSkip?: (desativarTodos?: boolean) => void;
   isValidating?: boolean;
   isAnswered?: boolean;
   validationResult?: ValidacaoAudioResponse | null;
@@ -30,7 +30,11 @@ export function PronunciaExercicio({
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [enviandoAudio, setEnviandoAudio] = useState(false);
   const [audioNivel, setAudioNivel] = useState<number[]>([15, 25, 40, 20, 35]);
+  const [modoDigitacao, setModoDigitacao] = useState(false);
+  const [textoDigitado, setTextoDigitado] = useState('');
+  const [validandoDigitacao, setValidandoDigitacao] = useState(false);
 
+  const inputDigitacaoRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -234,18 +238,82 @@ export function PronunciaExercicio({
     return `${mins.toString().padStart(2, '0')}:${segs.toString().padStart(2, '0')}`;
   };
 
+  const inserirCaractereDigitado = (caractere: string) => {
+    if (inputDigitacaoRef.current) {
+      const input = inputDigitacaoRef.current;
+      const start = input.selectionStart ?? textoDigitado.length;
+      const end = input.selectionEnd ?? textoDigitado.length;
+      const novoValor = textoDigitado.substring(0, start) + caractere + textoDigitado.substring(end);
+      setTextoDigitado(novoValor);
+      setTimeout(() => {
+        input.focus();
+        const novoCursor = start + caractere.length;
+        input.setSelectionRange(novoCursor, novoCursor);
+      }, 0);
+    } else {
+      setTextoDigitado((prev) => prev + caractere);
+    }
+  };
+
+  const handleValidarDigitado = async () => {
+    if (!textoDigitado.trim() || validandoDigitacao) return;
+    setValidandoDigitacao(true);
+    setErroMicrofone(null);
+
+    try {
+      const resposta = await servicoExercicio.validarExercicio(exercicio.id, textoDigitado.trim());
+      onValidated({
+        correta: resposta.correta,
+        precisao: resposta.correta ? 100 : 0,
+        transcricaoAproximada: textoDigitado.trim(),
+        feedbackPedagogico: resposta.feedbackPedagogico || (resposta.correta ? 'Escrita perfeita!' : 'Atenção à grafia da palavra.'),
+        respostaCorreta: resposta.respostaCorreta || exercicio.respostaCorreta || '',
+        xpGanho: resposta.xpGanho ?? (exercicio.pontuacaoXp || 15),
+        contextoCultural: 'A escrita e a oralidade se complementam no fortalecimento do Tupi!'
+      });
+    } catch (err) {
+      const normalizar = (s: string) => s.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const esperada = exercicio.respostaCorreta || '';
+      const correta = normalizar(textoDigitado) === normalizar(esperada);
+      onValidated({
+        correta,
+        precisao: correta ? 100 : 0,
+        transcricaoAproximada: textoDigitado.trim(),
+        feedbackPedagogico: correta ? 'Escrita correta!' : `A grafia correta é: ${esperada}`,
+        respostaCorreta: esperada,
+        xpGanho: correta ? (exercicio.pontuacaoXp || 15) : 0,
+        contextoCultural: 'A escrita e a oralidade se complementam no fortalecimento do Tupi!'
+      });
+    } finally {
+      setValidandoDigitacao(false);
+    }
+  };
+
   const palavraAlvo = exercicio.respostaCorreta || '';
 
   return (
     <div className="w-full max-w-xl mx-auto flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Título / Enunciado */}
       <div className="w-full text-center mb-6">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 mb-3 border border-emerald-300 dark:border-emerald-800">
-          <Mic className="w-3.5 h-3.5" />
-          Exercício de Pronúncia
+        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3 border ${
+          modoDigitacao 
+            ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border-blue-300 dark:border-blue-800'
+            : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
+        }`}>
+          {modoDigitacao ? (
+            <>
+              <Keyboard className="w-3.5 h-3.5" />
+              Modo Escrita (Silencioso)
+            </>
+          ) : (
+            <>
+              <Mic className="w-3.5 h-3.5" />
+              Exercício de Pronúncia
+            </>
+          )}
         </span>
         <h1 className="text-2xl md:text-3xl font-bold text-stone-800 dark:text-stone-100 leading-snug">
-          {exercicio.enunciado}
+          {modoDigitacao ? 'Escreva em Tupi a frase indicada' : exercicio.enunciado}
         </h1>
       </div>
 
@@ -389,7 +457,7 @@ export function PronunciaExercicio({
                 {onSkip && (
                   <button
                     type="button"
-                    onClick={onSkip}
+                    onClick={() => onSkip()}
                     className="text-xs font-bold underline text-stone-600 dark:text-stone-400 hover:text-stone-800"
                   >
                     Pular este exercício
@@ -441,16 +509,94 @@ export function PronunciaExercicio({
           </motion.div>
         )}
 
-        {/* Botão Opcional: "Não posso falar agora" / "Pular" */}
-        {!isAnswered && !gravando && !enviandoAudio && onSkip && (
-          <button
-            type="button"
-            onClick={onSkip}
-            className="mt-4 px-4 py-2 text-sm font-semibold text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800/60 rounded-xl transition-colors flex items-center gap-2 cursor-pointer"
-          >
-            <VolumeX className="w-4 h-4" />
-            Não posso falar agora
-          </button>
+        {/* Se estiver no Modo Digitação */}
+        {modoDigitacao && !isAnswered ? (
+          <div className="w-full max-w-md flex flex-col items-center gap-4 mt-2">
+            <div className="w-full">
+              <input
+                ref={inputDigitacaoRef}
+                type="text"
+                autoFocus
+                value={textoDigitado}
+                onChange={(e) => setTextoDigitado(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && textoDigitado.trim() && !validandoDigitacao) {
+                    handleValidarDigitado();
+                  }
+                }}
+                disabled={validandoDigitacao}
+                placeholder="Digite a frase em Tupi..."
+                className="w-full p-4 text-center text-lg md:text-xl font-bold rounded-2xl border-2 border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-100 focus:outline-none focus:border-primary shadow-xs transition-colors"
+              />
+            </div>
+
+            {/* Teclado de caracteres especiais Tupi */}
+            <div className="flex flex-wrap gap-1.5 justify-center">
+              {['ã', 'ẽ', 'ĩ', 'õ', 'ũ', 'ỹ', '’'].map((char) => (
+                <button
+                  key={char}
+                  type="button"
+                  onClick={() => inserirCaractereDigitado(char)}
+                  className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 rounded-lg text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors"
+                >
+                  {char}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-3 w-full">
+              <button
+                type="button"
+                onClick={() => setModoDigitacao(false)}
+                className="px-4 py-3 text-sm font-bold text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-xl transition-colors flex items-center justify-center gap-1.5"
+              >
+                <Mic className="w-4 h-4" />
+                Usar Áudio
+              </button>
+              <button
+                type="button"
+                disabled={!textoDigitado.trim() || validandoDigitacao}
+                onClick={handleValidarDigitado}
+                className="flex-1 py-3.5 px-4 bg-primary hover:bg-primary-600 active:bg-primary-700 disabled:opacity-50 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
+              >
+                {validandoDigitacao ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  'Verificar resposta'
+                )}
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {/* Botões Opcionais: "Prefiro digitar" / "Não posso falar agora" */}
+        {!isAnswered && !gravando && !enviandoAudio && (
+          <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+            {!modoDigitacao && (
+              <button
+                type="button"
+                onClick={() => {
+                  setModoDigitacao(true);
+                  setTimeout(() => inputDigitacaoRef.current?.focus(), 100);
+                }}
+                className="px-4 py-2 text-sm font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-stone-800/60 rounded-xl transition-colors flex items-center gap-2 cursor-pointer border border-stone-200 dark:border-stone-800"
+              >
+                <Keyboard className="w-4 h-4" />
+                Prefiro digitar
+              </button>
+            )}
+
+            {onSkip && (
+              <button
+                type="button"
+                onClick={() => onSkip(true)}
+                className="px-4 py-2 text-sm font-semibold text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800/60 rounded-xl transition-colors flex items-center gap-2 cursor-pointer"
+              >
+                <VolumeX className="w-4 h-4" />
+                Não posso falar agora
+              </button>
+            )}
+          </div>
         )}
       </div>
     </div>
