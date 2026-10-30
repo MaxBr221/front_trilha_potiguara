@@ -207,6 +207,23 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
     }
   }, [tempoRestanteVisual, estado?.status]);
 
+  // Auto-avança para REVELAÇÃO se todos os participantes responderam antes do tempo acabar
+  useEffect(() => {
+    if (
+      estado?.status === 'PERGUNTA_ATIVA' &&
+      estado.totalParticipantes > 0 &&
+      estado.totalRespostasRecebidas >= estado.totalParticipantes &&
+      !transicaoBloqueadaRef.current
+    ) {
+      const timeout = setTimeout(() => {
+        if (estadoRef.current?.status === 'PERGUNTA_ATIVA' && !transicaoBloqueadaRef.current) {
+          avancarEtapaRef.current();
+        }
+      }, 800);
+      return () => clearTimeout(timeout);
+    }
+  }, [estado?.status, estado?.totalRespostasRecebidas, estado?.totalParticipantes]);
+
 
 
   // Pular o Placar e ir direto para a Próxima Pergunta de forma atômica
