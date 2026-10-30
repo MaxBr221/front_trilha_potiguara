@@ -51,12 +51,11 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
   // Cronômetro local para animação fluida da barra regressiva na pergunta ativa
   const [tempoRestanteVisual, setTempoRestanteVisual] = useState<number>(20);
 
-  // Avanço automático opcional na tela de revelação
-  const [autoAvancoAtivo, setAutoAvancoAtivo] = useState(false);
-  const [segundosAutoAvanco, setSegundosAutoAvanco] = useState(10);
-
   const estadoRef = useRef<EstadoArenaResponseDTO | null>(null);
   estadoRef.current = estado;
+
+  // Mutex atômico síncrono para evitar chamadas de transição concorrentes e conflitos de corrida
+  const transicaoBloqueadaRef = useRef(false);
 
   // Atualiza dimensões da tela para o Confetti
   useEffect(() => {
@@ -73,15 +72,21 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
     }
   }, []);
 
-  // Polling a cada 1.5s
+  // Polling a cada 1.5s com pausa durante transições
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     let ativo = true;
 
     const fetchEstado = async () => {
+      // Se houver uma transição de tela em andamento, pula o ciclo para evitar sobrescrita com dados obsoletos
+      if (transicaoBloqueadaRef.current) {
+        if (ativo) timeoutId = setTimeout(fetchEstado, 1200);
+        return;
+      }
+
       try {
         const dados = await servicoArena.obterEstado(pin);
-        if (!ativo) return;
+        if (!ativo || transicaoBloqueadaRef.current) return;
 
         // Detecta transição de status para efeitos sonoros
         const statusAnterior = estadoRef.current?.status;
@@ -122,29 +127,38 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
     };
   }, [pin]);
 
-  // Ações do Host
+  // Ações do Host com Bloqueio Atômico
   const avancarEtapa = useCallback(async () => {
-    if (acaoEmAndamento) return;
+    if (transicaoBloqueadaRef.current) return;
+    transicaoBloqueadaRef.current = true;
+    setAcaoEmAndamento(true);
+
     try {
-      setAcaoEmAndamento(true);
       arenaAudio.playClick();
       const novoEstado = await servicoArena.avancarEtapa(pin);
       setEstado(novoEstado);
       if (novoEstado.tempoRestanteSegundos !== null) {
         setTempoRestanteVisual(novoEstado.tempoRestanteSegundos);
+      } else {
+        setTempoRestanteVisual(novoEstado.tempoPerguntaSegundos || 20);
       }
     } catch (err) {
       console.error('Erro ao avançar etapa:', err);
     } finally {
       setAcaoEmAndamento(false);
+      setTimeout(() => {
+        transicaoBloqueadaRef.current = false;
+      }, 500);
     }
-  }, [acaoEmAndamento, pin]);
+  }, [pin]);
 
   // Finaliza a batalha e vai direto para o Pódio Final com react-confetti
   const finalizarPartida = useCallback(async () => {
-    if (acaoEmAndamento) return;
+    if (transicaoBloqueadaRef.current) return;
+    transicaoBloqueadaRef.current = true;
+    setAcaoEmAndamento(true);
+
     try {
-      setAcaoEmAndamento(true);
       arenaAudio.playFanfare();
       const estadoFinal = await servicoArena.encerrar(pin);
       setEstado(estadoFinal);
@@ -152,22 +166,22 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
       console.error('Erro ao finalizar partida:', err);
     } finally {
       setAcaoEmAndamento(false);
+      setTimeout(() => {
+        transicaoBloqueadaRef.current = false;
+      }, 500);
     }
-  }, [acaoEmAndamento, pin]);
+  }, [pin]);
 
   const avancarEtapaRef = useRef(avancarEtapa);
   avancarEtapaRef.current = avancarEtapa;
 
-  // Contagem regressiva suave na pergunta ativa: quando atinge 0, avança automaticamente para REVELACAO!
+  // Contagem regressiva suave na pergunta ativa
   useEffect(() => {
     if (estado?.status !== 'PERGUNTA_ATIVA') return;
 
     const interval = setInterval(() => {
       setTempoRestanteVisual((prev) => {
         if (prev <= 1) {
-          clearInterval(interval);
-          // O tempo acabou! Auto-encerra a pergunta e revela a resposta para toda a sala
-          avancarEtapaRef.current();
           return 0;
         }
         if (prev <= 5) {
@@ -180,77 +194,70 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
     return () => clearInterval(interval);
   }, [estado?.status, estado?.perguntaAtualIndex]);
 
+  // Quando o cronômetro bate 0, avança automaticamente para REVELACAO de forma segura
+  useEffect(() => {
+    if (
+      estado?.status === 'PERGUNTA_ATIVA' &&
+      tempoRestanteVisual === 0 &&
+      !transicaoBloqueadaRef.current
+    ) {
+      avancarEtapaRef.current();
+    }
+  }, [tempoRestanteVisual, estado?.status]);
+
   // Auto-avança para REVELAÇÃO se todos os participantes responderam antes do tempo acabar
   useEffect(() => {
     if (
       estado?.status === 'PERGUNTA_ATIVA' &&
       estado.totalParticipantes > 0 &&
       estado.totalRespostasRecebidas >= estado.totalParticipantes &&
-      !acaoEmAndamento
+      !transicaoBloqueadaRef.current
     ) {
       const timeout = setTimeout(() => {
-        avancarEtapaRef.current();
-      }, 1000);
+        if (estadoRef.current?.status === 'PERGUNTA_ATIVA' && !transicaoBloqueadaRef.current) {
+          avancarEtapaRef.current();
+        }
+      }, 800);
       return () => clearTimeout(timeout);
     }
-  }, [estado?.status, estado?.totalRespostasRecebidas, estado?.totalParticipantes, acaoEmAndamento]);
+  }, [estado?.status, estado?.totalRespostasRecebidas, estado?.totalParticipantes]);
 
-  // Contagem regressiva para avanço automático na tela de REVELAÇÃO
-  useEffect(() => {
-    if (estado?.status !== 'REVELACAO' || !autoAvancoAtivo) {
-      setSegundosAutoAvanco(10);
-      return;
-    }
+  // Pular o Placar e ir direto para a Próxima Pergunta de forma atômica
+  const pularDiretoProximaQuestao = useCallback(async () => {
+    if (transicaoBloqueadaRef.current) return;
 
-    const interval = setInterval(() => {
-      setSegundosAutoAvanco((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          const ehUltima = (estadoRef.current?.perguntaAtualIndex || 0) + 1 >= (estadoRef.current?.totalQuestoes || 0);
-          if (ehUltima) {
-            finalizarPartida();
-          } else {
-            avancarEtapaRef.current();
-          }
-          return 10;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    const totalQAtual = estadoRef.current?.totalQuestoes || 1;
+    const indexAtual = estadoRef.current?.perguntaAtualIndex || 1;
+    const ehUltima = indexAtual >= totalQAtual;
 
-    return () => clearInterval(interval);
-  }, [estado?.status, autoAvancoAtivo, estado?.perguntaAtualIndex, finalizarPartida]);
-
-  // Pular o Placar e ir direto para a Próxima Pergunta (sem flash visual do placar)
-  const pularDiretoProximaQuestao = async () => {
-    if (acaoEmAndamento) return;
-
-    // Se já é a última questão (ou além dela), encerra e vai para o pódio final
-    const ehUltimaQuestao = (estado?.perguntaAtualIndex || 0) + 1 >= (estado?.totalQuestoes || 0);
-    if (ehUltimaQuestao) {
+    if (ehUltima) {
       return finalizarPartida();
     }
 
     try {
+      transicaoBloqueadaRef.current = true;
       setAcaoEmAndamento(true);
       setPulandoDireto(true);
       arenaAudio.playClick();
 
-      // Primeiro avanço: REVELACAO -> PLACAR
-      await servicoArena.avancarEtapa(pin);
-      // Segundo avanço: PLACAR -> PERGUNTA_ATIVA
-      const novoEstado = await servicoArena.avancarEtapa(pin);
+      // Chamada única e atômica para pular diretamente para a próxima questão
+      const novoEstado = await servicoArena.pularParaProximaQuestao(pin);
       setEstado(novoEstado);
       if (novoEstado.tempoRestanteSegundos !== null) {
         setTempoRestanteVisual(novoEstado.tempoRestanteSegundos);
+      } else {
+        setTempoRestanteVisual(novoEstado.tempoPerguntaSegundos || 20);
       }
     } catch (err) {
       console.error('Erro ao pular direto para próxima questão:', err);
     } finally {
       setAcaoEmAndamento(false);
       setPulandoDireto(false);
+      setTimeout(() => {
+        transicaoBloqueadaRef.current = false;
+      }, 500);
     }
-  };
+  }, [pin, finalizarPartida]);
 
   const encerrarPartidaManual = async () => {
     try {
@@ -312,10 +319,10 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
     estado?.traducaoPtBr
   );
 
-  // Número da questão formatado e protegido contra overflow (ex: nunca mostra Questão 11 de 10)
+  // Número da questão formatado (no backend perguntaAtualIndex já é 1-indexed: 1, 2, ..., N)
   const totalQ = estado?.totalQuestoes || 1;
-  const questaoNumeroVisual = Math.min((estado?.perguntaAtualIndex || 0) + 1, totalQ);
-  const ehUltimaQuestao = (estado?.perguntaAtualIndex || 0) + 1 >= totalQ;
+  const questaoNumeroVisual = Math.min(Math.max(1, estado?.perguntaAtualIndex || 1), totalQ);
+  const ehUltimaQuestao = (estado?.perguntaAtualIndex || 1) >= totalQ;
 
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col select-none overflow-x-hidden font-sans relative">
@@ -623,33 +630,16 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
         {/* ======================================================== */}
         {estado?.status === 'REVELACAO' && (
           <div className="space-y-6 max-w-5xl mx-auto w-full">
-            {/* Topo Limpo: Indicador da Questão + Toggle de Avanço Automático Opcional */}
+            {/* Topo: Indicador da Questão */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="px-4 py-1.5 rounded-xl bg-stone-900 border border-stone-800 text-emerald-400 font-extrabold text-sm">
                   Resultado da Questão {questaoNumeroVisual} de {totalQ}
                 </span>
                 <span className="text-xs text-stone-400 font-medium hidden sm:inline">
-                  {estado.totalRespostasRecebidas} respostas recebidas
+                  {estado.totalRespostasRecebidas} {estado.totalRespostasRecebidas === 1 ? 'resposta recebida' : 'respostas recebidas'}
                 </span>
               </div>
-
-              {/* Controle de Avanço Automático Opcional */}
-              <button
-                type="button"
-                onClick={() => setAutoAvancoAtivo(!autoAvancoAtivo)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-2 cursor-pointer ${
-                  autoAvancoAtivo
-                    ? 'bg-amber-500/20 border-amber-500/50 text-amber-300'
-                    : 'bg-stone-900 border-stone-800 text-stone-400 hover:text-stone-300'
-                }`}
-                title="Ativar ou desativar avanço automático de tela"
-              >
-                <Clock className="w-3.5 h-3.5" />
-                <span>
-                  {autoAvancoAtivo ? `Avanço auto ativo (${segundosAutoAvanco}s)` : 'Avanço manual'}
-                </span>
-              </button>
             </div>
 
             {/* Enunciado */}
@@ -755,26 +745,14 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
               </motion.div>
             )}
 
-            {/* BARRA DE AÇÕES INFERIOR: REPOSICIONADA COM AMBAS AS OPÇÕES */}
+            {/* BARRA DE AÇÕES INFERIOR */}
             <div className="pt-4 border-t border-stone-800 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-xs text-stone-400">
-                {autoAvancoAtivo ? (
-                  <div className="flex items-center gap-2 text-amber-300 font-semibold">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
-                    <span>Avançando automaticamente em <strong>{segundosAutoAvanco}s</strong>...</span>
-                    <button
-                      type="button"
-                      onClick={() => setAutoAvancoAtivo(false)}
-                      className="underline text-stone-300 hover:text-white ml-2 font-bold cursor-pointer"
-                    >
-                      Pausar
-                    </button>
-                  </div>
-                ) : (
-                  <span className="text-stone-500">
-                    O professor no comando: veja o placar da rodada ou avance direto para a próxima etapa.
-                  </span>
-                )}
+                <span className="text-stone-400">
+                  {ehUltimaQuestao
+                    ? 'Última questão concluída! Veja o placar geral ou abra o grande pódio final.'
+                    : 'Veja o placar com ranking dos guerreiros ou avance diretamente para a próxima questão.'}
+                </span>
               </div>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto justify-end">

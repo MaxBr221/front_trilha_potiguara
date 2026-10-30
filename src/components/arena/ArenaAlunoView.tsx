@@ -362,7 +362,7 @@ export function ArenaAlunoView({ pinParam }: ArenaAlunoViewProps) {
     opcaoEscolhidaLocal !== null || Boolean(estado?.meuStatus?.jaRespondeuEstaQuestao);
 
   const totalQuestoesVisual = estado?.totalQuestoes || 1;
-  const questaoNumeroAluno = Math.min((estado?.perguntaAtualIndex || 0) + 1, totalQuestoesVisual);
+  const questaoNumeroAluno = Math.min(Math.max(1, estado?.perguntaAtualIndex || 1), totalQuestoesVisual);
 
   return (
     <div className="min-h-screen bg-stone-950 text-white flex flex-col font-sans select-none relative overflow-x-hidden">

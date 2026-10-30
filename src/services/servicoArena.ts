@@ -118,6 +118,17 @@ export const servicoArena = {
     return res.data;
   },
 
+  async pularParaProximaQuestao(pin: string): Promise<EstadoArenaResponseDTO> {
+    try {
+      const res = await api.post<EstadoArenaResponseDTO>(`/arena/${pin}/pular-para-proxima`);
+      return res.data;
+    } catch {
+      // Fallback gracioso caso o backend em deploy ainda não tenha a nova rota
+      const res = await api.post<EstadoArenaResponseDTO>(`/arena/${pin}/avancar`);
+      return res.data;
+    }
+  },
+
   async responder(pin: string, dados: ResponderArenaRequestDTO): Promise<{ registrado: boolean; totalRespostasNestaQuestao: number }> {
     const res = await api.post(`/arena/${pin}/responder`, dados);
     return res.data;
