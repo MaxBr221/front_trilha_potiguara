@@ -1,4 +1,4 @@
-// Utilitário de Efeitos Sonoros usando Web Audio API
+// Utilitário de Efeitos Sonoros usando Web Audio API e Síntese de Voz Tupi
 class ArenaAudioManager {
   private ctx: AudioContext | null = null;
   private muted: boolean = false;
@@ -145,19 +145,89 @@ class ArenaAudioManager {
     }
   }
 
-  public falarTexto(texto: string) {
+  /**
+   * Reproduz a pronúncia em TUPI com os mesmos mapeamentos fonéticos e regras
+   * de dicção utilizados no Dicionário da plataforma.
+   */
+  public tocarAudioTupi(palavraTupi: string) {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    if (!palavraTupi || !palavraTupi.trim()) return;
+
     try {
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(texto);
-      utterance.lang = 'pt-BR';
-      utterance.rate = 0.9;
-      window.speechSynthesis.speak(utterance);
+
+      // Normaliza caracteres Unicode compostos e minúsculas
+      let palavraSanitizada = palavraTupi.normalize('NFC').toLowerCase();
+
+      // Remove colchetes de fonética ex: "[tesá]" -> "tesá"
+      palavraSanitizada = palavraSanitizada.replace(/[\[\]]/g, '');
+
+      // Remove pontuações indesejadas e símbolos que fariam o leitor falar os nomes deles
+      palavraSanitizada = palavraSanitizada.replace(/[/\\;:=(?)²!.]/g, ' ');
+
+      // Remove o apóstrofo, hífen e pontuações que forçam pausas no motor de voz
+      palavraSanitizada = palavraSanitizada.replace(/['´`\-]/g, '');
+
+      // Mapeamento fonético para a voz em pt-BR pronunciar corretamente os sons e vogais do Tupi
+      palavraSanitizada = palavraSanitizada
+        .replace(/ï|i\u0308/g, 'i') // Trata trema (ï) para evitar que o mobile soletre letra por letra
+        .replace(/ĩ|i\u0303/g, 'in')
+        .replace(/ẽ|e\u0303/g, 'en')
+        .replace(/ũ|u\u0303/g, 'un')
+        .replace(/ỹ|y\u0303/g, 'in')
+        .replace(/ŷ|ý|y/g, 'i')
+        .replace(/î/g, 'i')
+        .replace(/û/g, 'u')
+        .replace(/ô/g, 'o')
+        .replace(/ñ/g, 'nh')
+        .replace(/x/g, 'ch')
+        // Consoantes pré-nasalizadas no início de palavras que não existem na fonotática do pt-BR:
+        .replace(/\bnde\b/g, 'ne')
+        .replace(/\bnd([aeiou])/g, 'n$1')
+        .replace(/\bmb/g, 'b');
+
+      palavraSanitizada = palavraSanitizada.replace(/\s+/g, ' ').trim();
+
+      const fala = new SpeechSynthesisUtterance(palavraSanitizada);
+      fala.lang = 'pt-BR';
+
+      const vozes = window.speechSynthesis.getVoices();
+      const vozesPtBr = vozes.filter(
+        (v) => v.lang.includes('pt-BR') || v.lang.includes('pt_BR') || v.lang.startsWith('pt')
+      );
+
+      // Tenta encontrar uma voz masculina (Windows: Daniel/Thiago, iOS/Mac: Felipe, Android/Chrome: male)
+      const vozMasculina = vozesPtBr.find(
+        (v) =>
+          /daniel|thiago|julio|antonio|macedo|felipe|male|homem/i.test(v.name) ||
+          /male/i.test(v.voiceURI)
+      );
+
+      if (vozMasculina) {
+        fala.voice = vozMasculina;
+        fala.pitch = 0.95;
+      } else if (vozesPtBr.length > 1) {
+        fala.voice = vozesPtBr[vozesPtBr.length - 1];
+        fala.pitch = 0.9;
+      } else if (vozesPtBr.length === 1) {
+        fala.voice = vozesPtBr[0];
+        fala.pitch = 0.9;
+      } else {
+        fala.pitch = 0.9;
+      }
+
+      // Velocidade cadenciada para boa dicção
+      fala.rate = 0.95;
+
+      window.speechSynthesis.speak(fala);
     } catch {
       // Ignora erro
     }
   }
+
+  public falarTexto(texto: string) {
+    this.tocarAudioTupi(texto);
+  }
 }
 
 export const arenaAudio = new ArenaAudioManager();
-

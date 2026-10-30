@@ -48,8 +48,13 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
   const [modalEncerrarAberto, setModalEncerrarAberto] = useState(false);
   const [windowDimensions, setWindowDimensions] = useState({ width: 1200, height: 800 });
 
-  // Cronômetro local para animação fluida da barra regressiva
+  // Cronômetro local para animação fluida da barra regressiva na pergunta ativa
   const [tempoRestanteVisual, setTempoRestanteVisual] = useState<number>(20);
+
+  // Avanço automático opcional na tela de revelação
+  const [autoAvancoAtivo, setAutoAvancoAtivo] = useState(false);
+  const [segundosAutoAvanco, setSegundosAutoAvanco] = useState(10);
+
   const estadoRef = useRef<EstadoArenaResponseDTO | null>(null);
   estadoRef.current = estado;
 
@@ -117,7 +122,7 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
     };
   }, [pin]);
 
-  // Contagem regressiva suave entre os ciclos de polling
+  // Contagem regressiva suave na pergunta ativa
   useEffect(() => {
     if (estado?.status !== 'PERGUNTA_ATIVA') return;
 
@@ -136,6 +141,27 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
     return () => clearInterval(interval);
   }, [estado?.status, estado?.perguntaAtualIndex]);
 
+  // Contagem regressiva para avanço automático na tela de REVELAÇÃO
+  useEffect(() => {
+    if (estado?.status !== 'REVELACAO' || !autoAvancoAtivo) {
+      setSegundosAutoAvanco(10);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setSegundosAutoAvanco((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          avancarEtapa();
+          return 10;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [estado?.status, autoAvancoAtivo, estado?.perguntaAtualIndex]);
+
   // Ações do Host
   const avancarEtapa = async () => {
     if (acaoEmAndamento) return;
@@ -149,6 +175,27 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
       }
     } catch (err) {
       console.error('Erro ao avançar etapa:', err);
+    } finally {
+      setAcaoEmAndamento(false);
+    }
+  };
+
+  // Pular o Placar e ir direto para a Próxima Pergunta (ou Pódio)
+  const pularDiretoProximaQuestao = async () => {
+    if (acaoEmAndamento) return;
+    try {
+      setAcaoEmAndamento(true);
+      arenaAudio.playClick();
+      // Primeiro avanço: REVELACAO -> PLACAR
+      await servicoArena.avancarEtapa(pin);
+      // Segundo avanço: PLACAR -> PERGUNTA_ATIVA (ou FINALIZADA se for a última questão)
+      const novoEstado = await servicoArena.avancarEtapa(pin);
+      setEstado(novoEstado);
+      if (novoEstado.tempoRestanteSegundos !== null) {
+        setTempoRestanteVisual(novoEstado.tempoRestanteSegundos);
+      }
+    } catch (err) {
+      console.error('Erro ao pular direto para próxima questão:', err);
     } finally {
       setAcaoEmAndamento(false);
     }
@@ -383,7 +430,7 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
               ) : (
                 <div className="flex flex-wrap gap-3">
                   <AnimatePresence>
-                    {estado.ranking.map((aluno, index) => (
+                    {estado.ranking.map((aluno) => (
                       <motion.div
                         key={aluno.id || aluno.apelido}
                         initial={{ scale: 0, opacity: 0 }}
@@ -489,7 +536,7 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
               <button
                 onClick={avancarEtapa}
                 disabled={acaoEmAndamento}
-                className="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-sm md:text-base rounded-xl shadow-lg transition-all border-b-4 border-amber-700 flex items-center gap-2"
+                className="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-sm md:text-base rounded-xl shadow-lg transition-all border-b-4 border-amber-700 flex items-center gap-2 cursor-pointer"
               >
                 {acaoEmAndamento ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Encerrar Tempo / Revelar ⏩'}
               </button>
@@ -498,27 +545,42 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
         )}
 
         {/* ======================================================== */}
-        {/* 3. REVELACAO */}
+        {/* 3. REVELACAO (AJUSTADA: BOTÕES NA PARTE INFERIOR & ÁUDIO EM TUPI) */}
         {/* ======================================================== */}
         {estado?.status === 'REVELACAO' && (
           <div className="space-y-6 max-w-5xl mx-auto w-full">
-            {/* Cabeçalho */}
+            {/* Topo Limpo: Indicador da Questão + Toggle de Avanço Automático Opcional */}
             <div className="flex items-center justify-between">
-              <span className="px-4 py-1 rounded-xl bg-stone-800 text-stone-300 font-extrabold text-sm">
-                Resultado da Questão {estado.perguntaAtualIndex + 1}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="px-4 py-1.5 rounded-xl bg-stone-900 border border-stone-800 text-emerald-400 font-extrabold text-sm">
+                  Resultado da Questão {estado.perguntaAtualIndex + 1} de {estado.totalQuestoes}
+                </span>
+                <span className="text-xs text-stone-400 font-medium hidden sm:inline">
+                  {estado.totalRespostasRecebidas} respostas recebidas
+                </span>
+              </div>
+
+              {/* Controle de Avanço Automático Opcional */}
               <button
-                onClick={avancarEtapa}
-                disabled={acaoEmAndamento}
-                className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-base rounded-xl shadow-lg border-b-4 border-emerald-800 transition-all flex items-center gap-2"
+                type="button"
+                onClick={() => setAutoAvancoAtivo(!autoAvancoAtivo)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-2 cursor-pointer ${
+                  autoAvancoAtivo
+                    ? 'bg-amber-500/20 border-amber-500/50 text-amber-300'
+                    : 'bg-stone-900 border-stone-800 text-stone-400 hover:text-stone-300'
+                }`}
+                title="Ativar ou desativar avanço automático de tela"
               >
-                Ver Placar Geral <ArrowRight className="w-5 h-5" />
+                <Clock className="w-3.5 h-3.5" />
+                <span>
+                  {autoAvancoAtivo ? `Avanço auto ativo (${segundosAutoAvanco}s)` : 'Avanço manual'}
+                </span>
               </button>
             </div>
 
             {/* Enunciado */}
-            <div className="bg-stone-900 border border-stone-800 p-6 rounded-2xl text-center">
-              <h2 className="text-xl md:text-2xl font-bold text-stone-200">
+            <div className="bg-stone-900 border border-stone-800 p-6 md:p-8 rounded-2xl text-center shadow-lg">
+              <h2 className="text-xl md:text-3xl font-extrabold text-white">
                 {estado.enunciado}
               </h2>
             </div>
@@ -553,7 +615,7 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
                         </span>
                       </div>
                       {ehCorreta ? (
-                        <span className="px-2.5 py-1 bg-emerald-500 text-stone-950 text-xs font-black rounded-lg flex items-center gap-1">
+                        <span className="px-2.5 py-1 bg-emerald-500 text-stone-950 text-xs font-black rounded-lg flex items-center gap-1 shadow-sm">
                           <CheckCircle2 className="w-4 h-4" /> CORRETA
                         </span>
                       ) : null}
@@ -579,45 +641,111 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
               })}
             </div>
 
-            {/* Destaque Linguístico Cultural (Fonética / Tradução) */}
-            {(estado.fonetica || estado.traducaoPtBr) && (
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-gradient-to-r from-amber-950/40 via-stone-900 to-amber-950/40 border-2 border-amber-600/40 p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4"
-              >
-                <div className="space-y-1 text-center sm:text-left">
-                  <span className="text-xs font-extrabold uppercase tracking-widest text-amber-400 flex items-center justify-center sm:justify-start gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5" /> Sabedoria Ancestral & Pronúncia
-                  </span>
-                  <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-start">
-                    {estado.fonetica && (
-                      <span className="text-lg md:text-xl font-bold font-mono text-emerald-300">
-                        [{estado.fonetica}]
-                      </span>
-                    )}
-                    {estado.traducaoPtBr && (
-                      <span className="text-base text-stone-300">
-                        Tradução: <strong className="text-white">{estado.traducaoPtBr}</strong>
-                      </span>
-                    )}
-                  </div>
-                </div>
+            {/* Destaque Linguístico Cultural (Fonética, Tradução e Áudio em Tupi igual ao Dicionário) */}
+            {(estado.fonetica || estado.traducaoPtBr || estado.respostaCorreta) && (() => {
+              // Extrai a palavra indígena em Tupi para o motor de voz pronunciar
+              const termoTupi = (estado.fonetica ? estado.fonetica.replace(/[\[\]]/g, '').trim() : '') || estado.respostaCorreta || '';
 
+              return (
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-gradient-to-r from-amber-950/40 via-stone-900 to-amber-950/40 border-2 border-amber-600/40 p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg"
+                >
+                  <div className="space-y-1 text-center sm:text-left">
+                    <span className="text-xs font-extrabold uppercase tracking-widest text-amber-400 flex items-center justify-center sm:justify-start gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5" /> Sabedoria Ancestral & Pronúncia em Tupi
+                    </span>
+                    <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-start">
+                      {termoTupi && (
+                        <span className="text-xl md:text-2xl font-black font-mono text-emerald-300">
+                          [{termoTupi}]
+                        </span>
+                      )}
+                      {estado.traducaoPtBr && (
+                        <span className="text-base text-stone-300">
+                          Tradução: <strong className="text-white">{estado.traducaoPtBr}</strong>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (termoTupi) {
+                        arenaAudio.tocarAudioTupi(termoTupi);
+                      }
+                    }}
+                    className="px-5 py-3 bg-amber-500 hover:bg-amber-400 active:translate-y-0.5 text-stone-950 rounded-2xl font-black text-sm flex items-center gap-2.5 shadow-lg border-b-4 border-amber-700 transition-all shrink-0 cursor-pointer"
+                  >
+                    <Volume2 className="w-5 h-5 fill-current" />
+                    <span>Pronunciar em Tupi</span>
+                  </button>
+                </motion.div>
+              );
+            })()}
+
+            {/* BARRA DE AÇÕES INFERIOR: REPOSICIONADA COM AMBAS AS OPÇÕES */}
+            <div className="pt-4 border-t border-stone-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-xs text-stone-400">
+                {autoAvancoAtivo ? (
+                  <div className="flex items-center gap-2 text-amber-300 font-semibold">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
+                    <span>Avançando automaticamente em <strong>{segundosAutoAvanco}s</strong>...</span>
+                    <button
+                      type="button"
+                      onClick={() => setAutoAvancoAtivo(false)}
+                      className="underline text-stone-300 hover:text-white ml-2 font-bold cursor-pointer"
+                    >
+                      Pausar
+                    </button>
+                  </div>
+                ) : (
+                  <span className="text-stone-500">
+                    O professor no comando: veja o placar da rodada ou avance direto para a próxima questão.
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                {/* Botão de Pular Placar / Ir Direto para a Próxima Pergunta */}
                 <button
                   type="button"
-                  onClick={() => {
-                    if (estado.traducaoPtBr || estado.respostaCorreta) {
-                      arenaAudio.falarTexto(estado.traducaoPtBr || estado.respostaCorreta || '');
-                    }
-                  }}
-                  className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 rounded-xl font-bold text-xs md:text-sm flex items-center gap-2 shadow-md transition-all shrink-0"
+                  onClick={pularDiretoProximaQuestao}
+                  disabled={acaoEmAndamento}
+                  className="flex-1 sm:flex-initial px-5 py-3.5 bg-stone-800 hover:bg-stone-700 active:translate-y-0.5 text-stone-200 font-bold text-sm md:text-base rounded-2xl border border-stone-700 shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  title="Pular visualização do ranking e ir direto para a próxima questão"
                 >
-                  <Volume2 className="w-4 h-4" />
-                  Pronunciar com a Sala
+                  {acaoEmAndamento ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      <span>{estado.perguntaAtualIndex + 1 >= estado.totalQuestoes ? 'Ir para Pódio' : 'Próxima Questão'}</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </>
+                  )}
                 </button>
-              </motion.div>
-            )}
+
+                {/* Botão Principal: Ver Placar Geral */}
+                <button
+                  type="button"
+                  onClick={avancarEtapa}
+                  disabled={acaoEmAndamento}
+                  className="flex-1 sm:flex-initial px-7 py-3.5 bg-emerald-600 hover:bg-emerald-500 active:translate-y-0.5 text-white font-black text-sm md:text-base rounded-2xl shadow-xl shadow-emerald-700/30 border-b-4 border-emerald-800 transition-all flex items-center justify-center gap-2.5 cursor-pointer"
+                >
+                  {acaoEmAndamento ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                      <Trophy className="w-5 h-5 text-amber-300" />
+                      <span>Ver Placar Geral</span>
+                      <ArrowRight className="w-5 h-5" />
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -640,7 +768,7 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
               <button
                 onClick={avancarEtapa}
                 disabled={acaoEmAndamento}
-                className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-base rounded-2xl shadow-lg border-b-4 border-emerald-800 transition-all flex items-center gap-2"
+                className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-base rounded-2xl shadow-lg border-b-4 border-emerald-800 transition-all flex items-center gap-2 cursor-pointer"
               >
                 {estado.perguntaAtualIndex + 1 >= estado.totalQuestoes ? (
                   <>
@@ -812,13 +940,13 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
             <div className="pt-6 flex items-center justify-center gap-4">
               <button
                 onClick={() => router.push('/dashboard')}
-                className="px-8 py-3.5 bg-stone-800 hover:bg-stone-700 text-white font-bold rounded-2xl transition-all border border-stone-700"
+                className="px-8 py-3.5 bg-stone-800 hover:bg-stone-700 text-white font-bold rounded-2xl transition-all border border-stone-700 cursor-pointer"
               >
                 Voltar ao Dashboard
               </button>
               <button
                 onClick={() => router.push('/arena/criar')}
-                className="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-2xl transition-all shadow-lg border-b-4 border-emerald-800"
+                className="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-2xl transition-all shadow-lg border-b-4 border-emerald-800 cursor-pointer"
               >
                 Nova Partida 🏹
               </button>
@@ -839,13 +967,13 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
             <div className="flex gap-2 pt-2">
               <button
                 onClick={() => setModalEncerrarAberto(false)}
-                className="flex-1 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold text-sm"
+                className="flex-1 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold text-sm cursor-pointer"
               >
                 Continuar Jogo
               </button>
               <button
                 onClick={encerrarPartida}
-                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm"
+                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm cursor-pointer"
               >
                 Encerrar Sala
               </button>
@@ -856,4 +984,3 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
     </div>
   );
 }
-
