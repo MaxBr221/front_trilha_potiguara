@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useRef, use } from 'react';
+import React, { useEffect, useState, useRef, use, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -15,7 +15,6 @@ import {
   ArrowRight,
   LogOut,
   CheckCircle2,
-  XCircle,
   Copy,
   Check,
   ChevronRight,
@@ -26,7 +25,7 @@ import {
 import { QRCodeSVG } from 'qrcode.react';
 import ReactConfetti from 'react-confetti';
 import { servicoArena, EstadoArenaResponseDTO } from '@/services/servicoArena';
-import { OPCOES_TEMA, TITULOS_PODIO } from '@/utils/arenaTheme';
+import { OPCOES_TEMA, extrairTermosQuestao } from '@/utils/arenaTheme';
 import { arenaAudio } from '@/utils/arenaAudio';
 import { ArcoFlechaIcon, CocarIcon } from '@/components/icons/IndigenousIcons';
 
@@ -40,6 +39,7 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
   const [carregandoInicial, setCarregandoInicial] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
   const [acaoEmAndamento, setAcaoEmAndamento] = useState(false);
+  const [pulandoDireto, setPulandoDireto] = useState(false);
 
   // Estados de Interface
   const [copiado, setCopiado] = useState(false);
@@ -122,48 +122,8 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
     };
   }, [pin]);
 
-  // Contagem regressiva suave na pergunta ativa
-  useEffect(() => {
-    if (estado?.status !== 'PERGUNTA_ATIVA') return;
-
-    const interval = setInterval(() => {
-      setTempoRestanteVisual((prev) => {
-        if (prev <= 1) {
-          return 0;
-        }
-        if (prev <= 5) {
-          arenaAudio.playTick();
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [estado?.status, estado?.perguntaAtualIndex]);
-
-  // Contagem regressiva para avanço automático na tela de REVELAÇÃO
-  useEffect(() => {
-    if (estado?.status !== 'REVELACAO' || !autoAvancoAtivo) {
-      setSegundosAutoAvanco(10);
-      return;
-    }
-
-    const interval = setInterval(() => {
-      setSegundosAutoAvanco((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          avancarEtapa();
-          return 10;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [estado?.status, autoAvancoAtivo, estado?.perguntaAtualIndex]);
-
   // Ações do Host
-  const avancarEtapa = async () => {
+  const avancarEtapa = useCallback(async () => {
     if (acaoEmAndamento) return;
     try {
       setAcaoEmAndamento(true);
@@ -178,17 +138,107 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
     } finally {
       setAcaoEmAndamento(false);
     }
-  };
+  }, [acaoEmAndamento, pin]);
 
-  // Pular o Placar e ir direto para a Próxima Pergunta (ou Pódio)
-  const pularDiretoProximaQuestao = async () => {
+  // Finaliza a batalha e vai direto para o Pódio Final com react-confetti
+  const finalizarPartida = useCallback(async () => {
     if (acaoEmAndamento) return;
     try {
       setAcaoEmAndamento(true);
+      arenaAudio.playFanfare();
+      const estadoFinal = await servicoArena.encerrar(pin);
+      setEstado(estadoFinal);
+    } catch (err) {
+      console.error('Erro ao finalizar partida:', err);
+    } finally {
+      setAcaoEmAndamento(false);
+    }
+  }, [acaoEmAndamento, pin]);
+
+  const avancarEtapaRef = useRef(avancarEtapa);
+  avancarEtapaRef.current = avancarEtapa;
+
+  // Contagem regressiva suave na pergunta ativa: quando atinge 0, avança automaticamente para REVELACAO!
+  useEffect(() => {
+    if (estado?.status !== 'PERGUNTA_ATIVA') return;
+
+    const interval = setInterval(() => {
+      setTempoRestanteVisual((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          // O tempo acabou! Auto-encerra a pergunta e revela a resposta para toda a sala
+          avancarEtapaRef.current();
+          return 0;
+        }
+        if (prev <= 5) {
+          arenaAudio.playTick();
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [estado?.status, estado?.perguntaAtualIndex]);
+
+  // Auto-avança para REVELAÇÃO se todos os participantes responderam antes do tempo acabar
+  useEffect(() => {
+    if (
+      estado?.status === 'PERGUNTA_ATIVA' &&
+      estado.totalParticipantes > 0 &&
+      estado.totalRespostasRecebidas >= estado.totalParticipantes &&
+      !acaoEmAndamento
+    ) {
+      const timeout = setTimeout(() => {
+        avancarEtapaRef.current();
+      }, 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [estado?.status, estado?.totalRespostasRecebidas, estado?.totalParticipantes, acaoEmAndamento]);
+
+  // Contagem regressiva para avanço automático na tela de REVELAÇÃO
+  useEffect(() => {
+    if (estado?.status !== 'REVELACAO' || !autoAvancoAtivo) {
+      setSegundosAutoAvanco(10);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setSegundosAutoAvanco((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          const ehUltima = (estadoRef.current?.perguntaAtualIndex || 0) + 1 >= (estadoRef.current?.totalQuestoes || 0);
+          if (ehUltima) {
+            finalizarPartida();
+          } else {
+            avancarEtapaRef.current();
+          }
+          return 10;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [estado?.status, autoAvancoAtivo, estado?.perguntaAtualIndex, finalizarPartida]);
+
+  // Pular o Placar e ir direto para a Próxima Pergunta (sem flash visual do placar)
+  const pularDiretoProximaQuestao = async () => {
+    if (acaoEmAndamento) return;
+
+    // Se já é a última questão (ou além dela), encerra e vai para o pódio final
+    const ehUltimaQuestao = (estado?.perguntaAtualIndex || 0) + 1 >= (estado?.totalQuestoes || 0);
+    if (ehUltimaQuestao) {
+      return finalizarPartida();
+    }
+
+    try {
+      setAcaoEmAndamento(true);
+      setPulandoDireto(true);
       arenaAudio.playClick();
+
       // Primeiro avanço: REVELACAO -> PLACAR
       await servicoArena.avancarEtapa(pin);
-      // Segundo avanço: PLACAR -> PERGUNTA_ATIVA (ou FINALIZADA se for a última questão)
+      // Segundo avanço: PLACAR -> PERGUNTA_ATIVA
       const novoEstado = await servicoArena.avancarEtapa(pin);
       setEstado(novoEstado);
       if (novoEstado.tempoRestanteSegundos !== null) {
@@ -198,10 +248,11 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
       console.error('Erro ao pular direto para próxima questão:', err);
     } finally {
       setAcaoEmAndamento(false);
+      setPulandoDireto(false);
     }
   };
 
-  const encerrarPartida = async () => {
+  const encerrarPartidaManual = async () => {
     try {
       setAcaoEmAndamento(true);
       await servicoArena.encerrar(pin);
@@ -253,6 +304,19 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
 
   const urlEntrada = typeof window !== 'undefined' ? `${window.location.origin}/arena?pin=${pin}` : `/arena?pin=${pin}`;
 
+  // Extração inteligente do termo em Tupi e tradução em português
+  const { termoTupi, traducaoPt } = extrairTermosQuestao(
+    estado?.enunciado,
+    estado?.respostaCorreta,
+    estado?.fonetica,
+    estado?.traducaoPtBr
+  );
+
+  // Número da questão formatado e protegido contra overflow (ex: nunca mostra Questão 11 de 10)
+  const totalQ = estado?.totalQuestoes || 1;
+  const questaoNumeroVisual = Math.min((estado?.perguntaAtualIndex || 0) + 1, totalQ);
+  const ehUltimaQuestao = (estado?.perguntaAtualIndex || 0) + 1 >= totalQ;
+
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col select-none overflow-x-hidden font-sans relative">
       {/* Fundo com tema de floresta e grafismos sutis */}
@@ -272,6 +336,16 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
           recycle={true}
           gravity={0.15}
         />
+      )}
+
+      {/* Overlay de transição rápida ao pular placar (elimina qualquer bug ou piscada) */}
+      {pulandoDireto && (
+        <div className="fixed inset-0 z-50 bg-stone-950/85 backdrop-blur-sm flex flex-col items-center justify-center gap-3">
+          <Loader2 className="w-10 h-10 animate-spin text-emerald-400" />
+          <span className="text-base font-extrabold text-white tracking-wide">
+            Preparando próxima questão...
+          </span>
+        </div>
       )}
 
       {/* Barra de Controle do Telão */}
@@ -303,7 +377,7 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
           <button
             onClick={toggleMute}
             title={isMuted ? 'Ativar som' : 'Silenciar'}
-            className="p-2 text-stone-300 hover:text-white bg-stone-800 hover:bg-stone-700 rounded-xl transition-all"
+            className="p-2 text-stone-300 hover:text-white bg-stone-800 hover:bg-stone-700 rounded-xl transition-all cursor-pointer"
           >
             {isMuted ? <VolumeX className="w-5 h-5 text-rose-400" /> : <Volume2 className="w-5 h-5 text-emerald-400" />}
           </button>
@@ -311,7 +385,7 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
           <button
             onClick={toggleFullscreen}
             title="Tela Cheia"
-            className="p-2 text-stone-300 hover:text-white bg-stone-800 hover:bg-stone-700 rounded-xl transition-all"
+            className="p-2 text-stone-300 hover:text-white bg-stone-800 hover:bg-stone-700 rounded-xl transition-all cursor-pointer"
           >
             {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
           </button>
@@ -319,7 +393,7 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
           <button
             onClick={() => setModalEncerrarAberto(true)}
             title="Encerrar Partida"
-            className="px-3 py-1.5 text-xs font-bold text-rose-300 bg-rose-950/60 hover:bg-rose-900 border border-rose-800 rounded-xl transition-all flex items-center gap-1.5"
+            className="px-3 py-1.5 text-xs font-bold text-rose-300 bg-rose-950/60 hover:bg-rose-900 border border-rose-800 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span className="hidden md:inline">Encerrar</span>
@@ -361,7 +435,7 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
                     </span>
                     <button
                       onClick={copiarLinkEntrada}
-                      className="p-3 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-xl transition-all"
+                      className="p-3 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-xl transition-all cursor-pointer"
                       title="Copiar Link"
                     >
                       {copiado ? <Check className="w-5 h-5 text-emerald-400" /> : <Copy className="w-5 h-5" />}
@@ -374,7 +448,7 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
                   <button
                     onClick={avancarEtapa}
                     disabled={acaoEmAndamento || (estado.ranking?.length || 0) === 0}
-                    className="w-full sm:w-auto px-8 py-4 bg-emerald-600 hover:bg-emerald-500 active:translate-y-0.5 text-white font-black text-lg rounded-2xl shadow-xl shadow-emerald-700/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all border-b-4 border-emerald-800 flex items-center justify-center gap-3"
+                    className="w-full sm:w-auto px-8 py-4 bg-emerald-600 hover:bg-emerald-500 active:translate-y-0.5 text-white font-black text-lg rounded-2xl shadow-xl shadow-emerald-700/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all border-b-4 border-emerald-800 flex items-center justify-center gap-3 cursor-pointer"
                   >
                     {acaoEmAndamento ? (
                       <Loader2 className="w-6 h-6 animate-spin" />
@@ -461,7 +535,7 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <span className="px-4 py-1.5 rounded-xl bg-emerald-950 text-emerald-400 border border-emerald-800 font-extrabold text-sm md:text-base">
-                  Questão {estado.perguntaAtualIndex + 1} de {estado.totalQuestoes}
+                  Questão {questaoNumeroVisual} de {totalQ}
                 </span>
                 <span className="text-xs text-stone-400 font-semibold hidden sm:inline">
                   {estado.totalRespostasRecebidas} de {estado.totalParticipantes} responderam
@@ -536,7 +610,7 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
               <button
                 onClick={avancarEtapa}
                 disabled={acaoEmAndamento}
-                className="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-sm md:text-base rounded-xl shadow-lg transition-all border-b-4 border-amber-700 flex items-center gap-2 cursor-pointer"
+                className="px-6 py-3 bg-amber-500 hover:bg-amber-400 active:translate-y-0.5 text-stone-950 font-black text-sm md:text-base rounded-xl shadow-lg transition-all border-b-4 border-amber-700 flex items-center gap-2 cursor-pointer"
               >
                 {acaoEmAndamento ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Encerrar Tempo / Revelar ⏩'}
               </button>
@@ -545,7 +619,7 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
         )}
 
         {/* ======================================================== */}
-        {/* 3. REVELACAO (AJUSTADA: BOTÕES NA PARTE INFERIOR & ÁUDIO EM TUPI) */}
+        {/* 3. REVELACAO (COM PRONÚNCIA EM TUPI E BOTÕES REPOSICIONADOS) */}
         {/* ======================================================== */}
         {estado?.status === 'REVELACAO' && (
           <div className="space-y-6 max-w-5xl mx-auto w-full">
@@ -553,7 +627,7 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="px-4 py-1.5 rounded-xl bg-stone-900 border border-stone-800 text-emerald-400 font-extrabold text-sm">
-                  Resultado da Questão {estado.perguntaAtualIndex + 1} de {estado.totalQuestoes}
+                  Resultado da Questão {questaoNumeroVisual} de {totalQ}
                 </span>
                 <span className="text-xs text-stone-400 font-medium hidden sm:inline">
                   {estado.totalRespostasRecebidas} respostas recebidas
@@ -641,50 +715,45 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
               })}
             </div>
 
-            {/* Destaque Linguístico Cultural (Fonética, Tradução e Áudio em Tupi igual ao Dicionário) */}
-            {(estado.fonetica || estado.traducaoPtBr || estado.respostaCorreta) && (() => {
-              // Extrai a palavra indígena em Tupi para o motor de voz pronunciar
-              const termoTupi = (estado.fonetica ? estado.fonetica.replace(/[\[\]]/g, '').trim() : '') || estado.respostaCorreta || '';
-
-              return (
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-gradient-to-r from-amber-950/40 via-stone-900 to-amber-950/40 border-2 border-amber-600/40 p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg"
-                >
-                  <div className="space-y-1 text-center sm:text-left">
-                    <span className="text-xs font-extrabold uppercase tracking-widest text-amber-400 flex items-center justify-center sm:justify-start gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5" /> Sabedoria Ancestral & Pronúncia em Tupi
-                    </span>
-                    <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-start">
-                      {termoTupi && (
-                        <span className="text-xl md:text-2xl font-black font-mono text-emerald-300">
-                          [{termoTupi}]
-                        </span>
-                      )}
-                      {estado.traducaoPtBr && (
-                        <span className="text-base text-stone-300">
-                          Tradução: <strong className="text-white">{estado.traducaoPtBr}</strong>
-                        </span>
-                      )}
-                    </div>
+            {/* Destaque Linguístico Cultural (Pronúncia 100% em Tupi) */}
+            {(termoTupi || traducaoPt) && (
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-gradient-to-r from-amber-950/40 via-stone-900 to-amber-950/40 border-2 border-amber-600/40 p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg"
+              >
+                <div className="space-y-1 text-center sm:text-left">
+                  <span className="text-xs font-extrabold uppercase tracking-widest text-amber-400 flex items-center justify-center sm:justify-start gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" /> Sabedoria Ancestral & Pronúncia em Tupi
+                  </span>
+                  <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-start">
+                    {termoTupi && (
+                      <span className="text-xl md:text-2xl font-black font-mono text-emerald-300">
+                        [{termoTupi}]
+                      </span>
+                    )}
+                    {traducaoPt && (
+                      <span className="text-base text-stone-300">
+                        Tradução: <strong className="text-white">{traducaoPt}</strong>
+                      </span>
+                    )}
                   </div>
+                </div>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (termoTupi) {
-                        arenaAudio.tocarAudioTupi(termoTupi);
-                      }
-                    }}
-                    className="px-5 py-3 bg-amber-500 hover:bg-amber-400 active:translate-y-0.5 text-stone-950 rounded-2xl font-black text-sm flex items-center gap-2.5 shadow-lg border-b-4 border-amber-700 transition-all shrink-0 cursor-pointer"
-                  >
-                    <Volume2 className="w-5 h-5 fill-current" />
-                    <span>Pronunciar em Tupi</span>
-                  </button>
-                </motion.div>
-              );
-            })()}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (termoTupi) {
+                      arenaAudio.tocarAudioTupi(termoTupi);
+                    }
+                  }}
+                  className="px-5 py-3 bg-amber-500 hover:bg-amber-400 active:translate-y-0.5 text-stone-950 rounded-2xl font-black text-sm flex items-center gap-2.5 shadow-lg border-b-4 border-amber-700 transition-all shrink-0 cursor-pointer"
+                >
+                  <Volume2 className="w-5 h-5 fill-current" />
+                  <span>Pronunciar em Tupi</span>
+                </button>
+              </motion.div>
+            )}
 
             {/* BARRA DE AÇÕES INFERIOR: REPOSICIONADA COM AMBAS AS OPÇÕES */}
             <div className="pt-4 border-t border-stone-800 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -703,31 +772,49 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
                   </div>
                 ) : (
                   <span className="text-stone-500">
-                    O professor no comando: veja o placar da rodada ou avance direto para a próxima questão.
+                    O professor no comando: veja o placar da rodada ou avance direto para a próxima etapa.
                   </span>
                 )}
               </div>
 
               <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                {/* Botão de Pular Placar / Ir Direto para a Próxima Pergunta */}
-                <button
-                  type="button"
-                  onClick={pularDiretoProximaQuestao}
-                  disabled={acaoEmAndamento}
-                  className="flex-1 sm:flex-initial px-5 py-3.5 bg-stone-800 hover:bg-stone-700 active:translate-y-0.5 text-stone-200 font-bold text-sm md:text-base rounded-2xl border border-stone-700 shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
-                  title="Pular visualização do ranking e ir direto para a próxima questão"
-                >
-                  {acaoEmAndamento ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <>
-                      <span>{estado.perguntaAtualIndex + 1 >= estado.totalQuestoes ? 'Ir para Pódio' : 'Próxima Questão'}</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
+                {/* Botão de Pular Placar / Ir Direto para a Próxima Pergunta ou Pódio Final */}
+                {ehUltimaQuestao ? (
+                  <button
+                    type="button"
+                    onClick={finalizarPartida}
+                    disabled={acaoEmAndamento}
+                    className="flex-1 sm:flex-initial px-6 py-3.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-stone-950 font-black text-sm md:text-base rounded-2xl shadow-xl shadow-amber-500/20 border-b-4 border-amber-700 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    {acaoEmAndamento ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <>
+                        <Trophy className="w-5 h-5 text-stone-950" />
+                        <span>Ver Pódio Final</span>
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={pularDiretoProximaQuestao}
+                    disabled={acaoEmAndamento}
+                    className="flex-1 sm:flex-initial px-5 py-3.5 bg-stone-800 hover:bg-stone-700 active:translate-y-0.5 text-stone-200 font-bold text-sm md:text-base rounded-2xl border border-stone-700 shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    title="Pular visualização do ranking e ir direto para a próxima questão"
+                  >
+                    {acaoEmAndamento ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <span>Próxima Questão</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                )}
 
-                {/* Botão Principal: Ver Placar Geral */}
+                {/* Botão de Ver Placar Geral da Rodada */}
                 <button
                   type="button"
                   onClick={avancarEtapa}
@@ -750,7 +837,7 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
         )}
 
         {/* ======================================================== */}
-        {/* 4. PLACAR */}
+        {/* 4. PLACAR (CORRIGIDO: FINALIZAÇÃO CORRETA NA ÚLTIMA QUESTÃO) */}
         {/* ======================================================== */}
         {estado?.status === 'PLACAR' && (
           <div className="space-y-6 max-w-4xl mx-auto w-full">
@@ -761,25 +848,42 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
                   Placar dos Guerreiros
                 </h2>
                 <span className="text-xs text-stone-400">
-                  Questão {estado.perguntaAtualIndex + 1} de {estado.totalQuestoes} finalizada
+                  Questão {questaoNumeroVisual} de {totalQ} finalizada
                 </span>
               </div>
 
-              <button
-                onClick={avancarEtapa}
-                disabled={acaoEmAndamento}
-                className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-base rounded-2xl shadow-lg border-b-4 border-emerald-800 transition-all flex items-center gap-2 cursor-pointer"
-              >
-                {estado.perguntaAtualIndex + 1 >= estado.totalQuestoes ? (
-                  <>
-                    Ver Pódio Final <Trophy className="w-5 h-5 text-amber-300" />
-                  </>
-                ) : (
-                  <>
-                    Próxima Questão <ArrowRight className="w-5 h-5" />
-                  </>
-                )}
-              </button>
+              {/* Se for a última questão, chama explicitamente finalizarPartida()! */}
+              {ehUltimaQuestao ? (
+                <button
+                  onClick={finalizarPartida}
+                  disabled={acaoEmAndamento}
+                  className="px-7 py-3.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-stone-950 font-black text-base rounded-2xl shadow-xl shadow-amber-500/25 border-b-4 border-amber-700 transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  {acaoEmAndamento ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                      <span>Ver Pódio Final</span>
+                      <Trophy className="w-5 h-5 text-stone-950" />
+                    </>
+                  )}
+                </button>
+              ) : (
+                <button
+                  onClick={avancarEtapa}
+                  disabled={acaoEmAndamento}
+                  className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-base rounded-2xl shadow-lg border-b-4 border-emerald-800 transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  {acaoEmAndamento ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                      <span>Próxima Questão</span>
+                      <ArrowRight className="w-5 h-5" />
+                    </>
+                  )}
+                </button>
+              )}
             </div>
 
             {/* Lista dos Top 5 Alunos */}
@@ -972,7 +1076,7 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
                 Continuar Jogo
               </button>
               <button
-                onClick={encerrarPartida}
+                onClick={encerrarPartidaManual}
                 className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm cursor-pointer"
               >
                 Encerrar Sala

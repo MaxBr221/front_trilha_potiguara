@@ -91,3 +91,62 @@ export const TITULOS_PODIO = [
   }
 ];
 
+export interface TermosQuestao {
+  termoTupi: string;
+  traducaoPt: string;
+}
+
+/**
+ * Extrai de forma inteligente o termo em Tupi e a tradução em português,
+ * tratando tanto perguntas do tipo "Como se diz 'olho' em Tupi?" quanto
+ * "O que significa a palavra 'gûaîbĩ' em português?".
+ */
+export function extrairTermosQuestao(
+  enunciado: string | null | undefined,
+  respostaCorreta: string | null | undefined,
+  fonetica: string | null | undefined,
+  traducaoPtBr: string | null | undefined
+): TermosQuestao {
+  const textoEnunciado = enunciado || '';
+  const resposta = respostaCorreta || '';
+  const foneticaLimpa = fonetica ? fonetica.replace(/[\[\]]/g, '').trim() : '';
+  const traducao = traducaoPtBr || '';
+
+  // Procura por termos entre aspas no enunciado (ex: "gûaîbĩ", 'tesá', etc.)
+  const matchAspas = textoEnunciado.match(/["'“‘]([^"'”’]+)["'”’]/);
+  const termoEntreAspas = matchAspas ? matchAspas[1].trim() : '';
+
+  // Detecta se a pergunta pede a tradução em português de uma palavra Tupi
+  const ehPerguntaTupiParaPt =
+    /em português|em portugues|o que significa|qual o significado|qual a tradução/i.test(textoEnunciado);
+
+  let termoTupi = '';
+  let traducaoPt = '';
+
+  if (ehPerguntaTupiParaPt && termoEntreAspas) {
+    // Ex: O que significa a palavra "gûaîbĩ" em português?
+    // A palavra indígena em Tupi está nas aspas do enunciado!
+    termoTupi = termoEntreAspas;
+    traducaoPt = resposta || traducao;
+  } else {
+    // Ex: Como se diz "olho" em Tupi?
+    // A palavra em Tupi é a resposta correta escolhida
+    termoTupi = foneticaLimpa || resposta;
+    traducaoPt = termoEntreAspas || traducao;
+  }
+
+  // Se a fonética tem caracteres distintivos do Tupi, ela é muito confiável
+  if (foneticaLimpa && /[\^~ïĩẽũỹîûñx]/i.test(foneticaLimpa)) {
+    termoTupi = foneticaLimpa;
+  }
+
+  // Fallbacks de segurança
+  if (!termoTupi) {
+    termoTupi = termoEntreAspas || foneticaLimpa || resposta;
+  }
+  if (!traducaoPt) {
+    traducaoPt = traducao || (ehPerguntaTupiParaPt ? resposta : termoEntreAspas);
+  }
+
+  return { termoTupi, traducaoPt };
+}

@@ -14,7 +14,8 @@ import {
   Loader2,
   AlertCircle,
   HelpCircle,
-  Zap
+  Zap,
+  Hourglass
 } from 'lucide-react';
 import ReactConfetti from 'react-confetti';
 import {
@@ -51,6 +52,7 @@ export function ArenaAlunoView({ pinParam }: ArenaAlunoViewProps) {
   const [opcaoEscolhidaLocal, setOpcaoEscolhidaLocal] = useState<string | null>(null);
   const [respondendo, setRespondendo] = useState(false);
   const [questaoInicioTimestamp, setQuestaoInicioTimestamp] = useState<number>(Date.now());
+  const [tempoRestanteAluno, setTempoRestanteAluno] = useState<number | null>(null);
   const [windowDimensions, setWindowDimensions] = useState({ width: 400, height: 700 });
 
   const estadoRef = useRef<EstadoArenaResponseDTO | null>(null);
@@ -77,7 +79,6 @@ export function ArenaAlunoView({ pinParam }: ArenaAlunoViewProps) {
       if (salvo) {
         const dados = JSON.parse(salvo);
         if (dados.pin && dados.participanteId && dados.apelido) {
-          // Se houver um PIN na rota diferente da sessão salva, não restaura
           if (!pinInicial || pinInicial === dados.pin) {
             setPin(dados.pin);
             setApelido(dados.apelido);
@@ -108,6 +109,15 @@ export function ArenaAlunoView({ pinParam }: ArenaAlunoViewProps) {
           questaoIndexRef.current = dados.perguntaAtualIndex;
           setOpcaoEscolhidaLocal(null);
           setQuestaoInicioTimestamp(Date.now());
+        }
+
+        // Sincroniza o tempo restante do aluno
+        if (dados.status === 'PERGUNTA_ATIVA') {
+          if (dados.tempoRestanteSegundos !== null && dados.tempoRestanteSegundos !== undefined) {
+            setTempoRestanteAluno(dados.tempoRestanteSegundos);
+          }
+        } else {
+          setTempoRestanteAluno(null);
         }
 
         // Feedback sonoro para transição de status
@@ -143,6 +153,24 @@ export function ArenaAlunoView({ pinParam }: ArenaAlunoViewProps) {
       clearTimeout(timeoutId);
     };
   }, [conectado, pin, participanteId]);
+
+  // Contagem regressiva suave no celular do aluno
+  useEffect(() => {
+    if (estado?.status !== 'PERGUNTA_ATIVA') {
+      setTempoRestanteAluno(null);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setTempoRestanteAluno((prev) => {
+        if (prev === null) return null;
+        if (prev <= 1) return 0;
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [estado?.status, estado?.perguntaAtualIndex]);
 
   // Ação: Entrar na Sala
   const handleEntrar = async (e: React.FormEvent) => {
@@ -189,9 +217,11 @@ export function ArenaAlunoView({ pinParam }: ArenaAlunoViewProps) {
     }
   };
 
+  const tempoEsgotado = tempoRestanteAluno !== null && tempoRestanteAluno <= 0;
+
   // Ação: Enviar Resposta
   const handleResponder = async (opcao: string) => {
-    if (respondendo || opcaoEscolhidaLocal || !participanteId || !pin) return;
+    if (respondendo || opcaoEscolhidaLocal || !participanteId || !pin || tempoEsgotado) return;
 
     try {
       setRespondendo(true);
@@ -299,7 +329,7 @@ export function ArenaAlunoView({ pinParam }: ArenaAlunoViewProps) {
             <button
               type="submit"
               disabled={entrando || !pin || !apelido}
-              className="w-full py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:translate-y-0.5 text-white font-black text-lg shadow-xl shadow-emerald-700/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all border-b-4 border-emerald-800 flex items-center justify-center gap-2"
+              className="w-full py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:translate-y-0.5 text-white font-black text-lg shadow-xl shadow-emerald-700/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all border-b-4 border-emerald-800 flex items-center justify-center gap-2 cursor-pointer"
             >
               {entrando ? (
                 <>
@@ -330,6 +360,9 @@ export function ArenaAlunoView({ pinParam }: ArenaAlunoViewProps) {
   // ========================================================
   const jaRespondeu =
     opcaoEscolhidaLocal !== null || Boolean(estado?.meuStatus?.jaRespondeuEstaQuestao);
+
+  const totalQuestoesVisual = estado?.totalQuestoes || 1;
+  const questaoNumeroAluno = Math.min((estado?.perguntaAtualIndex || 0) + 1, totalQuestoesVisual);
 
   return (
     <div className="min-h-screen bg-stone-950 text-white flex flex-col font-sans select-none relative overflow-x-hidden">
@@ -367,7 +400,7 @@ export function ArenaAlunoView({ pinParam }: ArenaAlunoViewProps) {
 
           <button
             onClick={handleSair}
-            className="p-1.5 text-stone-400 hover:text-rose-400 rounded-lg"
+            className="p-1.5 text-stone-400 hover:text-rose-400 rounded-lg cursor-pointer"
             title="Sair da sala"
           >
             <LogOut className="w-4 h-4" />
@@ -419,14 +452,34 @@ export function ArenaAlunoView({ pinParam }: ArenaAlunoViewProps) {
           <div className="space-y-4 py-2 flex-1 flex flex-col justify-between">
             {/* Indicador de Questão */}
             <div className="flex items-center justify-between text-xs font-bold text-stone-400">
-              <span>Questão {estado.perguntaAtualIndex + 1} de {estado.totalQuestoes}</span>
-              <span className="text-amber-400 flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5" /> Fique atento à lousa!
+              <span>Questão {questaoNumeroAluno} de {totalQuestoesVisual}</span>
+              <span className={`flex items-center gap-1 ${tempoEsgotado ? 'text-rose-400' : 'text-amber-400'}`}>
+                <Clock className="w-3.5 h-3.5" />
+                {tempoRestanteAluno !== null ? `${tempoRestanteAluno}s restantes` : 'Fique atento!'}
               </span>
             </div>
 
-            {/* SE O ALUNO AINDA NÃO RESPONDEU: BOTÕES GIGANTES TÁTEIS */}
-            {!jaRespondeu ? (
+            {/* SE O TEMPO ESGOTOU E O ALUNO NÃO RESPONDEU */}
+            {tempoEsgotado && !jaRespondeu ? (
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="flex-1 flex flex-col items-center justify-center text-center space-y-4 bg-stone-900/90 border-2 border-rose-800/60 rounded-3xl p-8"
+              >
+                <div className="w-16 h-16 rounded-full bg-rose-950/80 border-2 border-rose-500 flex items-center justify-center text-rose-400">
+                  <Hourglass className="w-8 h-8 animate-pulse" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-xl font-black text-white">
+                    Tempo Esgotado!
+                  </h3>
+                  <p className="text-xs text-stone-400">
+                    O tempo para responder esta questão acabou. Olhe para a lousa para ver o resultado...
+                  </p>
+                </div>
+              </motion.div>
+            ) : !jaRespondeu ? (
+              /* SE O ALUNO AINDA NÃO RESPONDEU E O TEMPO ESTÁ ATIVO */
               <div className="grid grid-cols-2 gap-3.5 flex-1 min-h-[320px]">
                 {OPCOES_TEMA.map((tema) => (
                   <motion.button
@@ -436,8 +489,8 @@ export function ArenaAlunoView({ pinParam }: ArenaAlunoViewProps) {
                       const opcaoTexto = estado.opcoes?.[tema.index] || `Opção ${tema.letra}`;
                       handleResponder(opcaoTexto);
                     }}
-                    disabled={respondendo}
-                    className={`${tema.corBg} active:brightness-90 rounded-3xl flex flex-col items-center justify-center p-4 border-b-6 ${tema.corBorder} shadow-xl text-white transition-all`}
+                    disabled={respondendo || tempoEsgotado}
+                    className={`${tema.corBg} active:brightness-90 rounded-3xl flex flex-col items-center justify-center p-4 border-b-6 ${tema.corBorder} shadow-xl text-white transition-all cursor-pointer`}
                   >
                     <span className="text-4xl md:text-5xl mb-2">{tema.simbolo}</span>
                     <span className="text-base font-black tracking-wide">
@@ -595,7 +648,7 @@ export function ArenaAlunoView({ pinParam }: ArenaAlunoViewProps) {
                 <div className="p-3 bg-stone-950 rounded-xl">
                   <span className="text-[10px] text-stone-400 block font-semibold">Acertos</span>
                   <span className="text-lg font-mono font-black text-amber-400">
-                    {estado.meuStatus?.acertos || 0} de {estado.totalQuestoes}
+                    {estado.meuStatus?.acertos || 0} de {totalQuestoesVisual}
                   </span>
                 </div>
               </div>
@@ -603,7 +656,7 @@ export function ArenaAlunoView({ pinParam }: ArenaAlunoViewProps) {
 
             <button
               onClick={handleSair}
-              className="w-full py-3.5 bg-stone-800 hover:bg-stone-700 text-white font-bold rounded-2xl transition-all"
+              className="w-full py-3.5 bg-stone-800 hover:bg-stone-700 text-white font-bold rounded-2xl transition-all cursor-pointer"
             >
               Voltar ao Início
             </button>
@@ -613,4 +666,3 @@ export function ArenaAlunoView({ pinParam }: ArenaAlunoViewProps) {
     </div>
   );
 }
-
