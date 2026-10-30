@@ -112,9 +112,12 @@ export function extrairTermosQuestao(
   const foneticaLimpa = fonetica ? fonetica.replace(/[\[\]]/g, '').trim() : '';
   const traducao = traducaoPtBr || '';
 
-  // Procura por termos entre aspas no enunciado (ex: "gûaîbĩ", 'tesá', etc.)
-  const matchAspas = textoEnunciado.match(/["'“‘]([^"'”’]+)["'”’]/);
-  const termoEntreAspas = matchAspas ? matchAspas[1].trim() : '';
+  // Procura por termos entre aspas no enunciado respeitando os pares de aspas, para não truncar
+  // palavras que contêm apóstrofos/oclusivas glotais (ex: "t'ereiur!", "nhe'eng", "'y", etc.)
+  const matchAspas = textoEnunciado.match(/"([^"]+)"|“([^”]+)”|«([^»]+)»|'([^']+)'|‘([^’]+)’/);
+  const termoEntreAspas = matchAspas
+    ? (matchAspas[1] || matchAspas[2] || matchAspas[3] || matchAspas[4] || matchAspas[5]).trim()
+    : '';
 
   // Detecta se a pergunta pede a tradução em português de uma palavra Tupi
   const ehPerguntaTupiParaPt =
