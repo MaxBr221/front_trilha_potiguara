@@ -27,7 +27,8 @@ import {
   ArcoFlechaIcon,
   TriboIcon,
   GuerreiroIcon,
-  MaracaIcon
+  MaracaIcon,
+  ArenaBatalhaIcon
 } from '@/components/icons/IndigenousIcons';
 
 const indigenousIconsMap: Record<string, React.ElementType> = {
@@ -39,7 +40,8 @@ const indigenousIconsMap: Record<string, React.ElementType> = {
   ArcoFlechaIcon,
   TriboIcon,
   GuerreiroIcon,
-  MaracaIcon
+  MaracaIcon,
+  ArenaBatalhaIcon
 };
 
 const renderConquistaIcon = (iconeName: string) => {
@@ -128,7 +130,7 @@ export default function DashboardPage() {
 
             <h2 className="text-2xl md:text-3xl font-black text-white flex items-center gap-3">
               <span className="p-2 bg-emerald-700/80 rounded-2xl border border-emerald-500/40">
-                <ArcoFlechaIcon className="w-6 h-6 text-amber-300" />
+                <ArenaBatalhaIcon className="w-6 h-6 text-amber-300" />
               </span>
               Tupi Arena: Batalha ao Vivo
             </h2>
@@ -141,16 +143,16 @@ export default function DashboardPage() {
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
             <Link
               href="/arena/criar"
-              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 active:translate-y-0.5 text-stone-950 font-black text-sm md:text-base shadow-lg transition-all flex items-center justify-center gap-2 border-b-4 border-amber-600"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 active:translate-y-0.5 text-stone-950 font-black text-sm md:text-base shadow-lg transition-all flex items-center justify-center gap-2 border-b-4 border-amber-600 cursor-pointer"
             >
-              <ArcoFlechaIcon className="w-5 h-5" />
+              <ArenaBatalhaIcon className="w-5 h-5" />
               Criar Sala (Professor)
             </Link>
 
             <button
               type="button"
               onClick={() => setModalPinAberto(true)}
-              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 active:translate-y-0.5 text-white font-bold text-sm md:text-base border border-white/20 backdrop-blur-sm transition-all flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 active:translate-y-0.5 text-white font-bold text-sm md:text-base border border-white/20 backdrop-blur-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <Play className="w-4 h-4 fill-current" />
               Entrar com PIN (Aluno)
@@ -346,14 +348,14 @@ export default function DashboardPage() {
             >
               <button
                 onClick={() => setModalPinAberto(false)}
-                className="absolute top-5 right-5 p-1 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 rounded-lg"
+                className="absolute top-5 right-5 p-1 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 rounded-lg cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
 
               <div className="text-center space-y-2">
                 <div className="w-14 h-14 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
-                  <ArcoFlechaIcon className="w-7 h-7" />
+                  <ArenaBatalhaIcon className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-black text-stone-900 dark:text-stone-100">
                   Entrar na Tupi Arena
@@ -380,7 +382,7 @@ export default function DashboardPage() {
                 <button
                   type="submit"
                   disabled={!pinAluno.trim()}
-                  className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:translate-y-0.5 text-white font-extrabold text-base shadow-md disabled:opacity-50 transition-all flex items-center justify-center gap-2 border-b-4 border-emerald-800"
+                  className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:translate-y-0.5 text-white font-extrabold text-base shadow-md disabled:opacity-50 transition-all flex items-center justify-center gap-2 border-b-4 border-emerald-800 cursor-pointer"
                 >
                   Continuar para a Arena
                   <ArrowRight className="w-5 h-5" />

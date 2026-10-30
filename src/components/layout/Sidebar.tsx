@@ -3,7 +3,15 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LogOut } from 'lucide-react';
-import { OcaIcon, ArcoFlechaIcon, CocarIcon, GuerreiroIcon, MaracaIcon, TriboIcon } from '@/components/icons/IndigenousIcons';
+import {
+  OcaIcon,
+  ArcoFlechaIcon,
+  CocarIcon,
+  GuerreiroIcon,
+  MaracaIcon,
+  TriboIcon,
+  ArenaBatalhaIcon
+} from '@/components/icons/IndigenousIcons';
 import { useAutenticacao } from '@/contexts/ContextoAutenticacao';
 import Image from 'next/image';
 
@@ -14,7 +22,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () =>
   const links = [
     { name: 'Dashboard', href: '/dashboard', icon: OcaIcon },
     { name: 'Trilhas', href: '/trilhas', icon: ArcoFlechaIcon },
-    { name: 'Tupi Arena', href: '/arena/criar', icon: ArcoFlechaIcon, tag: 'Novo' },
+    { name: 'Tupi Arena', href: '/arena/criar', icon: ArenaBatalhaIcon, tag: 'Novo' },
     { name: 'Conquistas', href: '/conquistas', icon: CocarIcon },
     { name: 'Amigos', href: '/amigos', icon: TriboIcon },
     { name: 'Perfil', href: '/perfil', icon: GuerreiroIcon },

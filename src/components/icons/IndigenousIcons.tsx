@@ -98,3 +98,19 @@ export const MachadoIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <path d="M18 6a2 2 0 0 0-2-2h-3l-2 4h4a2 2 0 0 0 3-2z" />
   </svg>
 );
+
+export const ArenaBatalhaIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    {/* Lanças de batalha cruzadas (símbolo exclusivo da Tupi Arena) */}
+    <path d="M4 20L20 4" />
+    <path d="M20 20L4 4" />
+    {/* Pontas das lanças */}
+    <path d="M15 4h5v5" />
+    <path d="M4 9V4h5" />
+    {/* Penas da base */}
+    <path d="M4 16l3 4" />
+    <path d="M20 16l-3 4" />
+    {/* Nó / Grafismo central */}
+    <circle cx="12" cy="12" r="2.5" />
+  </svg>
+);

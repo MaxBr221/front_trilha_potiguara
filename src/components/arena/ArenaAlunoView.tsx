@@ -26,7 +26,7 @@ import {
 } from '@/services/servicoArena';
 import { OPCOES_TEMA, TITULOS_PODIO } from '@/utils/arenaTheme';
 import { arenaAudio } from '@/utils/arenaAudio';
-import { ArcoFlechaIcon, CocarIcon } from '@/components/icons/IndigenousIcons';
+import { ArenaBatalhaIcon, CocarIcon } from '@/components/icons/IndigenousIcons';
 
 interface ArenaAlunoViewProps {
   pinParam?: string;
@@ -274,7 +274,7 @@ export function ArenaAlunoView({ pinParam }: ArenaAlunoViewProps) {
 
         <div className="relative z-10 max-w-md mx-auto w-full pt-8 pb-4 text-center">
           <div className="inline-flex p-3 bg-emerald-600 rounded-3xl shadow-xl shadow-emerald-700/30 text-white mb-4">
-            <ArcoFlechaIcon className="w-10 h-10" />
+            <ArenaBatalhaIcon className="w-10 h-10" />
           </div>
           <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white">
             TUPI ARENA

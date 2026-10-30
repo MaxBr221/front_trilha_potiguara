@@ -20,7 +20,7 @@ import {
   Check
 } from 'lucide-react';
 import { servicoArena, TrilhaArenaDTO, CriarArenaResponseDTO } from '@/services/servicoArena';
-import { ArcoFlechaIcon, CocarIcon } from '@/components/icons/IndigenousIcons';
+import { ArenaBatalhaIcon, CocarIcon } from '@/components/icons/IndigenousIcons';
 import Link from 'next/link';
 
 export default function CriarArenaPage() {
@@ -177,7 +177,7 @@ export default function CriarArenaPage() {
 
           <h1 className="text-2xl md:text-3xl font-extrabold text-stone-900 dark:text-stone-100 flex items-center gap-3">
             <span className="p-2 bg-emerald-600 text-white rounded-2xl shadow-md">
-              <ArcoFlechaIcon className="w-6 h-6" />
+              <ArenaBatalhaIcon className="w-6 h-6" />
             </span>
             Criar Sala da Tupi Arena
           </h1>

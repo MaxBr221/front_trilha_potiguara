@@ -27,7 +27,7 @@ import ReactConfetti from 'react-confetti';
 import { servicoArena, EstadoArenaResponseDTO } from '@/services/servicoArena';
 import { OPCOES_TEMA, extrairTermosQuestao } from '@/utils/arenaTheme';
 import { arenaAudio } from '@/utils/arenaAudio';
-import { ArcoFlechaIcon, CocarIcon } from '@/components/icons/IndigenousIcons';
+import { ArenaBatalhaIcon, CocarIcon } from '@/components/icons/IndigenousIcons';
 
 export default function ArenaHostPage({ params }: { params: Promise<{ pin: string }> }) {
   const resolvedParams = use(params);
@@ -352,7 +352,7 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
       <header className="relative z-20 h-16 px-6 bg-stone-900/80 backdrop-blur-md border-b border-stone-800 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-emerald-600 text-white rounded-xl shadow-md">
-            <ArcoFlechaIcon className="w-5 h-5" />
+            <ArenaBatalhaIcon className="w-5 h-5" />
           </div>
           <div>
             <span className="font-extrabold text-base tracking-wide text-emerald-400">
