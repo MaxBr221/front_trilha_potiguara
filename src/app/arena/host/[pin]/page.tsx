@@ -348,18 +348,18 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
         </div>
       )}
 
-      {/* Barra de Controle do Telão */}
-      <header className="relative z-20 h-16 px-6 bg-stone-900/80 backdrop-blur-md border-b border-stone-800 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-emerald-600 text-white rounded-xl shadow-md">
-            <ArenaBatalhaIcon className="w-5 h-5" />
+      {/* Barra de Controle do Telão (Responsiva para Celular, Tablet, Notebook e Projetor) */}
+      <header className="relative z-20 h-16 px-4 md:px-6 bg-stone-900/80 backdrop-blur-md border-b border-stone-800 flex items-center justify-between">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          <div className="p-1.5 sm:p-2 bg-emerald-600 text-white rounded-xl shadow-md shrink-0">
+            <ArenaBatalhaIcon className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
-          <div>
-            <span className="font-extrabold text-base tracking-wide text-emerald-400">
+          <div className="min-w-0">
+            <span className="font-extrabold text-sm sm:text-base tracking-wide text-emerald-400">
               TUPI ARENA
             </span>
-            <span className="mx-2 text-stone-600">•</span>
-            <span className="text-xs md:text-sm font-semibold text-stone-300">
+            <span className="mx-1.5 sm:mx-2 text-stone-600">•</span>
+            <span className="text-xs sm:text-sm font-semibold text-stone-300 truncate inline-block max-w-[110px] sm:max-w-[200px] md:max-w-md align-bottom">
               {estado?.titulo || 'Batalha do Conhecimento'}
             </span>
           </div>
@@ -429,13 +429,13 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
                   <span className="text-xs uppercase tracking-widest font-extrabold text-stone-500">
                     CÓDIGO PIN DA SALA
                   </span>
-                  <div className="flex items-center justify-center lg:justify-start gap-4">
-                    <span className="text-5xl md:text-7xl font-black tracking-widest text-white font-mono bg-stone-950 px-6 py-2 rounded-2xl border-2 border-amber-500/80 shadow-[0_0_30px_rgba(245,158,11,0.25)]">
+                  <div className="flex items-center justify-center lg:justify-start gap-2 sm:gap-4 flex-wrap sm:flex-nowrap">
+                    <span className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-wider sm:tracking-widest text-white font-mono bg-stone-950 px-4 sm:px-6 py-2 rounded-2xl border-2 border-amber-500/80 shadow-[0_0_30px_rgba(245,158,11,0.25)]">
                       {formatarPin(pin)}
                     </span>
                     <button
                       onClick={copiarLinkEntrada}
-                      className="p-3 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-xl transition-all cursor-pointer"
+                      className="p-3 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-xl transition-all cursor-pointer shrink-0"
                       title="Copiar Link"
                     >
                       {copiado ? <Check className="w-5 h-5 text-emerald-400" /> : <Copy className="w-5 h-5" />}
@@ -777,7 +777,7 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
                 )}
               </div>
 
-              <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto justify-end">
                 {/* Botão de Pular Placar / Ir Direto para a Próxima Pergunta ou Pódio Final */}
                 {ehUltimaQuestao ? (
                   <button

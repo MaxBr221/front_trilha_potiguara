@@ -379,20 +379,20 @@ export function ArenaAlunoView({ pinParam }: ArenaAlunoViewProps) {
 
       {/* Topo do Aluno: Apelido + Pontos + Posição */}
       <header className="h-14 px-4 bg-stone-900/90 border-b border-stone-800 flex items-center justify-between sticky top-0 z-30">
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="font-extrabold text-sm text-stone-200 truncate max-w-[140px]">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+          <span className="font-extrabold text-sm text-stone-200 truncate max-w-[120px] sm:max-w-[200px] md:max-w-xs">
             {apelido}
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
           {estado?.meuStatus && (
-            <div className="flex items-center gap-2 text-xs font-mono">
-              <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg font-bold">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs font-mono">
+              <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg font-bold text-[11px] sm:text-xs">
                 {estado.meuStatus.pontuacaoTotal} pts
               </span>
-              <span className="px-2 py-0.5 bg-stone-800 text-stone-300 rounded-lg font-bold">
+              <span className="px-2 py-0.5 bg-stone-800 text-stone-300 rounded-lg font-bold text-[11px] sm:text-xs">
                 #{estado.meuStatus.posicao}º
               </span>
             </div>
@@ -408,8 +408,8 @@ export function ArenaAlunoView({ pinParam }: ArenaAlunoViewProps) {
         </div>
       </header>
 
-      {/* Conteúdo Central da Tela do Aluno */}
-      <main className="flex-1 flex flex-col justify-center p-4 max-w-md mx-auto w-full">
+      {/* Conteúdo Central da Tela do Aluno (Responsivo para Celular, Tablet e Notebook) */}
+      <main className="flex-1 flex flex-col justify-center p-3 sm:p-5 md:p-8 max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-3xl mx-auto w-full">
         {/* ======================================================== */}
         {/* ESTADO 1: LOBBY */}
         {/* ======================================================== */}
@@ -480,20 +480,20 @@ export function ArenaAlunoView({ pinParam }: ArenaAlunoViewProps) {
               </motion.div>
             ) : !jaRespondeu ? (
               /* SE O ALUNO AINDA NÃO RESPONDEU E O TEMPO ESTÁ ATIVO */
-              <div className="grid grid-cols-2 gap-3.5 flex-1 min-h-[320px]">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-5 flex-1 min-h-[260px] sm:min-h-[320px] md:min-h-[380px]">
                 {OPCOES_TEMA.map((tema) => (
                   <motion.button
                     key={tema.index}
-                    whileTap={{ scale: 0.93 }}
+                    whileTap={{ scale: 0.94 }}
                     onClick={() => {
                       const opcaoTexto = estado.opcoes?.[tema.index] || `Opção ${tema.letra}`;
                       handleResponder(opcaoTexto);
                     }}
                     disabled={respondendo || tempoEsgotado}
-                    className={`${tema.corBg} active:brightness-90 rounded-3xl flex flex-col items-center justify-center p-4 border-b-6 ${tema.corBorder} shadow-xl text-white transition-all cursor-pointer`}
+                    className={`${tema.corBg} active:brightness-90 rounded-2xl sm:rounded-3xl flex flex-col items-center justify-center p-3 sm:p-5 md:p-6 border-b-4 sm:border-b-6 ${tema.corBorder} shadow-xl text-white transition-all cursor-pointer`}
                   >
-                    <span className="text-4xl md:text-5xl mb-2">{tema.simbolo}</span>
-                    <span className="text-base font-black tracking-wide">
+                    <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-1 sm:mb-2">{tema.simbolo}</span>
+                    <span className="text-sm sm:text-base md:text-lg font-black tracking-wide">
                       {tema.nomeSimbolo}
                     </span>
                   </motion.button>

@@ -187,7 +187,7 @@ export default function CriarArenaPage() {
         </div>
 
         {/* Card Dinâmico no Topo (Desktop / Mobile Sticky) */}
-        <div className="bg-gradient-to-br from-emerald-800 to-emerald-950 text-white p-4 rounded-2xl shadow-lg border border-emerald-700/50 flex items-center gap-5">
+        <div className="bg-gradient-to-br from-emerald-800 to-emerald-950 text-white p-4 rounded-2xl shadow-lg border border-emerald-700/50 flex items-center justify-around sm:justify-center gap-4 sm:gap-6 w-full md:w-auto shrink-0">
           <div className="text-center px-2">
             <span className="text-xs uppercase tracking-wider text-emerald-300 font-semibold block">Questões</span>
             <span className="text-2xl md:text-3xl font-black text-amber-300">
