@@ -114,7 +114,9 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
       } finally {
         if (ativo) {
           setCarregandoInicial(false);
-          timeoutId = setTimeout(fetchEstado, 1500);
+          // Durante a pergunta ativa, reduz para 750ms para contabilizar as respostas dos alunos quase em tempo real
+          const intervalo = estadoRef.current?.status === 'PERGUNTA_ATIVA' ? 750 : 1500;
+          timeoutId = setTimeout(fetchEstado, intervalo);
         }
       }
     };
@@ -205,22 +207,7 @@ export default function ArenaHostPage({ params }: { params: Promise<{ pin: strin
     }
   }, [tempoRestanteVisual, estado?.status]);
 
-  // Auto-avança para REVELAÇÃO se todos os participantes responderam antes do tempo acabar
-  useEffect(() => {
-    if (
-      estado?.status === 'PERGUNTA_ATIVA' &&
-      estado.totalParticipantes > 0 &&
-      estado.totalRespostasRecebidas >= estado.totalParticipantes &&
-      !transicaoBloqueadaRef.current
-    ) {
-      const timeout = setTimeout(() => {
-        if (estadoRef.current?.status === 'PERGUNTA_ATIVA' && !transicaoBloqueadaRef.current) {
-          avancarEtapaRef.current();
-        }
-      }, 800);
-      return () => clearTimeout(timeout);
-    }
-  }, [estado?.status, estado?.totalRespostasRecebidas, estado?.totalParticipantes]);
+
 
   // Pular o Placar e ir direto para a Próxima Pergunta de forma atômica
   const pularDiretoProximaQuestao = useCallback(async () => {

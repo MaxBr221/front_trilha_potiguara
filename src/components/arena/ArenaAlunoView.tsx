@@ -141,7 +141,8 @@ export function ArenaAlunoView({ pinParam }: ArenaAlunoViewProps) {
         console.error('Erro no polling do aluno:', err);
       } finally {
         if (ativo) {
-          timeoutId = setTimeout(fetchEstado, 1500);
+          const intervalo = estadoRef.current?.status === 'PERGUNTA_ATIVA' ? 1000 : 1500;
+          timeoutId = setTimeout(fetchEstado, intervalo);
         }
       }
     };
