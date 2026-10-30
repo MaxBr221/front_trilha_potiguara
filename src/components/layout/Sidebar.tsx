@@ -14,6 +14,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () =>
   const links = [
     { name: 'Dashboard', href: '/dashboard', icon: OcaIcon },
     { name: 'Trilhas', href: '/trilhas', icon: ArcoFlechaIcon },
+    { name: 'Tupi Arena', href: '/arena/criar', icon: ArcoFlechaIcon, tag: 'Novo' },
     { name: 'Conquistas', href: '/conquistas', icon: CocarIcon },
     { name: 'Amigos', href: '/amigos', icon: TriboIcon },
     { name: 'Perfil', href: '/perfil', icon: GuerreiroIcon },
@@ -48,14 +49,21 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () =>
               key={link.name}
               href={link.href}
               onClick={() => onClose && onClose()}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
+              className={`flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-colors ${
                 isActive
                   ? 'bg-white/20 text-white font-bold'
                   : 'text-white/80 hover:bg-white/10 hover:text-white'
               }`}
             >
-              <Icon className="w-5 h-5" />
-              {link.name}
+              <div className="flex items-center gap-3">
+                <Icon className="w-5 h-5" />
+                <span>{link.name}</span>
+              </div>
+              {link.tag && (
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-400 text-stone-900 shadow-sm animate-pulse">
+                  {link.tag}
+                </span>
+              )}
             </Link>
           );
         })}

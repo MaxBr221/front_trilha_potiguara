@@ -104,8 +104,9 @@ api.interceptors.response.use(
         }
 
         const isLicaoRoute = pathname.startsWith('/licoes/');
+        const isArenaRoute = pathname.startsWith('/arena');
         // 3. Quando for deslogar por 401 legítimo em rotas protegidas, limpe tudo antes de redirecionar
-        if (!isLicaoRoute) {
+        if (!isLicaoRoute && !isArenaRoute) {
           limparSessaoCompleta();
           delete api.defaults.headers.common['Authorization'];
           window.location.href = '/login';

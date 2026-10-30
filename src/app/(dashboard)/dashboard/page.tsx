@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Play, Book, CheckCircle2, Trophy, Loader2, AlertCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import { Play, Book, CheckCircle2, Trophy, Loader2, AlertCircle, Sparkles, X, ArrowRight, Swords } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import * as LucideIcons from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
@@ -54,6 +55,10 @@ const renderConquistaIcon = (iconeName: string) => {
 };
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const [modalPinAberto, setModalPinAberto] = useState(false);
+  const [pinAluno, setPinAluno] = useState('');
+
   const { data: trilhas = [], isLoading: carregandoTrilhas } = useQuery({
     queryKey: ['trails'],
     queryFn: servicoTrilha.obterTrilhas
@@ -66,6 +71,14 @@ export default function DashboardPage() {
 
   const carregando = carregandoTrilhas || carregandoDashboard;
   const erro = isError ? 'Não foi possível carregar os dados. Tente novamente mais tarde.' : '';
+
+  const handleEntrarComPin = (e: React.FormEvent) => {
+    e.preventDefault();
+    const pinLimpo = pinAluno.replace(/\s+/g, '').trim();
+    if (pinLimpo) {
+      router.push(`/arena?pin=${pinLimpo}`);
+    }
+  };
 
   if (carregando) {
     return (
@@ -102,6 +115,49 @@ export default function DashboardPage() {
           <span className="font-bold">{erro}</span>
         </div>
       )}
+
+      {/* CARD SPOTLIGHT: TUPI ARENA */}
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-900 via-emerald-800 to-stone-900 text-white p-6 md:p-8 shadow-xl border-2 border-emerald-600/50">
+        <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-15 pointer-events-none bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-400 to-transparent" />
+        
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-3 max-w-xl">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400 text-stone-950 font-black text-xs uppercase tracking-wider shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 fill-current" /> Novo / Sala de Aula
+            </div>
+
+            <h2 className="text-2xl md:text-3xl font-black text-white flex items-center gap-3">
+              <span className="p-2 bg-emerald-700/80 rounded-2xl border border-emerald-500/40">
+                <ArcoFlechaIcon className="w-6 h-6 text-amber-300" />
+              </span>
+              Tupi Arena: Batalha ao Vivo
+            </h2>
+
+            <p className="text-sm md:text-base text-emerald-100/90 leading-relaxed">
+              Transforme sua sala de aula em uma arena de quiz interativa estilo Kahoot com temas e saberes da cultura indígena!
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+            <Link
+              href="/arena/criar"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 active:translate-y-0.5 text-stone-950 font-black text-sm md:text-base shadow-lg transition-all flex items-center justify-center gap-2 border-b-4 border-amber-600"
+            >
+              <ArcoFlechaIcon className="w-5 h-5" />
+              Criar Sala (Professor)
+            </Link>
+
+            <button
+              type="button"
+              onClick={() => setModalPinAberto(true)}
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 active:translate-y-0.5 text-white font-bold text-sm md:text-base border border-white/20 backdrop-blur-sm transition-all flex items-center justify-center gap-2"
+            >
+              <Play className="w-4 h-4 fill-current" />
+              Entrar com PIN (Aluno)
+            </button>
+          </div>
+        </div>
+      </section>
 
       {primeiraTrilha && (
         <section className="bg-white dark:bg-stone-900 border-2 border-b-[6px] border-stone-200 dark:border-stone-800 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 transition-all duration-200 hover:-translate-y-1 hover:border-b-[8px] active:translate-y-1 active:border-b-2">
@@ -277,6 +333,63 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Modal Rápido: Entrar com PIN */}
+      <AnimatePresence>
+        {modalPinAberto && (
+          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white dark:bg-stone-900 border-2 border-stone-200 dark:border-stone-800 rounded-3xl p-6 md:p-8 max-w-sm w-full space-y-6 shadow-2xl relative"
+            >
+              <button
+                onClick={() => setModalPinAberto(false)}
+                className="absolute top-5 right-5 p-1 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="text-center space-y-2">
+                <div className="w-14 h-14 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                  <ArcoFlechaIcon className="w-7 h-7" />
+                </div>
+                <h3 className="text-xl font-black text-stone-900 dark:text-stone-100">
+                  Entrar na Tupi Arena
+                </h3>
+                <p className="text-xs text-stone-500 dark:text-stone-400">
+                  Digite o PIN exibido na lousa pelo seu professor:
+                </p>
+              </div>
+
+              <form onSubmit={handleEntrarComPin} className="space-y-4">
+                <input
+                  type="text"
+                  pattern="[0-9]*"
+                  inputMode="numeric"
+                  maxLength={8}
+                  placeholder="Ex: 482910"
+                  autoFocus
+                  value={pinAluno}
+                  onChange={(e) => setPinAluno(e.target.value.replace(/[^0-9]/g, ''))}
+                  className="w-full text-center text-3xl font-mono font-black py-3 px-4 rounded-2xl border-2 border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 tracking-widest focus:border-emerald-500 focus:outline-none"
+                  required
+                />
+
+                <button
+                  type="submit"
+                  disabled={!pinAluno.trim()}
+                  className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:translate-y-0.5 text-white font-extrabold text-base shadow-md disabled:opacity-50 transition-all flex items-center justify-center gap-2 border-b-4 border-emerald-800"
+                >
+                  Continuar para a Arena
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
